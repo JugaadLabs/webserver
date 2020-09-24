@@ -29,11 +29,11 @@ def main():
         print_help()
         return
     command, device, host, port = parse_args(sys.argv)
-    url = "http://"+host+":"+str(port)
+    url = "http://"+host+":"+str(port)+"/"+command[2:]
     timeout = 2
-    print(url+"/"+command[2:])
     payload = {'device': device}
     r = requests.get(url, timeout=timeout, params=payload)
+    print(r.url)
 
 if __name__=="__main__":
     main()

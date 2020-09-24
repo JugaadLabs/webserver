@@ -13,13 +13,31 @@ class URLHandler(object):
         self.config = config
 
     @cherrypy.expose
-    def start(self):
-        return "Started Recording!"
+    def record(self, device=None):
+        if device == 'csi':
+            print(device)
+        elif device == 'zed':
+            print(device)
+        elif device == 'all':
+            print(device)
+        return "OK"
 
     @cherrypy.expose
-    def pause(self):
-        return "Paused Recording!"
+    def pause(self, device=None):
+        if device == 'csi':
+            print(device)
+        elif device == 'zed':
+            print(device)
+        elif device == 'all':
+            print(device)
+        return "OK"
 
     @cherrypy.expose
-    def stop(self):
-        return "Stopped Recording!"
+    def stop(self, device=None):
+        if device == 'csi':
+            print(device)
+        elif device == 'zed':
+            print(device)
+        elif device == 'all':
+            print(device)
+        return "OK"
