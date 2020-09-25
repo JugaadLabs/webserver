@@ -21,7 +21,7 @@ class CSIRecorder(multiprocessing.Process):
     def run(self):
         self.cap = cv2.VideoCapture(self.device)
         now = datetime.datetime.now()
-        filename = now.strftime("%Y-%m-%d-%H-%M-%S")+".avi"
+        filename = now.strftime("CSI_%Y-%m-%d-%H-%M-%S")+".avi"
         print("CSI Camera - recording to " + filename)
         self.out = cv2.VideoWriter(filename, self.fourcc, self.framerate, self.resolution)
         while(self.cap.isOpened() and not self.stopEvent.is_set()):
