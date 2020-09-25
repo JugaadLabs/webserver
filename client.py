@@ -24,7 +24,7 @@ def parse_args(args):
         print_help()
 
 
-def main():
+def main(): 
     if (sys.argv is None or len(sys.argv)< 3):
         print_help()
         return

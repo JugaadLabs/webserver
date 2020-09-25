@@ -22,17 +22,30 @@ def test1():
         print(p.pid)
 
 def test2():
-    p = CSIRecorder()
+    e = multiprocessing.Event()
+    e.clear()
+    p = CSIRecorder(e)
     p.start()
     time.sleep(10)
-    os.kill(p.pid, SIGUSR1)
+    e.set()
+    # os.kill(p.pid, SIGUSR1)
     time.sleep(5)
-    os.kill(p.pid, SIGUSR1)
+    e.clear()
+    # os.kill(p.pid, SIGUSR1)
     time.sleep(10)
     os.kill(p.pid, SIGUSR2)
     p.join()
     print(p.is_alive())
     # os.kill(p.pid, SIGUSR2)
+
+def test3():
+    e = multiprocessing.Event()
+    p = CSIRecorder(e)
+    p.start()
+    for i in range(20):
+        print(e.is_set())
+        time.sleep(0.5)
+    # time.sleep(10)
 
 def main():
     test2()

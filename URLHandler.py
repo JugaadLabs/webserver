@@ -9,8 +9,10 @@ import cherrypy
 import jinja2
 import signal
 from CSIRecorder import CSIRecorder
+import enum
+import multiprocessing
 
-class CameraState(Enum):
+class CameraState(enum.Enum):
     RECORD = 1
     PAUSE = 2
     STOP = 3
@@ -21,36 +23,50 @@ class URLHandler(object):
         self.csiProcess = None
         self.zedProcess = None
 
-    def camera_handler(self, process, cameraClass, command):
-        if process == None:
+        self.csiPause = multiprocessing.Event()
+        self.csiStop = multiprocessing.Event()
+        self.zedPause = multiprocessing.Event()
+        self.zedStop = multiprocessing.Event()
+
+        self.csiPause.clear()
+        self.csiStop.clear()
+        self.zedPause.clear()
+        self.zedPause.clear()
+
+    def camera_handler(self, process, cameraClass, pauseEvent, stopEvent, command):
+        if process == None and command != CameraState.RECORD:
             print("Process not initialized yet!")
-            return
-        if command == CameraState.RECORD:
-            if process.is_alive():
-                print("Camera already active!")
-            else:
-                process = cameraClass()
-                process.start()
-        elif command == CameraState.PAUSE:
-            if process.is_alive():
-                os.kill(process.pid, signal.SIGUSR1)
-            else:
-                print("Camera not started")
-        elif command == CameraState.STOP:
-            if process.is_alive():
-                os.kill(process.pid, signal.SIGUSR2)
-                process.join()
-            else:
-                print("Camera not started")
+        else:
+            if command == CameraState.RECORD:
+                if process is not None and process.is_alive():
+                    print("Camera already active!")
+                else:
+                    stopEvent.clear()
+                    pauseEvent.clear()
+                    process = cameraClass(pauseEvent, stopEvent)
+                    process.start()
+            elif command == CameraState.PAUSE:
+                if process is not None and process.is_alive():
+                    pauseEvent.set()
+                else:
+                    print("Camera not started")
+            elif command == CameraState.STOP:
+                if process is not None and process.is_alive():
+                    stopEvent.set()
+                    process.join()
+                else:
+                    print("Camera not yet started")
+        return process, pauseEvent, stopEvent
 
     def command_handler(self, device, command):
         if device == 'csi':
-            self.camera_handler(self.csiProcess, CSIRecorder, command)
+            self.csiProcess, self.csiPause, self.csiStop = self.camera_handler(self.csiProcess, \
+            CSIRecorder, self.csiPause, self.csiStop, command)
         elif device == 'zed':
-            self.camera_handler(self.zedProcess, CSIRecorder, command)
+            self.camera_handler(self.zedProcess, CSIRecorder, self.csiPause, self.csiStop, command)
         elif device == 'all':
-            self.camera_handler(self.csiProcess, CSIRecorder, command)
-            self.camera_handler(self.zedProcess, CSIRecorder, command)
+            self.csiProcess, self.csiPause, self.csiStop = self.camera_handler(self.csiProcess, CSIRecorder, self.csiPause, self.csiStop, command)
+            self.camera_handler(self.zedProcess, CSIRecorder, self.csiPause, self.csiStop, command)
     
     @cherrypy.expose
     def record(self, device=None):
