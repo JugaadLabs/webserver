@@ -23,6 +23,7 @@ class CSIRecorder(multiprocessing.Process):
         self.cap = cv2.VideoCapture(self.device)
         now = datetime.datetime.now()
         filename = now.strftime("%Y-%m-%d-%H-%M-%S")+".avi"
+        print("CSI Camera - recording to " + filename)
         self.out = cv2.VideoWriter(filename, self.fourcc, self.framerate, self.resolution)
         while(self.cap.isOpened()):
             if self.paused == False:
@@ -38,8 +39,11 @@ class CSIRecorder(multiprocessing.Process):
         # sigusr1 - toggle pause
         # sigusr2 - stop
         if signal_received == signal.SIGUSR1:
+            if self.paused:
+                print("Restarting recording!")
+            else:
+                print("Pausing recording!")
             self.paused = not self.paused
-            print("Toggling Recording!")
         elif signal_received == signal.SIGUSR2:
             self.cap.release()
             self.out.release()

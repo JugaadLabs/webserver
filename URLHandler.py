@@ -8,6 +8,7 @@ import threading
 import cherrypy
 import jinja2
 import signal
+from CSIRecorder import CSIRecorder
 
 class CameraState(Enum):
     RECORD = 1
@@ -21,6 +22,9 @@ class URLHandler(object):
         self.zedProcess = None
 
     def camera_handler(self, process, cameraClass, command):
+        if process == None:
+            print("Process not initialized yet!")
+            return
         if command == CameraState.RECORD:
             if process.is_alive():
                 print("Camera already active!")
@@ -39,32 +43,26 @@ class URLHandler(object):
             else:
                 print("Camera not started")
 
+    def command_handler(self, device, command):
+        if device == 'csi':
+            self.camera_handler(self.csiProcess, CSIRecorder, command)
+        elif device == 'zed':
+            self.camera_handler(self.zedProcess, CSIRecorder, command)
+        elif device == 'all':
+            self.camera_handler(self.csiProcess, CSIRecorder, command)
+            self.camera_handler(self.zedProcess, CSIRecorder, command)
+    
     @cherrypy.expose
     def record(self, device=None):
-        if device == 'csi':
-            print(device)
-        elif device == 'zed':
-            print(device)
-        elif device == 'all':
-            print(device)
+        self.command_handler(device, CameraState.RECORD)
         return "OK"
 
     @cherrypy.expose
     def pause(self, device=None):
-        if device == 'csi':
-            print(device)
-        elif device == 'zed':
-            print(device)
-        elif device == 'all':
-            print(device)
+        self.command_handler(device, CameraState.PAUSE)
         return "OK"
 
     @cherrypy.expose
     def stop(self, device=None):
-        if device == 'csi':
-            print(device)
-        elif device == 'zed':
-            print(device)
-        elif device == 'all':
-            print(device)
+        self.command_handler(device, CameraState.STOP)
         return "OK"
