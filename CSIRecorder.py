@@ -2,10 +2,11 @@ import numpy as np
 import cv2
 import datetime
 import multiprocessing
-from signal import signal, SIGTERM
+import signal
+import time
 
 class CSIRecorder(multiprocessing.Process):
-    def __init__(self, device=0, resolution=(640,480), framerate=30):
+    def __init__(self, device=0, resolution=(640,480), framerate=30, dir=""):
         super(CSIRecorder, self).__init__()
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.device = device
@@ -13,19 +14,33 @@ class CSIRecorder(multiprocessing.Process):
         self.framerate = framerate
         self.cap = None
         self.out = None
+        self.dir = dir
+        self.paused = False
+        signal.signal(signal.SIGUSR1, self.handler)
+        signal.signal(signal.SIGUSR2, self.handler)
 
     def run(self):
         self.cap = cv2.VideoCapture(self.device)
-        self.out = cv2.VideoWriter('output.avi', self.fourcc, self.framerate, self.resolution)
+        now = datetime.datetime.now()
+        filename = now.strftime("%Y-%m-%d-%H-%M-%S")+".avi"
+        self.out = cv2.VideoWriter(filename, self.fourcc, self.framerate, self.resolution)
         while(self.cap.isOpened()):
-            ret, frame = self.cap.read()
-            if ret==True:
-                frame = cv2.flip(frame,0)
-                self.out.write(frame)
+            if self.paused == False:
+                ret, frame = self.cap.read()
+                if ret==True:
+                    self.out.write(frame)
+                else:
+                    break
             else:
-                break
+                time.sleep(0.5)
 
     def handler(self, signal_received, frame):
-        self.cap.release()
-        self.out.release()
-        print("Quitting execution")
+        # sigusr1 - toggle pause
+        # sigusr2 - stop
+        if signal_received == signal.SIGUSR1:
+            self.paused = not self.paused
+            print("Toggling Recording!")
+        elif signal_received == signal.SIGUSR2:
+            self.cap.release()
+            self.out.release()
+            print("Stopped recording!")
