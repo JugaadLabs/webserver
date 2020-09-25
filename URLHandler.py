@@ -9,6 +9,7 @@ import cherrypy
 import jinja2
 import signal
 from CSIRecorder import CSIRecorder
+from ZEDRecorder import ZEDRecorder
 import enum
 import multiprocessing
 
@@ -63,11 +64,14 @@ class URLHandler(object):
             self.csiProcess, self.csiPause, self.csiStop = self.camera_handler(self.csiProcess, \
             CSIRecorder, self.csiPause, self.csiStop, command)
         elif device == 'zed':
-            self.camera_handler(self.zedProcess, CSIRecorder, self.csiPause, self.csiStop, command)
+            self.zedProcess, self.zedPause, self.zedStop = self.camera_handler(self.zedProcess, \
+            ZEDRecorder, self.zedPause, self.zedStop, command)
         elif device == 'all':
-            self.csiProcess, self.csiPause, self.csiStop = self.camera_handler(self.csiProcess, CSIRecorder, self.csiPause, self.csiStop, command)
-            self.camera_handler(self.zedProcess, CSIRecorder, self.csiPause, self.csiStop, command)
-    
+            self.csiProcess, self.csiPause, self.csiStop = self.camera_handler(self.csiProcess, \
+            CSIRecorder, self.csiPause, self.csiStop, command)
+            self.zedProcess, self.zedPause, self.zedStop = self.camera_handler(self.zedProcess, \
+            ZEDRecorder, self.zedPause, self.zedStop, command)
+
     @cherrypy.expose
     def record(self, device=None):
         self.command_handler(device, CameraState.RECORD)

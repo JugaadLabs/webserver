@@ -25,7 +25,7 @@ class ZEDRecorder(multiprocessing.Process):
         print("ZED Camera - recording to " + filename)
 
         cam = sl.Camera()
-        stauts = cam.open(self.initParams)
+        status = cam.open(self.initParams)
         if status != sl.ERROR_CODE.SUCCESS:
             print(repr(status))
         else:
