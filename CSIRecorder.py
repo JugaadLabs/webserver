@@ -24,10 +24,13 @@ class CSIRecorder(multiprocessing.Process):
         filename = now.strftime("CSI_%Y-%m-%d-%H-%M-%S")+".avi"
         print("CSI Camera - recording to " + filename)
         self.out = cv2.VideoWriter(filename, self.fourcc, self.framerate, self.resolution)
+        frames_recorded = 0
         while(self.cap.isOpened() and not self.stopEvent.is_set()):
             if not self.pauseEvent.is_set():
                 ret, frame = self.cap.read()
                 if ret==True:
+                    frames_recorded += 1
+                    print("Frame count: " + str(frames_recorded), end="\r")
                     self.out.write(frame)
                 else:
                     break

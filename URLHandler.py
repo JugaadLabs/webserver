@@ -41,6 +41,9 @@ class URLHandler(object):
             if command == CameraState.RECORD:
                 if process is not None and process.is_alive():
                     print("Camera already active!")
+                    if pauseEvent.is_set():
+                        print("Resuming recording...")
+                        pauseEvent.clear()
                 else:
                     stopEvent.clear()
                     pauseEvent.clear()
@@ -86,3 +89,7 @@ class URLHandler(object):
     def stop(self, device=None):
         self.command_handler(device, CameraState.STOP)
         return "OK"
+
+    @cherrypy.expose
+    def index(self):
+        return "Thanks for coming here, help will be provided soon!"

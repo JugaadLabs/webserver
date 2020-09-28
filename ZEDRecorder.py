@@ -35,8 +35,11 @@ class ZEDRecorder(multiprocessing.Process):
                 print(repr(status))
             else:
                 runtime = sl.RuntimeParameters()
+                frames_recorded = 0
                 while not self.stopEvent.is_set():
                     if not self.pauseEvent.is_set():
+                        frames_recorded += 1
+                        print("Frame count: " + str(frames_recorded), end="\r")
                         cam.grab(runtime)
                 cam.disable_recording()
                 cam.close()
