@@ -8,7 +8,7 @@ import sys
 import pyzed.sl as sl
 
 class ZEDRecorder(multiprocessing.Process):
-    def __init__(self, pauseEvent, stopEvent, resolution=sl.RESOLUTION.HD720, framerate=30, dir=""):
+    def __init__(self, pauseEvent, stopEvent, device=None, resolution=sl.RESOLUTION.HD720, framerate=30, dir=""):
         super(ZEDRecorder, self).__init__()
         self.initParams = sl.InitParameters()
         self.initParams.camera_resolution = sl.RESOLUTION.HD720
@@ -41,6 +41,8 @@ class ZEDRecorder(multiprocessing.Process):
                         frames_recorded += 1
                         print("Frame count: " + str(frames_recorded), end="\r")
                         cam.grab(runtime)
+                    else:
+                        time.sleep(0.5)
                 cam.disable_recording()
                 cam.close()
                 print("Stopped recording!")

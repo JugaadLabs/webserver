@@ -8,6 +8,7 @@ import threading
 import cherrypy
 import jinja2
 from URLHandler import URLHandler
+import sys
 
 class Server(object):
     def run(self, host="127.0.0.1", port=8000):
@@ -21,7 +22,10 @@ class Server(object):
 
 def main(): 
     server = Server()
-    server.run()
+    if len(sys.argv) >= 2:
+        server.run(sys.argv[1])
+    else:
+        server.run()
 
 if __name__=="__main__": 
     main() 

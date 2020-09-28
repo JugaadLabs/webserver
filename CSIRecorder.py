@@ -20,6 +20,8 @@ class CSIRecorder(multiprocessing.Process):
 
     def run(self):
         self.cap = cv2.VideoCapture(self.device)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolution[0])
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
         now = datetime.datetime.now()
         filename = now.strftime("CSI_%Y-%m-%d-%H-%M-%S")+".avi"
         print("CSI Camera - recording to " + filename)
