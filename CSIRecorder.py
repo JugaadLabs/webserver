@@ -38,7 +38,7 @@ class CSIRecorder(multiprocessing.Process):
                 ret, frame = self.cap.read()
                 if ret==True:
                     frames_recorded += 1
-                    print("Frame count: " + str(frames_recorded), end="\r")
+                    print("Frame count CSI: " + str(frames_recorded), end="\r")
                     timestamps.append(time.time())
                     self.out.write(frame)
                 else:
