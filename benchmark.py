@@ -9,14 +9,14 @@ import time
 import os
 import pyzed.sl as sl
 
-def benchmark(res, depth, framerate, time=20):
+def benchmark(res, depth, framerate, t=20):
     pause = multiprocessing.Event()
     stop = multiprocessing.Event()
     pause.clear()
     stop.clear()
     proc = ZEDRecorder(pause, stop, None, res, depth)
     proc.start()
-    time.sleep(time)
+    time.sleep(t)
     stop.set()
     proc.join()
 
