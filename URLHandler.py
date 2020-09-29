@@ -12,6 +12,7 @@ from CSIRecorder import CSIRecorder
 from ZEDRecorder import ZEDRecorder
 import enum
 import multiprocessing
+from templates import Templates
 
 class CameraState(enum.Enum):
     RECORD = 1

@@ -9,6 +9,7 @@ import cherrypy
 import jinja2
 from URLHandler import URLHandler
 import sys
+import netifaces as ni
 
 class Server(object):
     def run(self, host="127.0.0.1", port=8000):
@@ -25,7 +26,8 @@ def main():
     if len(sys.argv) >= 2:
         server.run(sys.argv[1])
     else:
-        server.run()
+        ip = ni.ifaddresses('wlan0')[ni.AF_INET][0]['addr']
+        server.run(ip)
 
 if __name__=="__main__": 
     main() 
