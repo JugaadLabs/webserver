@@ -7,6 +7,7 @@ from CSIRecorder import CSIRecorder
 from ZEDRecorder import ZEDRecorder
 import time
 import os
+import pyzed.sl as sl
 
 def benchmark(res, depth, framerate, time=20):
     pause = multiprocessing.Event()
