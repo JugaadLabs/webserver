@@ -21,7 +21,7 @@
                     <label for="CSI">CSI</label><br>
                     </td>
                     <td>
-                    <input type="radio" id="ZED" name="device" value="zed">
+                    <input type="radio" id="ZED" name="device" value="zed" checked>
                     <label for="ZED">ZED</label>
                     </td>
                 </tr>
@@ -42,6 +42,7 @@
         <div class='current_status'>
           <table>
           <tr>
+          <td>
           {% if state.zedstop %}
             ZED Camera is currently <b>NOT RECORDING</b>.
           {% elif state.zedpaused %}
@@ -49,8 +50,10 @@
           {% else %}
             ZED Camera is currently <b>RECORDING</b>.
           {% endif %}
+          </td>
           </tr>
           <tr>
+          <td>
           {% if state.csistop %}
             CSI Camera is currently <b>NOT RECORDING</b>.
           {% elif state.csipaused %}
@@ -58,6 +61,7 @@
           {% else %}
             CSI Camera is currently <b>RECORDING</b>.
           {% endif %}
+          </td>
           </tr>
           </table>
         </div>
