@@ -6,12 +6,14 @@ import signal
 import time
 import pickle
 class CSIRecorder(multiprocessing.Process):
-    def __init__(self, pauseEvent, stopEvent, device=0, resolution=(640,480), framerate=30, dir=""):
+    def __init__(self, pauseEvent, stopEvent, csiParams = {
+        "device": 0, "resolution": (640,480), "framerate": 30, "dir": ""
+    }):
         super(CSIRecorder, self).__init__()
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        self.device = device
-        self.resolution = resolution
-        self.framerate = framerate
+        self.device = csiParams['device']
+        self.resolution = csiParams['resolution']
+        self.framerate = csiParams['framerate']
         self.cap = None
         self.out = None
         self.dir = dir
