@@ -34,6 +34,7 @@ class URLHandler(object):
         self.csiStop.clear()
         self.zedPause.clear()
         self.zedPause.clear()
+        self.template = Templates(None)
 
     def camera_handler(self, process, cameraClass, pauseEvent, stopEvent, command):
         if process == None and command != CameraState.RECORD:
@@ -93,4 +94,4 @@ class URLHandler(object):
 
     @cherrypy.expose
     def index(self):
-        return "Thanks for coming here, help will be provided soon!"
+        return self.template.index()

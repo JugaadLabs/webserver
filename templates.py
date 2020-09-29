@@ -21,3 +21,10 @@ class Templates:
     def render_template(self, template_name, opts):
         template = self.environment.get_template(template_name + '.html')
         return template.render(state=opts)
+
+def main():
+    template = Templates(None)
+    print(template.index())
+
+if __name__=="__main__": 
+    main() 
