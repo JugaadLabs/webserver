@@ -80,17 +80,17 @@ class URLHandler(object):
     @cherrypy.expose
     def record(self, device=None):
         self.command_handler(device, CameraState.RECORD)
-        return "OK"
+        return self.template.index()
 
     @cherrypy.expose
     def pause(self, device=None):
         self.command_handler(device, CameraState.PAUSE)
-        return "OK"
+        return self.template.index()
 
     @cherrypy.expose
     def stop(self, device=None):
         self.command_handler(device, CameraState.STOP)
-        return "OK"
+        return self.template.index()
 
     @cherrypy.expose
     def index(self):
