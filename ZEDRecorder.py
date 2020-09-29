@@ -14,7 +14,7 @@ class ZEDRecorder(multiprocessing.Process):
         self.initParams = sl.InitParameters()
         self.initParams.camera_resolution = zedParams['resolution']
         self.initParams.depth_mode = zedParams['depth']
-        self.initParams.camera_fps = zedParams['resolution']
+        self.initParams.camera_fps = zedParams['framerate']
 
         self.dir = zedParams['dir']
         self.pauseEvent = pauseEvent

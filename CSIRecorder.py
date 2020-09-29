@@ -16,7 +16,7 @@ class CSIRecorder(multiprocessing.Process):
         self.framerate = csiParams['framerate']
         self.cap = None
         self.out = None
-        self.dir = dir
+        self.dir = csiParams['dir']
         self.pauseEvent = pauseEvent
         self.stopEvent = stopEvent
 
