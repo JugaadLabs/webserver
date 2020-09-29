@@ -12,10 +12,10 @@ class Templates:
 
     def index(self):
         opts = {}
-        # opts['streaming'] = self.apsync.streaming
-        # opts['streaming_error'] = self.apsync.streaming_error
-        # opts['streaming_to_ip'] = self.apsync.streaming_to_ip
-        # opts['auto_streaming'] = self.apsync.auto_streaming_enabled()
+        opts['zedstop'] = self.stateVars['zedstop'].is_set()
+        opts['zedpaused'] = self.stateVars['zedpaused'].is_set()
+        opts['csistop'] = self.stateVars['csistop'].is_set()
+        opts['csipaused'] = self.stateVars['csipaused'].is_set()
         return self.render_template('index', opts)
 
     def render_template(self, template_name, opts):

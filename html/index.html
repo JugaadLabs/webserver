@@ -39,6 +39,28 @@
             </table>
           </form>
         </div>
+        <div class='current_status'>
+          <table>
+          <tr>
+          {% if state.zedstop %}
+            ZED Camera is currently <b>NOT RECORDING</b>.
+          {% elif state.zedpaused %}
+            ZED Camera is currently <b>PAUSED</b>.
+          {% else %}
+            ZED Camera is currently <b>RECORDING</b>.
+          {% endif %}
+          </tr>
+          <tr>
+          {% if state.csistop %}
+            CSI Camera is currently <b>NOT RECORDING</b>.
+          {% elif state.csipaused %}
+            CSI Camera is currently <b>PAUSED</b>.
+          {% else %}
+            CSI Camera is currently <b>RECORDING</b>.
+          {% endif %}
+          </tr>
+          </table>
+        </div>
       </div>
     </div>
     {% include 'footer.html' %}

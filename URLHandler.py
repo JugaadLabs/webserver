@@ -31,10 +31,16 @@ class URLHandler(object):
         self.zedStop = multiprocessing.Event()
 
         self.csiPause.clear()
-        self.csiStop.clear()
+        self.csiStop.set()
         self.zedPause.clear()
-        self.zedPause.clear()
-        self.template = Templates(None)
+        self.zedStop.set()
+
+        stateVars = {}
+        stateVars['zedstop'] = self.zedStop
+        stateVars['zedpaused'] = self.zedPause
+        stateVars['csistop'] = self.csiStop
+        stateVars['csipaused'] = self.csiPause
+        self.template = Templates(stateVars)
 
     def camera_handler(self, process, cameraClass, pauseEvent, stopEvent, command):
         if process == None and command != CameraState.RECORD:
