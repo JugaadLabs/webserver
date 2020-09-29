@@ -14,7 +14,7 @@ def benchmark(res, depth, framerate, t=20):
     stop = multiprocessing.Event()
     pause.clear()
     stop.clear()
-    params = {"resolution": res, "depth": depth, "framerate": framerate}
+    params = {"resolution": res, "depth": depth, "framerate": framerate, "dir": ""}
     proc = ZEDRecorder(pause, stop, params)
     proc.start()
     time.sleep(t)
