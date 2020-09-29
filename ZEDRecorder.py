@@ -6,6 +6,7 @@ import signal
 import time
 import sys
 import pyzed.sl as sl
+import os
 
 class ZEDRecorder(multiprocessing.Process):
     def __init__(self, pauseEvent, stopEvent, zedParams={
@@ -22,15 +23,15 @@ class ZEDRecorder(multiprocessing.Process):
 
     def run(self):
         now = datetime.datetime.now()
-        filename = now.strftime("ZED_%Y-%m-%d-%H-%M-%S")+".svo"
-        print("ZED Camera - recording to " + filename)
+        filepath = os.path.join(self.dir, now.strftime("ZED_%Y-%m-%d-%H-%M-%S")+".svo")
+        print("ZED Camera - recording to " + filepath)
 
         cam = sl.Camera()
         status = cam.open(self.initParams)
         if status != sl.ERROR_CODE.SUCCESS:
             print(repr(status))
         else:
-            recording_param = sl.RecordingParameters(filename, sl.SVO_COMPRESSION_MODE.H264)
+            recording_param = sl.RecordingParameters(filepath, sl.SVO_COMPRESSION_MODE.H264)
             err = cam.enable_recording(recording_param)
             if err != sl.ERROR_CODE.SUCCESS:
                 print(repr(status))

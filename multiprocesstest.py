@@ -4,7 +4,7 @@ import datetime
 import multiprocessing
 from signal import signal, SIGTERM, SIGALRM, SIGUSR1, SIGUSR2
 from CSIRecorder import CSIRecorder
-from ZEDRecorder import ZEDRecorder
+# from ZEDRecorder import ZEDRecorder
 import time
 import os
 
@@ -78,8 +78,22 @@ def test5():
     stop.set()
     proc.join()
 
+def test6():
+    pause = multiprocessing.Event()
+    stop = multiprocessing.Event()
+    pause.clear()
+    stop.clear()
+    proc = CSIRecorder(pause, stop, {
+        "device": 0, "resolution": (640,480), "framerate": 30, "dir": ""
+    })
+    proc.start()
+    time.sleep(10)
+    stop.set()
+    proc.join()
+
+
 def main():
-    test5()
+    test6()
 
 if __name__=="__main__": 
     main()
