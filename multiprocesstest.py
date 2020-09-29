@@ -68,7 +68,7 @@ def test5():
     stop = multiprocessing.Event()
     pause.clear()
     stop.clear()
-    proc = ZEDRecorder(pause, stop)
+    proc = ZEDRecorder(pause, stop, None, sl.RESOLUTION.HD720, sl.DEPTH_MODE.PERFORMANCE)
     proc.start()
     time.sleep(10)
     pause.set()
