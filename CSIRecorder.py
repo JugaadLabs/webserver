@@ -47,6 +47,7 @@ class CSIRecorder(multiprocessing.Process):
                 time.sleep(0.1)
         self.cap.release()
         self.out.release()
+        print("CSI Final count - " + str(frames_recorded))
         with open(os.path.join(self.dir, startTimeString+".pkl"), 'wb') as f:
             pickle.dump(timestamps, f)
         print("Stopped recording!")

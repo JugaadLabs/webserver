@@ -47,7 +47,7 @@ class ZEDRecorder(multiprocessing.Process):
                         cam.grab(runtime)
                     else:
                         time.sleep(0.1)
-                print("Final count - " + str(frames_recorded))
+                print("ZED Final count - " + str(frames_recorded))
                 cam.disable_recording()
                 cam.close()
                 print("Stopped recording!")

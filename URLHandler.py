@@ -9,7 +9,8 @@ import cherrypy
 import jinja2
 import signal
 from CSIRecorder import CSIRecorder
-# from ZEDRecorder import ZEDRecorder
+from ZEDRecorder import ZEDRecorder
+import threading
 import enum
 import multiprocessing
 from templates import Templates
@@ -55,7 +56,8 @@ class URLHandler(object):
                 else:
                     stopEvent.clear()
                     pauseEvent.clear()
-                    process = cameraClass(pauseEvent, stopEvent)
+                    cc = cameraClass(pauseEvent, stopEvent)
+                    process = threading.Thread(None, cc.run)
                     process.start()
             elif command == CameraState.PAUSE:
                 if process is not None and process.is_alive():
