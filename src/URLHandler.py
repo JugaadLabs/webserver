@@ -11,6 +11,7 @@ import signal
 import threading
 import enum
 import glob
+import pyzed.sl as sl
 
 from cherrypy.lib.static import serve_file
 from src.CSIRecorder import CSIRecorder
