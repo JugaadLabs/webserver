@@ -105,7 +105,7 @@ class URLHandler(object):
     def ls(self, dir=None):
         if dir is None:
             dir = self.recording_dir
-        html = """<html><body><h2>Recordings:</h2>
+        html = """<html><body><h1>Recordings</h1>
         <a href="ls?dir=%s">Up</a><br />
         """ % os.path.dirname(os.path.abspath(dir))
         for filename in glob.glob(dir + '/*'):
@@ -116,6 +116,10 @@ class URLHandler(object):
                 html += '<a href="/download?filepath=' + absPath + '">' + os.path.basename(filename) + "</a> <br />"
         html += """</body></html>"""
         return html
+
+    @cherrypy.expose
+    def documentation(self):
+        return "Coming soon!"
 
     @cherrypy.expose
     def record(self, device=None):
