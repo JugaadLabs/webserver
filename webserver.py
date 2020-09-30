@@ -7,7 +7,7 @@ import traceback
 import threading
 import cherrypy
 import jinja2
-from URLHandler import URLHandler
+from src.URLHandler import URLHandler
 import sys
 import netifaces as ni
 

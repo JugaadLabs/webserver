@@ -8,7 +8,7 @@ class Templates:
         self.environment = jinja2.Environment(loader=loader)
 
     def html_dirpath(self):
-        return os.path.join(os.getcwd(),'html')
+        return os.path.join(os.getcwd(), 'html')
 
     def index(self):
         opts = {}

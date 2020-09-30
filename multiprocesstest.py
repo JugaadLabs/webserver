@@ -3,7 +3,7 @@ import cv2
 import datetime
 import multiprocessing
 from signal import signal, SIGTERM, SIGALRM, SIGUSR1, SIGUSR2
-from CSIRecorder import CSIRecorder
+from src.CSIRecorder import CSIRecorder
 # from ZEDRecorder import ZEDRecorder
 import time
 import os

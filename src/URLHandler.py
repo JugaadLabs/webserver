@@ -8,11 +8,12 @@ import threading
 import cherrypy
 import jinja2
 import signal
-from CSIRecorder import CSIRecorder
-from ZEDRecorder import ZEDRecorder
 import threading
 import enum
-from templates import Templates
+
+from src.CSIRecorder import CSIRecorder
+from src.ZEDRecorder import ZEDRecorder
+from src.templates import Templates
 
 class CameraState(enum.Enum):
     RECORD = 1
