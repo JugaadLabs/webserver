@@ -8,7 +8,7 @@ import os
 
 class CSIRecorder:
     def __init__(self, pauseEvent, stopEvent, csiParams = {
-        "device": 0, "resolution": (640,480), "framerate": 30, "dir": ""
+        "device": 0, "resolution": (640,480), "framerate": 30, "dir": "."
     }):
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.device = csiParams['device']

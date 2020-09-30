@@ -13,7 +13,8 @@ import netifaces as ni
 
 class Server(object):
     def run(self, host="127.0.0.1", port=8000):
-        cherrypy.tree.mount(URLHandler(self), '/', None)
+        urlHandler = URLHandler(self, '.')
+        cherrypy.tree.mount(urlHandler, '/', None)
         cherrypy.config.update({
             'server.socket_host': host,
             'server.socket_port': port
@@ -27,7 +28,7 @@ def main():
         ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
         server.run(ip)
     else:
-        ip = ni.ifaddresses('l4tbr0')[ni.AF_INET][0]['addr']
+        ip = ni.ifaddresses('lo')[ni.AF_INET][0]['addr']
         server.run(ip)
 
 if __name__=="__main__": 

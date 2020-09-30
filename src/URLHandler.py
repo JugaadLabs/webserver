@@ -10,7 +10,9 @@ import jinja2
 import signal
 import threading
 import enum
+import glob
 
+from cherrypy.lib.static import serve_file
 from src.CSIRecorder import CSIRecorder
 from src.ZEDRecorder import ZEDRecorder
 from src.templates import Templates
@@ -21,8 +23,9 @@ class CameraState(enum.Enum):
     STOP = 3
 
 class URLHandler(object):
-    def __init__(self, config):
+    def __init__(self, config, recording_dir):
         self.config = config
+        self.recording_dir = recording_dir
         self.csiThread = None
         self.zedThread = None
 
@@ -36,6 +39,15 @@ class URLHandler(object):
         self.zedPause.clear()
         self.zedStop.set()
 
+        self.csiParams = {
+            "device": 0, "resolution": (640,480), 
+            "framerate": 30, "dir": recording_dir
+        }
+        self.zedParams = {
+            "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, 
+            "framerate": 30, "dir": recording_dir
+        }
+
         stateVars = {}
         stateVars['zedstop'] = self.zedStop
         stateVars['zedpaused'] = self.zedPause
@@ -43,7 +55,7 @@ class URLHandler(object):
         stateVars['csipaused'] = self.csiPause
         self.template = Templates(stateVars)
 
-    def camera_handler(self, cameraThread, cameraClass, pauseEvent, stopEvent, command):
+    def camera_handler(self, cameraThread, cameraClass, cameraParams, pauseEvent, stopEvent, command):
         if cameraThread == None and command != CameraState.RECORD:
             print("Process not initialized yet!")
         else:
@@ -56,7 +68,7 @@ class URLHandler(object):
                 else:
                     stopEvent.clear()
                     pauseEvent.clear()
-                    cc = cameraClass(pauseEvent, stopEvent)
+                    cc = cameraClass(pauseEvent, stopEvent, cameraParams)
                     cameraThread = threading.Thread(None, cc.run)
                     cameraThread.start()
             elif command == CameraState.PAUSE:
@@ -74,15 +86,35 @@ class URLHandler(object):
     def command_handler(self, device, command):
         if device == 'csi':
             self.csiThread, self.csiPause, self.csiStop = self.camera_handler(self.csiThread, \
-            CSIRecorder, self.csiPause, self.csiStop, command)
+            CSIRecorder, self.csiParams, self.csiPause, self.csiStop, command)
         elif device == 'zed':
             self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
-            ZEDRecorder, self.zedPause, self.zedStop, command)
+            ZEDRecorder, self.zedParams, self.zedPause, self.zedStop, command)
         elif device == 'all':
             self.csiThread, self.csiPause, self.csiStop = self.camera_handler(self.csiThread, \
-            CSIRecorder, self.csiPause, self.csiStop, command)
+            CSIRecorder, self.csiParams, self.csiPause, self.csiStop, command)
             self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
-            ZEDRecorder, self.zedPause, self.zedStop, command)
+            ZEDRecorder, self.zedParams, self.zedPause, self.zedStop, command)
+
+    @cherrypy.expose
+    def download(self, filepath):
+        return serve_file(filepath, "application/x-download", "attachment")
+
+    @cherrypy.expose
+    def ls(self, dir=None):
+        if dir is None:
+            dir = self.recording_dir
+        html = """<html><body><h2>Recordings:</h2>
+        <a href="ls?dir=%s">Up</a><br />
+        """ % os.path.dirname(os.path.abspath(dir))
+        for filename in glob.glob(dir + '/*'):
+            absPath = os.path.abspath(filename)
+            if os.path.isdir(absPath):
+                html += '<a href="/ls?dir=' + absPath + '">' + os.path.basename(filename) + "</a> <br />"
+            else:
+                html += '<a href="/download?filepath=' + absPath + '">' + os.path.basename(filename) + "</a> <br />"
+        html += """</body></html>"""
+        return html
 
     @cherrypy.expose
     def record(self, device=None):

@@ -9,7 +9,7 @@ import os
 
 class ZEDRecorder:
     def __init__(self, pauseEvent, stopEvent, zedParams={
-    "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, "framerate": 30, "dir": ""}):
+    "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, "framerate": 30, "dir": "."}):
         self.initParams = sl.InitParameters()
         self.initParams.camera_resolution = zedParams['resolution']
         self.initParams.depth_mode = zedParams['depth']
