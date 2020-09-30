@@ -22,8 +22,8 @@ class CameraState(enum.Enum):
 class URLHandler(object):
     def __init__(self, config):
         self.config = config
-        self.csiProcess = None
-        self.zedProcess = None
+        self.csiThread = None
+        self.zedThread = None
 
         self.csiPause = threading.Event()
         self.csiStop = threading.Event()
@@ -42,12 +42,12 @@ class URLHandler(object):
         stateVars['csipaused'] = self.csiPause
         self.template = Templates(stateVars)
 
-    def camera_handler(self, process, cameraClass, pauseEvent, stopEvent, command):
-        if process == None and command != CameraState.RECORD:
+    def camera_handler(self, cameraThread, cameraClass, pauseEvent, stopEvent, command):
+        if cameraThread == None and command != CameraState.RECORD:
             print("Process not initialized yet!")
         else:
             if command == CameraState.RECORD:
-                if process is not None and process.is_alive():
+                if cameraThread is not None and cameraThread.is_alive():
                     print("Camera already active!")
                     if pauseEvent.is_set():
                         print("Resuming recording...")
@@ -56,31 +56,31 @@ class URLHandler(object):
                     stopEvent.clear()
                     pauseEvent.clear()
                     cc = cameraClass(pauseEvent, stopEvent)
-                    process = threading.Thread(None, cc.run)
-                    process.start()
+                    cameraThread = threading.Thread(None, cc.run)
+                    cameraThread.start()
             elif command == CameraState.PAUSE:
-                if process is not None and process.is_alive():
+                if cameraThread is not None and cameraThread.is_alive():
                     pauseEvent.set()
                 else:
                     print("Camera not started")
             elif command == CameraState.STOP:
-                if process is not None and process.is_alive():
+                if cameraThread is not None and cameraThread.is_alive():
                     stopEvent.set()
                 else:
                     print("Camera not yet started")
-        return process, pauseEvent, stopEvent
+        return cameraThread, pauseEvent, stopEvent
 
     def command_handler(self, device, command):
         if device == 'csi':
-            self.csiProcess, self.csiPause, self.csiStop = self.camera_handler(self.csiProcess, \
+            self.csiThread, self.csiPause, self.csiStop = self.camera_handler(self.csiThread, \
             CSIRecorder, self.csiPause, self.csiStop, command)
         elif device == 'zed':
-            self.zedProcess, self.zedPause, self.zedStop = self.camera_handler(self.zedProcess, \
+            self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
             ZEDRecorder, self.zedPause, self.zedStop, command)
         elif device == 'all':
-            self.csiProcess, self.csiPause, self.csiStop = self.camera_handler(self.csiProcess, \
+            self.csiThread, self.csiPause, self.csiStop = self.camera_handler(self.csiThread, \
             CSIRecorder, self.csiPause, self.csiStop, command)
-            self.zedProcess, self.zedPause, self.zedStop = self.camera_handler(self.zedProcess, \
+            self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
             ZEDRecorder, self.zedPause, self.zedStop, command)
 
     @cherrypy.expose
