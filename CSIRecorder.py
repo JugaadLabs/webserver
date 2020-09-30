@@ -9,7 +9,7 @@ import os
 
 class CSIRecorder(multiprocessing.Process):
     def __init__(self, pauseEvent, stopEvent, csiParams = {
-        "device": 1, "resolution": (640,480), "framerate": 30, "dir": ""
+        "device": 0, "resolution": (640,480), "framerate": 30, "dir": ""
     }):
         super(CSIRecorder, self).__init__()
         self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -38,7 +38,7 @@ class CSIRecorder(multiprocessing.Process):
                 ret, frame = self.cap.read()
                 if ret==True:
                     frames_recorded += 1
-                    print("Frame count CSI: " + str(frames_recorded), end="\r")
+                    # print("Frame count CSI: " + str(frames_recorded), end="\r")
                     timestamps.append(time.time())
                     self.out.write(frame)
                 else:

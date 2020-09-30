@@ -65,7 +65,6 @@ class URLHandler(object):
             elif command == CameraState.STOP:
                 if process is not None and process.is_alive():
                     stopEvent.set()
-                    process.join()
                 else:
                     print("Camera not yet started")
         return process, pauseEvent, stopEvent
