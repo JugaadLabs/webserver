@@ -9,7 +9,7 @@ import cherrypy
 import jinja2
 import signal
 from CSIRecorder import CSIRecorder
-from ZEDRecorder import ZEDRecorder
+# from ZEDRecorder import ZEDRecorder
 import enum
 import multiprocessing
 from templates import Templates

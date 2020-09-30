@@ -30,11 +30,13 @@ class ZEDRecorder(multiprocessing.Process):
         status = cam.open(self.initParams)
         if status != sl.ERROR_CODE.SUCCESS:
             print(repr(status))
+            self.stopEvent.set()
         else:
             recording_param = sl.RecordingParameters(filepath, sl.SVO_COMPRESSION_MODE.H264)
             err = cam.enable_recording(recording_param)
             if err != sl.ERROR_CODE.SUCCESS:
                 print(repr(status))
+                self.stopEvent.set()
             else:
                 runtime = sl.RuntimeParameters()
                 frames_recorded = 0
