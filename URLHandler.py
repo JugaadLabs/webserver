@@ -12,7 +12,6 @@ from CSIRecorder import CSIRecorder
 from ZEDRecorder import ZEDRecorder
 import threading
 import enum
-import multiprocessing
 from templates import Templates
 
 class CameraState(enum.Enum):
@@ -26,10 +25,10 @@ class URLHandler(object):
         self.csiProcess = None
         self.zedProcess = None
 
-        self.csiPause = multiprocessing.Event()
-        self.csiStop = multiprocessing.Event()
-        self.zedPause = multiprocessing.Event()
-        self.zedStop = multiprocessing.Event()
+        self.csiPause = threading.Event()
+        self.csiStop = threading.Event()
+        self.zedPause = threading.Event()
+        self.zedStop = threading.Event()
 
         self.csiPause.clear()
         self.csiStop.set()

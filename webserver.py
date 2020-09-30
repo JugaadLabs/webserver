@@ -24,9 +24,10 @@ class Server(object):
 def main():
     server = Server()
     if len(sys.argv) >= 2:
-        server.run(sys.argv[1])
+        ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
+        server.run(ip)
     else:
-        ip = ni.ifaddresses('lo')[ni.AF_INET][0]['addr']
+        ip = ni.ifaddresses('l4tbr0')[ni.AF_INET][0]['addr']
         server.run(ip)
 
 if __name__=="__main__": 

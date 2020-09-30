@@ -1,17 +1,15 @@
 import numpy as np
 import cv2
 import datetime
-import multiprocessing
 import signal
 import time
 import sys
 import pyzed.sl as sl
 import os
 
-class ZEDRecorder(multiprocessing.Process):
+class ZEDRecorder:
     def __init__(self, pauseEvent, stopEvent, zedParams={
     "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, "framerate": 30, "dir": ""}):
-        super(ZEDRecorder, self).__init__()
         self.initParams = sl.InitParameters()
         self.initParams.camera_resolution = zedParams['resolution']
         self.initParams.depth_mode = zedParams['depth']
