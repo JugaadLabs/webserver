@@ -80,6 +80,7 @@ class URLHandler(object):
             elif command == CameraState.STOP:
                 if cameraThread is not None and cameraThread.is_alive():
                     stopEvent.set()
+                    cameraThread.join()
                 else:
                     print("Camera not yet started")
         return cameraThread, pauseEvent, stopEvent
