@@ -12,6 +12,12 @@ git clone https://github.com/JugaadLabs/webserver.git
 
 Install the ZED Python SDK using the instructions [here](https://www.stereolabs.com/docs/app-development/python/install/).
 
+Autogenerate the `documentation.html` page by running:
+
+```
+pandoc README.md -o html/documentation.html
+```
+
 ## Usage
 
 This project uses a CherryPy webserver for remotely receiving commands using HTTP GET calls.
@@ -49,3 +55,9 @@ python3 client.py --record all --host 192.168.55.1 --port 8000
 #### GUI Mode
 
 Go to the address where the webserver is serving pages (e.g. http:///192.168.55.1:8000) in your web browser. This loads a webpage with the options to control the cameras, download files, and view documentation.
+
+### Recordings
+
+The data from the ZED camera is saved in the SVO format. Instructions for processing this data can be found [here](https://www.stereolabs.com/docs/video/recording/). 
+
+Video from the V4L2 camera is saved to a timestamped `.avi` file. The UNIX timestamp for each frame of the video can be found in its accompanying `.pkl` file which contains a list of timestamps, one for each frame of the video.
