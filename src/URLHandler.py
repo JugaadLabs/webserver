@@ -120,7 +120,7 @@ class URLHandler(object):
 
     @cherrypy.expose
     def documentation(self):
-        return "Coming soon!"
+        return self.template.render_template('documentation', None)
 
     @cherrypy.expose
     def record(self, device=None):
