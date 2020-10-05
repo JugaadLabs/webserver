@@ -13,11 +13,11 @@ import sys
 import netifaces as ni
 
 class Server(object):
-    def run(self, host="127.0.0.1", port=8000, dir='.'):
+    def run(self, host="127.0.0.1", port=8000, dir='.', csiDevice=0):
         dir = os.path.abspath(dir)
         Path(dir).mkdir(parents=True, exist_ok=True)
         print("Recording to: " + dir)
-        urlHandler = URLHandler(self, dir)
+        urlHandler = URLHandler(self, dir, csiDevice)
         cherrypy.tree.mount(urlHandler, '/', None)
         cherrypy.config.update({
             'server.socket_host': host,
@@ -28,6 +28,9 @@ class Server(object):
 
 def main():
     server = Server()
+    if len(sys.argv) == 5:
+        ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
+        server.run(ip, int(sys.argv[2]), sys.argv[3], int(sys.argv[4]))
     if len(sys.argv) == 4:
         ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
         server.run(ip, int(sys.argv[2]), sys.argv[3])

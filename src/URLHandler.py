@@ -24,7 +24,7 @@ class CameraState(enum.Enum):
     STOP = 3
 
 class URLHandler(object):
-    def __init__(self, config, recording_dir):
+    def __init__(self, config, recording_dir, csi_device=0):
         self.config = config
         self.recording_dir = recording_dir
         self.csiThread = None
@@ -41,7 +41,7 @@ class URLHandler(object):
         self.zedStop.set()
 
         self.csiParams = {
-            "device": 0, "resolution": (640,480), 
+            "device": csi_device, "resolution": (640,480), 
             "framerate": 30, "dir": recording_dir
         }
         self.zedParams = {
