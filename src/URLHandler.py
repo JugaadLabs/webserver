@@ -12,11 +12,11 @@ import threading
 import enum
 import glob
 import cv2
-# import pyzed.sl as sl
+import pyzed.sl as sl
 
 from cherrypy.lib.static import serve_file
 from src.CSIRecorder import CSIRecorder
-# from src.ZEDRecorder import ZEDRecorder
+from src.ZEDRecorder import ZEDRecorder
 from src.templates import Templates
 from src.Streamer import Streamer
 
@@ -60,10 +60,10 @@ class URLHandler(object):
             "streamer": self.streamer, "resolution": (640,480), 
             "framerate": 30, "dir": recording_dir, "framelock": self.frameLock
         }
-        # self.zedParams = {
-        #     "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, 
-        #     "framerate": 30, "dir": recording_dir
-        # }
+        self.zedParams = {
+            "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, 
+            "framerate": 30, "dir": recording_dir
+        }
 
     def camera_handler(self, cameraThread, cameraClass, cameraParams, pauseEvent, stopEvent, command):
         if cameraThread == None and command != CameraState.RECORD:
