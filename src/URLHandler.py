@@ -11,12 +11,14 @@ import signal
 import threading
 import enum
 import glob
-import pyzed.sl as sl
+import cv2
+# import pyzed.sl as sl
 
 from cherrypy.lib.static import serve_file
 from src.CSIRecorder import CSIRecorder
-from src.ZEDRecorder import ZEDRecorder
+# from src.ZEDRecorder import ZEDRecorder
 from src.templates import Templates
+from src.Streamer import Streamer
 
 class CameraState(enum.Enum):
     RECORD = 1
@@ -27,6 +29,8 @@ class URLHandler(object):
     def __init__(self, config, recording_dir, csi_device=0):
         self.config = config
         self.recording_dir = recording_dir
+
+        self.streamThread = None
         self.csiThread = None
         self.zedThread = None
 
@@ -40,21 +44,26 @@ class URLHandler(object):
         self.zedPause.clear()
         self.zedStop.set()
 
-        self.csiParams = {
-            "device": csi_device, "resolution": (640,480), 
-            "framerate": 30, "dir": recording_dir
-        }
-        self.zedParams = {
-            "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, 
-            "framerate": 30, "dir": recording_dir
-        }
-
         stateVars = {}
         stateVars['zedstop'] = self.zedStop
         stateVars['zedpaused'] = self.zedPause
         stateVars['csistop'] = self.csiStop
         stateVars['csipaused'] = self.csiPause
         self.template = Templates(stateVars)
+
+        self.frameLock = threading.Lock()
+        self.streamer = Streamer(self.frameLock, csi_device)
+        self.streamThread = threading.Thread(None, self.streamer.run)
+        self.streamThread.start()
+
+        self.csiParams = {
+            "streamer": self.streamer, "resolution": (640,480), 
+            "framerate": 30, "dir": recording_dir, "framelock": self.frameLock
+        }
+        # self.zedParams = {
+        #     "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, 
+        #     "framerate": 30, "dir": recording_dir
+        # }
 
     def camera_handler(self, cameraThread, cameraClass, cameraParams, pauseEvent, stopEvent, command):
         if cameraThread == None and command != CameraState.RECORD:
@@ -97,6 +106,21 @@ class URLHandler(object):
             CSIRecorder, self.csiParams, self.csiPause, self.csiStop, command)
             self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
             ZEDRecorder, self.zedParams, self.zedPause, self.zedStop, command)
+
+    @cherrypy.expose
+    def stream(self):
+        cherrypy.response.headers['Content-Type'] = "multipart/x-mixed-replace; boundary=frame"
+        return self.getFrame()
+    stream._cp_config = {'response.stream': True}
+
+    def getFrame(self):
+        while True:
+            frame = self.streamer.lastFrame
+            if frame is None:
+                continue
+            (flag, encodeImage) = cv2.imencode(".jpg", frame)
+            if flag:
+                yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
 
     @cherrypy.expose
     def download(self, filepath):
