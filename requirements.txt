@@ -1,0 +1,6 @@
+numpy==1.18.1
+Jinja2==2.11.1
+CherryPy==17.4.2
+opencv_python==4.4.0.44
+requests==2.22.0
+netifaces==0.10.9

@@ -20,7 +20,7 @@ pandoc README.md -o html/documentation.html
 
 ## Usage
 
-This project uses a CherryPy webserver for remotely receiving commands using HTTP GET calls.
+This project uses a CherryPy webserver for remotely receiving commands using HTTP GET calls. Make sure your Xavier NX is running Jetpack 4.4 Developer Preview for use with the e-Con camera. The e-Con camera is a V4L2 device and you can find which device it is by checking the out of `v4l2-ctl --list-formats-ext --all --device=/dev/videoX` for each file which appears on running `ls /dev/video*`.
 
 ### Server
 
