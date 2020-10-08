@@ -31,4 +31,5 @@ class Streamer:
             self.frameLock.release()
         print("Disabled streaming thread")
         self.cap.release()
+        return
 
