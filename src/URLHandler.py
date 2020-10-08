@@ -34,7 +34,7 @@ class CameraState(enum.Enum):
     STOP = 3
 
 class URLHandler(object):
-    def __init__(self, config, recording_dir, csi_device=0, recording_interval=30):
+    def __init__(self, config, recording_dir, csi_device=0, recording_interval=0):
         self.config = config
         self.recording_dir = recording_dir
 
@@ -60,6 +60,7 @@ class URLHandler(object):
         self.template = Templates(stateVars)
 
         self.frameLock = threading.Lock()
+
         self.streamer = Streamer(self.frameLock, csi_device)
         self.streamThread = threading.Thread(None, self.streamer.run)
         self.streamThread.start()

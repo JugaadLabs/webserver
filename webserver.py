@@ -17,7 +17,7 @@ class Server(object):
         dir = os.path.abspath(dir)
         Path(dir).mkdir(parents=True, exist_ok=True)
         print("Recording to: " + dir)
-        urlHandler = URLHandler(self, dir, csiDevice)
+        urlHandler = URLHandler(self, dir, csiDevice, 300)
         cherrypy.tree.mount(urlHandler, '/', None)
         cherrypy.config.update({
             'server.socket_host': host,
