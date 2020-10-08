@@ -34,7 +34,7 @@ class CameraState(enum.Enum):
     STOP = 3
 
 class URLHandler(object):
-    def __init__(self, config, recording_dir, csi_device=0):
+    def __init__(self, config, recording_dir, csi_device=0, recording_interval=30):
         self.config = config
         self.recording_dir = recording_dir
 
@@ -74,6 +74,8 @@ class URLHandler(object):
                 "framerate": 30, "dir": recording_dir
             }
 
+        self.recording_interval = sys.maxsize if recording_interval == 0 else recording_interval
+
     def camera_handler(self, cameraThread, cameraClass, cameraParams, pauseEvent, stopEvent, command):
         if cameraThread == None and command != CameraState.RECORD:
             print("Process not initialized yet!")
@@ -87,7 +89,7 @@ class URLHandler(object):
                 else:
                     stopEvent.clear()
                     pauseEvent.clear()
-                    cc = cameraClass(pauseEvent, stopEvent, cameraParams)
+                    cc = cameraClass(pauseEvent, stopEvent, cameraParams, self.recording_interval)
                     cameraThread = threading.Thread(None, cc.run)
                     cameraThread.start()
             elif command == CameraState.PAUSE:
