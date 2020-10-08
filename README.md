@@ -10,9 +10,15 @@ Download the project using:
 git clone https://github.com/JugaadLabs/webserver.git
 ```
 
+Install the Python dependencies by running:
+
+```
+pip install -r requirements.txt
+```
+
 Install the ZED Python SDK using the instructions [here](https://www.stereolabs.com/docs/app-development/python/install/).
 
-Autogenerate the `documentation.html` page by running:
+**Optional**: Autogenerate the `documentation.html` page by running:
 
 ```
 pandoc README.md -o html/documentation.html

@@ -12,11 +12,19 @@ import threading
 import enum
 import glob
 import cv2
-import pyzed.sl as sl
+
+ZED_ENABLED = True
+
+try:
+    import pyzed.sl as sl
+except ImportError as e:
+    print("pyzed not available! Using V4L2 fallback.")
+    ZED_ENABLED = False
+else:
+    from src.ZEDRecorder import ZEDRecorder
 
 from cherrypy.lib.static import serve_file
 from src.CSIRecorder import CSIRecorder
-from src.ZEDRecorder import ZEDRecorder
 from src.templates import Templates
 from src.Streamer import Streamer
 
@@ -60,10 +68,11 @@ class URLHandler(object):
             "streamer": self.streamer, "resolution": (640,480), 
             "framerate": 30, "dir": recording_dir, "framelock": self.frameLock
         }
-        self.zedParams = {
-            "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, 
-            "framerate": 30, "dir": recording_dir
-        }
+        if ZED_ENABLED:
+            self.zedParams = {
+                "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, 
+                "framerate": 30, "dir": recording_dir
+            }
 
     def camera_handler(self, cameraThread, cameraClass, cameraParams, pauseEvent, stopEvent, command):
         if cameraThread == None and command != CameraState.RECORD:
@@ -98,10 +107,10 @@ class URLHandler(object):
         if device == 'csi':
             self.csiThread, self.csiPause, self.csiStop = self.camera_handler(self.csiThread, \
             CSIRecorder, self.csiParams, self.csiPause, self.csiStop, command)
-        elif device == 'zed':
+        elif device == 'zed' and ZED_ENABLED:
             self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
             ZEDRecorder, self.zedParams, self.zedPause, self.zedStop, command)
-        elif device == 'all':
+        elif device == 'all' and ZED_ENABLED:
             self.csiThread, self.csiPause, self.csiStop = self.camera_handler(self.csiThread, \
             CSIRecorder, self.csiParams, self.csiPause, self.csiStop, command)
             self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
