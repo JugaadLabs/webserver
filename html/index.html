@@ -9,7 +9,7 @@
       <div class='index'>
         <h1>Recording Configuration</h1>
         <div class='record_options'>
-          <form>
+          <form method="post">
           <table>
             <tr>
                     <td>
@@ -27,13 +27,13 @@
                   </tr>
                   <tr>
                     <td>
-                      <button type="submit" formaction="/record" method="get">Record</button>
+                      <button type="submit" formaction="/record" method="post">Record</button>
                     </td>
                     <td>
-                      <button type="submit" formaction="/pause" method="get">Pause</button>
+                      <button type="submit" formaction="/pause" method="post">Pause</button>
                     </td>
                     <td>
-                      <button type="submit" formaction="/stop" method="get">Stop</button>
+                      <button type="submit" formaction="/stop" method="post">Stop</button>
                     </td>
                   </tr>
                 </table>
