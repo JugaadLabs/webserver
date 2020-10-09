@@ -23,7 +23,7 @@ class Streamer:
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolution[0])
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
         self.cap.set(cv2.CAP_PROP_FPS, self.framerate)
-        while (self.cap.isOpened() and cherrypy.engine.state == cherrypy.engine.states.STARTED):
+        while (self.cap.isOpened()):
             ret, frame = self.cap.read()
             self.frameLock.acquire()
             self.lastFrame = frame
