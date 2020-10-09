@@ -145,18 +145,22 @@ class URLHandler(object):
         html = """<html><body><h1>Recordings</h1>
         <a href="ls?dir=%s">Up</a><br />
         """ % os.path.dirname(os.path.abspath(dir))
+        dirs = []
+        files = []
         for filename in glob.glob(dir + '/*'):
             absPath = os.path.abspath(filename)
+            item = {}
+            item['filename'] = os.path.basename(filename)
+            item['path'] = absPath
             if os.path.isdir(absPath):
-                html += '<a href="/ls?dir=' + absPath + '">' + os.path.basename(filename) + "</a> <br />"
+                dirs.append(item)
             else:
-                html += '<a href="/download?filepath=' + absPath + '">' + os.path.basename(filename) + "</a> <br />"
-        html += """</body></html>"""
-        return html
+                files.append(item)
+        return self.template.ls(files, dirs)
 
     @cherrypy.expose
     def documentation(self):
-        return self.template.render_template('documentation', None)
+        return self.template.documentation()
 
     @cherrypy.expose
     def record(self, device=None):

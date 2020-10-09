@@ -1,0 +1,28 @@
+<h2 id="introduction">Introduction</h2>
+<p>This utility allows one to remotely record timestamped video data from a V4L2 camera and the ZED stereo camera simultaneously. It targets the NVIDIA Jetson Xavier, but should work fine with any computer with an NVIDIA graphics card which supports the ZED camera.</p>
+<h2 id="install">Install</h2>
+<p>Download the project using:</p>
+<pre><code>git clone https://github.com/JugaadLabs/webserver.git</code></pre>
+<p>Install the Python dependencies by running:</p>
+<pre><code>pip install -r requirements.txt</code></pre>
+<p>Install the ZED Python SDK using the instructions <a href="https://www.stereolabs.com/docs/app-development/python/install/">here</a>.</p>
+<p><strong>Optional</strong>: Autogenerate the <code>documentation.html</code> page by running:</p>
+<pre><code>pandoc README.md -o html/documentation.html</code></pre>
+<h2 id="usage">Usage</h2>
+<p>This project uses a CherryPy webserver for remotely receiving commands using HTTP GET calls. Make sure your Xavier NX is running Jetpack 4.4 Developer Preview for use with the e-Con camera. The e-Con camera is a V4L2 device and you can find which device it is by checking the out of <code>v4l2-ctl --list-devices</code>.</p>
+<h3 id="server">Server</h3>
+<p>Start the webserver by running:</p>
+<pre><code>python3 webserver.py &lt;INTERFACE=&#39;lo&#39;&gt; &lt;PORT=8000&gt; &lt;RECORDING_DIR=&#39;.&#39;&gt; &lt;V4L DEVICE&gt;</code></pre>
+<p>The <code>interface</code> argument is the network interface on which you want to run the webserver. Examples include <code>wlan0</code>, <code>lo</code>, and <code>l4tbr0</code> on Jetsons. The web server serves the page based on the IP address of the interface. The <code>recording_dir</code> argument is for choosing the folder to save the videos recorded by the cameras. V4L device is the <code>X</code> in <code>/dev/videoX</code> for the camera from which you want to record video from. Use <code>v4l-utils</code> to figure out what the device ID of the CSI camera is. For example, the following command uses port 9999 on the IP address the Xavier is connected to on its wireless interface and streams video from <code>/dev/video1</code>:</p>
+<pre><code>python3 webserver.py wlan0 9999 /home/nvidia/myrecordings 1</code></pre>
+<h3 id="client">Client</h3>
+<h4 id="cli-mode">CLI Mode</h4>
+<p>In CLI mode, the webserver can execute commands sent using the <code>client.py</code> program:</p>
+<pre><code>python3 client.py --&lt;record|stop|pause&gt; &lt;all|csi|zed&gt; &lt;--host IP --port PORT&gt;</code></pre>
+<p>For example, to record video from both the cameras we can run:</p>
+<pre><code>python3 client.py --record all --host 192.168.55.1 --port 8000</code></pre>
+<h4 id="gui-mode">GUI Mode</h4>
+<p>Go to the address where the webserver is serving pages (e.g. http:///192.168.55.1:8000) in your web browser. This loads a webpage with the options to control the cameras, download files, and view documentation.</p>
+<h3 id="recordings">Recordings</h3>
+<p>The data from the ZED camera is saved in the SVO format. Instructions for processing this data can be found <a href="https://www.stereolabs.com/docs/video/recording/">here</a>.</p>
+<p>Video from the V4L2 camera is saved to a timestamped <code>.avi</code> file. The UNIX timestamp for each frame of the video can be found in its accompanying <code>.pkl</code> file which contains a list of timestamps, one for each frame of the video.</p>

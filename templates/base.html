@@ -15,7 +15,7 @@
 
   <!-- Custom styles for this template -->
   <link href="css/simple-sidebar.css" rel="stylesheet">
-
+  <link href="css/all.css" rel="stylesheet">
 </head>
 
 <body>
@@ -24,10 +24,10 @@
 
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
-        <div class="sidebar-heading">Recording Tool</div>
+        <div class="sidebar-heading"><a href="/">Recording Tool</a></div>
         <div class="list-group list-group-flush">
-        <a href="#" class="list-group-item list-group-item-action bg-light">Recordings</a>
-        <a href="#" class="list-group-item list-group-item-action bg-light">Documentation</a>
+        <a href="/ls" class="list-group-item list-group-item-action bg-light">Recordings</a>
+        <a href="/documentation" class="list-group-item list-group-item-action bg-light">Documentation</a>
       </div>
     </div>
     <!-- /#sidebar-wrapper -->
@@ -35,9 +35,9 @@
     <!-- Page Content -->
     <div id="page-content-wrapper">
         <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-          <button class="btn btn-primary" id="menu-toggle">Menu</button>
+          <button class="btn btn-primary" id="menu-toggle"><i class="fa fa-bars"></i></button>
         </nav>
-        <div class="container">
+        <div class="container mt-4">
         {{ body_html }}
         </div>
     </div>

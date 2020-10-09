@@ -1,0 +1,6 @@
+{% for item in state.dirs %}
+<a href="/ls?dir={{ item.path }}">{{ item.filename }}</a><br />
+{% endfor %}
+{% for item in state.files %}
+<a href="/download?filepath={{ item.path }}">{{ item.filename }}</a><br />
+{% endfor %}

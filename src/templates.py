@@ -21,6 +21,22 @@ class Templates:
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)
 
+    def documentation(self):
+        docu_template = self.environment.get_template('documentation.html')
+        html = docu_template.render()
+        template = self.environment.get_template('base.html')
+        return template.render(body_html=html)
+
+    def ls(self, files, dirs):
+        opts = {}
+        opts['files'] = files
+        opts['dirs'] = dirs
+        ls_template = self.environment.get_template('ls.html')
+        html = ls_template.render(state=opts)
+        template = self.environment.get_template('base.html')
+        return template.render(body_html=html)
+
+
 def main():
     template = Templates(None)
     print(template.index())
