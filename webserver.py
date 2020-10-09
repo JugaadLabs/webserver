@@ -18,7 +18,21 @@ class Server(object):
         Path(dir).mkdir(parents=True, exist_ok=True)
         print("Recording to: " + dir)
         urlHandler = URLHandler(self, dir, csiDevice, 300)
-        cherrypy.tree.mount(urlHandler, '/', None)
+        CP_CONF = {
+        '/vendor': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': os.path.abspath('./vendor')
+            },
+        '/css': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': os.path.abspath('./css')
+            },
+        '/webfonts': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': os.path.abspath('./webfonts')
+            }
+        }
+        cherrypy.tree.mount(urlHandler, '/', config=CP_CONF)
         cherrypy.config.update({
             'server.socket_host': host,
             'server.socket_port': port

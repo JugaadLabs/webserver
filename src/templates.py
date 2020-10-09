@@ -4,11 +4,11 @@ import os
 class Templates:
     def __init__(self, stateVars):
         self.stateVars = stateVars
-        loader = jinja2.FileSystemLoader(self.html_dirpath())
+        loader = jinja2.FileSystemLoader(self.templatePath())
         self.environment = jinja2.Environment(loader=loader)
 
-    def html_dirpath(self):
-        return os.path.join(os.getcwd(), 'html')
+    def templatePath(self):
+        return os.path.join(os.getcwd(), 'templates')
 
     def index(self):
         opts = {}
@@ -16,11 +16,10 @@ class Templates:
         opts['zedpaused'] = self.stateVars['zedpaused'].is_set()
         opts['csistop'] = self.stateVars['csistop'].is_set()
         opts['csipaused'] = self.stateVars['csipaused'].is_set()
-        return self.render_template('index', opts)
-
-    def render_template(self, template_name, opts):
-        template = self.environment.get_template(template_name + '.html')
-        return template.render(state=opts)
+        controlPanelTemplate = self.environment.get_template('control_panel.html')
+        html = controlPanelTemplate.render(state=opts)
+        template = self.environment.get_template('base.html')
+        return template.render(body_html=html)
 
 def main():
     template = Templates(None)
