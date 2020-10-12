@@ -127,12 +127,16 @@ class URLHandler(object):
 
     def getFrame(self):
         while True:
+            state = cherrypy.engine.state
+            if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
+                break
             frame = self.streamer.lastFrame
             if frame is None:
                 continue
             (flag, encodeImage) = cv2.imencode(".jpg", frame)
             if flag:
                 yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
+        self.streamThread.join()
 
     @cherrypy.expose
     def download(self, filepath):
