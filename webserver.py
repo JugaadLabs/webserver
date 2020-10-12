@@ -35,7 +35,7 @@ class Server(object):
 
         cherrypy.config.update({
             'server.socket_host': host,
-            'server.socket_port': port
+            'server.socket_port': port,
         })
         cherrypy.quickstart(URLHandler(self, dir, csiDevice, 300), '/', config=CP_CONF)
 
