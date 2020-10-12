@@ -1,58 +1,70 @@
 <div class="row mt-4">
     <div class="col-sm-6">
-      <div class="card">
-        <div class="card-header">Remote Control</div>
-        <div class="card-body">
-          <form method="post">
+      <div class="row">
+        <div class="col">
+          <div class="card">
+            <div class="card-header">Remote Control</div>
+            <div class="card-body">
+              <form method="post">
+                <div class="row">
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="device" id="All" value="all" checked>
+                    <label class="form-check-label" for="All">
+                      All
+                    </label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="device" id="CSI" value="csi">
+                    <label class="form-check-label" for="CSI">
+                      CSI
+                    </label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="device" id="ZED" value="zed">
+                    <label class="form-check-label" for="ZED">
+                      ZED
+                    </label>
+                  </div>
+              </div>
+              <div class="row">
+                <div class="btn-group mt-4 " role="group">
+                  <button type="submit" method="post" formaction="/record" class="btn btn-success"><i class="fas fa-circle"></i><br>Record</button>
+                  <button type="submit" method="post" formaction="/pause" class="btn btn-warning"><i class="fas fa-pause"></i><br>Pause</button>
+                  <button type="submit" method="post" formaction="/stop" class="btn btn-danger btn-block"><i class="fas fa-stop"></i><br>Stop</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col">
+          <div class="card">
+            <div class="card-header">Status</div>
+            <div class="card-body">
             <div class="row">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="device" id="All" value="all" checked>
-              <label class="form-check-label" for="All">
-                All
-              </label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="device" id="CSI" value="csi">
-              <label class="form-check-label" for="CSI">
-                CSI
-              </label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" name="device" id="ZED" value="zed">
-              <label class="form-check-label" for="ZED">
-                ZED
-              </label>
-            </div>
-          </div>
-          <div class="row">
-            <div class="btn-group mt-4" role="group" aria-label="Basic example">
-              <button type="submit" method="post" formaction="/record" class="btn btn-success"><i class="fas fa-circle"></i><br>Record</button>
-              <button type="submit" method="post" formaction="/pause" class="btn btn-warning"><i class="fas fa-pause"></i><br>Pause</button>
-              <button type="submit" method="post" formaction="/stop" class="btn btn-danger btn-block"><i class="fas fa-stop"></i><br>Stop</button>
-            </div>
-          </div>
-        </form>
-        <div class="row mt-4">
-          {% if state.zedstop %}
-            ZED Camera is NOT RECORDING
-          {% elif state.zedpaused %}
-            ZED Camera is PAUSED
-          {% else %}
-            ZED Camera is RECORDING
-          {% endif %}
+            {% if state.zedstop %}
+              ZED Camera is NOT RECORDING
+            {% elif state.zedpaused %}
+              ZED Camera is PAUSED
+            {% else %}
+              ZED Camera is RECORDING
+            {% endif %}
           </div>
           <div class="row">
             {% if state.csistop %}
             CSI Camera is NOT RECORDING.
-          {% elif state.csipaused %}
-            CSI Camera is PAUSED.
-          {% else %}
-            CSI Camera is RECORDING.
-          {% endif %}
+            {% elif state.csipaused %}
+              CSI Camera is PAUSED.
+            {% else %}
+              CSI Camera is RECORDING.
+            {% endif %}
+          </div>
           </div>
         </div>
       </div>
-
+    </div>
     </div>
     <div class="col-sm-6">
       <div class="card">
