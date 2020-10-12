@@ -11,6 +11,7 @@ from src.URLHandler import URLHandler
 from pathlib import Path
 import sys
 import netifaces as ni
+from cherrypy.process import plugins
 
 class Server(object):
     def run(self, host="127.0.0.1", port=8000, dir='.', csiDevice=0):
@@ -32,13 +33,12 @@ class Server(object):
             'tools.staticdir.dir': os.path.abspath('./webfonts')
             }
         }
-        cherrypy.tree.mount(urlHandler, '/', config=CP_CONF)
+
         cherrypy.config.update({
             'server.socket_host': host,
             'server.socket_port': port
         })
-        cherrypy.engine.start()
-        cherrypy.engine.block()
+        cherrypy.quickstart(urlHandler, '/', config=CP_CONF)
 
 def main():
     server = Server()

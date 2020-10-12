@@ -24,6 +24,9 @@ class Streamer:
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
         self.cap.set(cv2.CAP_PROP_FPS, self.framerate)
         while (self.cap.isOpened()):
+            state = cherrypy.engine.state
+            if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
+                break
             ret, frame = self.cap.read()
             self.frameLock.acquire()
             self.lastFrame = frame
@@ -31,5 +34,4 @@ class Streamer:
             self.frameLock.release()
         print("Disabled streaming thread")
         self.cap.release()
-        return
 

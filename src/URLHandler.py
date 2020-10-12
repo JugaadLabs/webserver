@@ -62,7 +62,7 @@ class URLHandler(object):
         self.frameLock = threading.Lock()
 
         self.streamer = Streamer(self.frameLock, csi_device)
-        self.streamThread = threading.Thread(None, self.streamer.run)
+        self.streamThread = threading.Thread(None, self.streamer.run, daemon=True)
         self.streamThread.start()
 
         self.csiParams = {
