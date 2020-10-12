@@ -106,16 +106,11 @@ class URLHandler(object):
                     print("Camera not yet started")
         return cameraThread, pauseEvent, stopEvent
 
-    def command_handler(self, device, command):
-        if device == 'csi':
+    def command_handler(self, csi, zed, command):
+        if csi:
             self.csiThread, self.csiPause, self.csiStop = self.camera_handler(self.csiThread, \
             CSIRecorder, self.csiParams, self.csiPause, self.csiStop, command)
-        elif device == 'zed' and ZED_ENABLED:
-            self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
-            ZEDRecorder, self.zedParams, self.zedPause, self.zedStop, command)
-        elif device == 'all' and ZED_ENABLED:
-            self.csiThread, self.csiPause, self.csiStop = self.camera_handler(self.csiThread, \
-            CSIRecorder, self.csiParams, self.csiPause, self.csiStop, command)
+        if zed and ZED_ENABLED:
             self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
             ZEDRecorder, self.zedParams, self.zedPause, self.zedStop, command)
 
@@ -166,20 +161,23 @@ class URLHandler(object):
     def documentation(self):
         return self.template.documentation()
 
-    @cherrypy.expose
-    def record(self, device=None):
-        self.command_handler(device, CameraState.RECORD)
+    def executeAction(self, csi, zed, action):
+        csi = True if csi=='True' else False
+        zed = True if zed=='True' else False
+        self.command_handler(csi, zed, action)
         return self.template.index()
 
     @cherrypy.expose
-    def pause(self, device=None):
-        self.command_handler(device, CameraState.PAUSE)
-        return self.template.index()
+    def record(self, csi='False', zed='False'):
+        return self.executeAction(csi, zed, CameraState.RECORD)
 
     @cherrypy.expose
-    def stop(self, device=None):
-        self.command_handler(device, CameraState.STOP)
-        return self.template.index()
+    def pause(self, csi='False', zed='False'):
+        return self.executeAction(csi, zed, CameraState.PAUSE)
+
+    @cherrypy.expose
+    def stop(self, csi='False', zed='False'):
+        return self.executeAction(csi, zed, CameraState.STOP)
 
     @cherrypy.expose
     def index(self):
