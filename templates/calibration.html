@@ -25,24 +25,35 @@
 
 <script type = " text/javascript">
 function captureImage() {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/capture", true);
-    xhr.send();
-    xhr.onload = function (e) {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          console.log(xhr.responseText)
-          var response = JSON.parse(xhr.responseText)
-          savelocation.textContent = "Image saved to: " + response.filename
-        } else {
-          console.error(xhr.statusText);
-        }
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "/captureImage", true);
+  xhr.send();
+  xhr.onload = function (e) {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        console.log(xhr.responseText)
+        var response = JSON.parse(xhr.responseText)
+        savelocation.textContent = "Image saved to: " + response.filename
+      } else {
+        console.error(xhr.statusText);
       }
-    };
+    }
+  };
 }
 function calibrate() {
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "/intrinsics?command=calibrate", true);
-    xhttp.send();
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("GET", "/intrinsicCalibration", true);
+  xhttp.send();
+  xhr.onload = function (e) {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        console.log(xhr.responseText)
+        var response = JSON.parse(xhr.responseText)
+        savelocation.textContent = "Intrinsics saved to : " + response.filename
+      } else {
+        console.error(xhr.statusText);
+      }
+    }
+  };
 }
 </script>

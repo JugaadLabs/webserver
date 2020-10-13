@@ -16,6 +16,7 @@ import datetime
 from PIL import Image
 import simplejson
 from pathlib import Path
+from src.calibration.calibrate import *
 
 ZED_ENABLED = True
 
@@ -203,7 +204,7 @@ class URLHandler(object):
         return self.template.data()
 
     @cherrypy.expose
-    def capture(self):
+    def captureImage(self):
         self.frameLock.acquire()
         frame = cv2.cvtColor(self.streamer.lastFrame, cv2.COLOR_BGR2RGB)
         self.frameLock.release()
@@ -218,6 +219,13 @@ class URLHandler(object):
     @cherrypy.expose
     def intrinsics(self, command=""):
         return self.template.intrinsics()
+
+    @cherrypy.expose
+    def intrinsicCalibration(self):
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        filename = intrinsicCalibration(self.calibration_dir)
+        cherrypy.response.headers['Content-Type'] = 'text/markdown'
+        return simplejson.dumps(dict(filename=filename))
 
     @cherrypy.expose
     def index(self):
