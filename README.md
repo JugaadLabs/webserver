@@ -60,7 +60,7 @@ python3 client.py --record all --host 192.168.55.1 --port 8000
 
 #### GUI Mode
 
-Go to the address where the webserver is serving pages (e.g. http:///192.168.55.1:8000) in your web browser. This loads a webpage with the options to control the cameras, download files, and view documentation.
+Go to the address where the webserver is serving pages (e.g. http://192.168.55.1:8000) in your web browser. This loads a webpage with the options to control the cameras, download files, and view documentation.
 
 ### Recordings
 

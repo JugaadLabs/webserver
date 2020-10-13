@@ -12,9 +12,38 @@ from pathlib import Path
 import sys
 import netifaces as ni
 from cherrypy.process import plugins
+import cv2
+
+def testCamera(camId):
+    cap = cv2.VideoCapture(camId)
+    w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    if w == 0 or h == 0:
+        return -1
+    ratio = w/h
+    if ratio < 3:
+        return camId
+    if ratio > 3:
+        return 100
+    cap.release()
+
+def selfTest():
+    ret0 = testCamera(0)
+    ret1 = testCamera(1)
+    csi = -1
+    zed = -1
+    if ret0 == 0:
+        csi = 0
+    elif ret1 == 1:
+        csi = 1
+    if ret0 == 100:
+        zed = 0
+    elif ret1 == 100:
+        zed = 1
+    return csi, zed
 
 class Server(object):
-    def run(self, host="127.0.0.1", port=8000, dir='.', csiDevice=0):
+    def run(self, host="127.0.0.1", port=8000, dir='.'):
         dir = os.path.abspath(dir)
         Path(dir).mkdir(parents=True, exist_ok=True)
         print("Recording to: " + dir)
@@ -37,7 +66,8 @@ class Server(object):
             'server.socket_host': host,
             'server.socket_port': port,
         })
-        cherrypy.quickstart(URLHandler(self, dir, csiDevice, 300), '/', config=CP_CONF)
+        csiDevice, zedDevice = selfTest()
+        cherrypy.quickstart(URLHandler(self, dir, csiDevice, zedDevice, 300), '/', config=CP_CONF)
 
 def main():
     server = Server()

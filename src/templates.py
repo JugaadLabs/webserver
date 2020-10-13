@@ -36,6 +36,10 @@ class Templates:
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)
 
+    def index(self, message):
+        template = self.environment.get_template('base.html')
+        return template.render(body_html=message)
+
 
 def main():
     template = Templates(None)

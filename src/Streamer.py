@@ -28,7 +28,7 @@ class Streamer:
                 break
             ret, frame = self.cap.read()
             self.frameLock.acquire()
-            self.lastFrame = frame
+            self.lastFrame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
             self.lastTimestamp = time.time()
             self.frameLock.release()
         print("Disabled streaming thread")

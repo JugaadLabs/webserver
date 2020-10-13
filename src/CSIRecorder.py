@@ -11,7 +11,6 @@ class CSIRecorder:
     def __init__(self, pauseEvent, stopEvent, csiParams = {
         "dir": ".", "streamer": None, "resolution": (640,480), "framerate": 30, "framelock": None
     }, recording_interval = sys.maxsize):
-        self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.out = None
         self.dir = csiParams['dir']
         self.pauseEvent = pauseEvent

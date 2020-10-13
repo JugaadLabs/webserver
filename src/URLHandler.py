@@ -34,7 +34,7 @@ class CameraState(enum.Enum):
     STOP = 3
 
 class URLHandler(object):
-    def __init__(self, config, recording_dir, csi_device=0, recording_interval=0):
+    def __init__(self, config, recording_dir, csi_device=0, zed_device=1, recording_interval=0):
         self.config = config
         self.recording_dir = recording_dir
 
@@ -61,7 +61,10 @@ class URLHandler(object):
 
         self.frameLock = threading.Lock()
 
-        self.streamer = Streamer(self.frameLock, csi_device)
+        self.csiDevice = csi_device
+        self.zedDevice = zed_device
+
+        self.streamer = Streamer(self.frameLock, self.csiDevice)
         self.streamThread = threading.Thread(None, self.streamer.run, daemon=True)
         self.streamThread.start()
 
@@ -185,4 +188,13 @@ class URLHandler(object):
 
     @cherrypy.expose
     def index(self):
-        return self.template.data()
+        if self.csiDevice != -1 and self.zedDevice != -1:
+            raise cherrypy.HTTPRedirect("/data")
+        msg = "<h1>Error</h1>"
+        if self.zedDevice == -1:
+            msg += "ZED2 not detected.<br>"
+        if self.csiDevice == -1:
+            msg += "Monocam not detected.<br>"
+        msg += "Please connect the missing camera(s) and restart the Jetson." \
+        " You can still choose to record data from the available cameras, view recordings, or read the documentation."
+        return self.template.index(msg)
