@@ -12,6 +12,10 @@ import threading
 import enum
 import glob
 import cv2
+import datetime
+from PIL import Image
+import simplejson
+from pathlib import Path
 
 ZED_ENABLED = True
 
@@ -36,7 +40,9 @@ class CameraState(enum.Enum):
 class URLHandler(object):
     def __init__(self, config, recording_dir, csi_device=0, zed_device=1, recording_interval=0):
         self.config = config
-        self.recording_dir = recording_dir
+        self.recording_dir = os.path.abspath(recording_dir)
+        self.calibration_dir = os.path.join(self.recording_dir, "calibration")
+        Path(self.calibration_dir).mkdir(parents=True, exist_ok=True)
 
         self.streamThread = None
         self.csiThread = None
@@ -195,6 +201,23 @@ class URLHandler(object):
     @cherrypy.expose
     def data(self):
         return self.template.data()
+
+    @cherrypy.expose
+    def capture(self):
+        self.frameLock.acquire()
+        frame = cv2.cvtColor(self.streamer.lastFrame, cv2.COLOR_BGR2RGB)
+        self.frameLock.release()
+        im = Image.fromarray(frame)
+        now = datetime.datetime.now()
+        filename = now.strftime("IMG_%Y-%m-%d-%H-%M-%S")+".jpeg"
+        im.save(os.path.join(self.calibration_dir, filename))
+
+        cherrypy.response.headers['Content-Type'] = 'text/markdown'
+        return simplejson.dumps(dict(filename=filename))
+
+    @cherrypy.expose
+    def intrinsics(self, command=""):
+        return self.template.intrinsics()
 
     @cherrypy.expose
     def index(self):

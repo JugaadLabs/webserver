@@ -10,6 +10,12 @@ class Templates:
     def templatePath(self):
         return os.path.join(os.getcwd(), 'templates')
 
+    def intrinsics(self):
+        calibrationTemplate = self.environment.get_template('calibration.html')
+        html = calibrationTemplate.render()
+        template = self.environment.get_template('base.html')
+        return template.render(body_html=html)
+
     def data(self, csiChecked = "", zedChecked = ""):
         opts = {}
         opts['zedstop'] = self.stateVars['zedstop'].is_set()
