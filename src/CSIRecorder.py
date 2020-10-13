@@ -36,7 +36,7 @@ class CSIRecorder:
             startTimeString = now.strftime("CSI_%Y-%m-%d-%H-%M-%S")
             filepath = os.path.join(self.dir, startTimeString+".avi")
             print("CSI Camera - recording to " + filepath)
-            self.out = cv2.VideoWriter(filepath, self.fourcc, self.framerate, self.resolution)
+            self.out = cv2.VideoWriter(filepath, self.fourcc, self.framerate, (self.resolution[1], self.resolution[0]))
             frames_recorded = 0
             timestamps = []
             startTime = time.time()
