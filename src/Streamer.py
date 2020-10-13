@@ -18,7 +18,7 @@ class Streamer:
         self.frameLock = frameLock
 
     def run(self):
-        print("Starting streaming thread!")
+        print("Starting streaming thread with /dev/video"+ str(self.device))
         self.cap = cv2.VideoCapture(self.device)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolution[0])
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
