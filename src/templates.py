@@ -10,7 +10,7 @@ class Templates:
     def templatePath(self):
         return os.path.join(os.getcwd(), 'templates')
 
-    def index(self):
+    def data(self):
         opts = {}
         opts['zedstop'] = self.stateVars['zedstop'].is_set()
         opts['zedpaused'] = self.stateVars['zedpaused'].is_set()
@@ -39,7 +39,7 @@ class Templates:
 
 def main():
     template = Templates(None)
-    print(template.index())
+    print(template.data())
 
 if __name__=="__main__": 
     main() 

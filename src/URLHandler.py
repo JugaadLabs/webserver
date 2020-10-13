@@ -165,7 +165,7 @@ class URLHandler(object):
         csi = True if csi=='True' else False
         zed = True if zed=='True' else False
         self.command_handler(csi, zed, action)
-        return self.template.index()
+        return self.template.data()
 
     @cherrypy.expose
     def record(self, csi='False', zed='False'):
@@ -180,5 +180,9 @@ class URLHandler(object):
         return self.executeAction(csi, zed, CameraState.STOP)
 
     @cherrypy.expose
+    def data(self):
+        return self.template.data()
+
+    @cherrypy.expose
     def index(self):
-        return self.template.index()
+        return self.template.data()
