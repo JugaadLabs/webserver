@@ -64,6 +64,9 @@ class URLHandler(object):
         self.csiDevice = csi_device
         self.zedDevice = zed_device
 
+        self.csiChecked = ""
+        self.zedChecked = ""
+
         self.streamer = Streamer(self.frameLock, self.csiDevice)
         self.streamThread = threading.Thread(None, self.streamer.run, daemon=True)
         self.streamThread.start()
@@ -131,7 +134,8 @@ class URLHandler(object):
             frame = self.streamer.lastFrame
             if frame is None:
                 continue
-            (flag, encodeImage) = cv2.imencode(".jpg", frame)
+            resized = cv2.resize(frame, (int(0.5*frame.shape[1]), int(0.5*frame.shape[0])), cv2.INTER_AREA)
+            (flag, encodeImage) = cv2.imencode(".jpg", resized)
             if flag:
                 yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
         self.streamThread.join()
@@ -165,10 +169,16 @@ class URLHandler(object):
         return self.template.documentation()
 
     def executeAction(self, csi, zed, action):
-        csi = True if csi=='True' else False
-        zed = True if zed=='True' else False
+        if csi=='True':
+            csi, csiChecked = True, "checked"
+        else:
+            csi, csiChecked = False, ""
+        if zed=='True':
+            zed, zedChecked = True, "checked"
+        else:
+            zed, zedChecked = False, ""
         self.command_handler(csi, zed, action)
-        return self.template.data()
+        return self.template.data(csiChecked, zedChecked)
 
     @cherrypy.expose
     def record(self, csi='False', zed='False'):

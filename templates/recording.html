@@ -8,13 +8,13 @@
               <form method="POST">
                 <div class="row">
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="csi" id="CSI" value=True>
+                    <input class="form-check-input" type="checkbox" name="csi" id="CSI" value=True {{ state.csiChecked }}>
                     <label class="form-check-label" for="CSI">
-                      Monocam
+                      CSI
                     </label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="zed" id="ZED" value=True>
+                    <input class="form-check-input" type="checkbox" name="zed" id="ZED" value=True {{ state.zedChecked }}>
                     <label class="form-check-label" for="ZED">
                       ZED
                     </label>
