@@ -71,9 +71,6 @@ class URLHandler(object):
         self.csiDevice = csi_device
         self.zedDevice = zed_device
 
-        self.csiChecked = ""
-        self.zedChecked = ""
-
         self.streamer = Streamer(self.frameLock, self.csiDevice)
         self.streamThread = threading.Thread(None, self.streamer.run, daemon=True)
         self.streamThread.start()
@@ -176,16 +173,10 @@ class URLHandler(object):
         return self.template.documentation()
 
     def executeAction(self, csi, zed, action):
-        if csi=='True':
-            csi, csiChecked = True, "checked"
-        else:
-            csi, csiChecked = False, ""
-        if zed=='True':
-            zed, zedChecked = True, "checked"
-        else:
-            zed, zedChecked = False, ""
+        csi = True if csi=='True' else False
+        zed = True if zed=='True' else False
         self.command_handler(csi, zed, action)
-        return self.template.data(csiChecked, zedChecked)
+        return self.template.data()
 
     @cherrypy.expose
     def record(self, csi='False', zed='False'):

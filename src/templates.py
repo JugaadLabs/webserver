@@ -16,14 +16,12 @@ class Templates:
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)
 
-    def data(self, csiChecked = "", zedChecked = ""):
+    def data(self):
         opts = {}
         opts['zedstop'] = self.stateVars['zedstop'].is_set()
         opts['zedpaused'] = self.stateVars['zedpaused'].is_set()
         opts['csistop'] = self.stateVars['csistop'].is_set()
         opts['csipaused'] = self.stateVars['csipaused'].is_set()
-        opts['csiChecked'] = csiChecked
-        opts['zedChecked'] = zedChecked
         controlPanelTemplate = self.environment.get_template('recording.html')
         html = controlPanelTemplate.render(state=opts)
         template = self.environment.get_template('base.html')
