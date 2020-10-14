@@ -4,8 +4,9 @@
             <div class="card-header">Controls</div>
             <div class="card-body">
               <div class="row">
-                <div class="btn-group " role="group">
-                  <button id="captureButton" class="btn btn-success" onclick="captureImage()">Capture Image</button>
+                <div class="col text-center">
+                <!-- <div class="btn-group " role="group"> -->
+                  <button id="captureButton" class="btn btn-success mr-2" onclick="captureImage()">Capture Image</button>
                   <button id="calibrateButton" class="btn btn-primary" onclick="calibrate()">Calibrate Intrinsics</button>
                 </div>
               </div>
@@ -15,11 +16,13 @@
         </div>
     </div>
     <div class="col-sm-6">
-        <div class="card">
-          <div class="card-header">Camera View</div>
-          <img class="card-img-top" src="/stream">
-        </div>
-    </div>
+      <div class="card">
+        <div class="card-header">Camera View</div>
+        <center>
+        <img class="card-img-top mt-2 mb-2" style="width: 22rem;" src="/stream">
+        </center>
+      </div>
+  </div>
   </div>
 </div>
 
@@ -41,15 +44,14 @@ function captureImage() {
   };
 }
 function calibrate() {
-  var xhttp = new XMLHttpRequest();
-  xhttp.open("GET", "/intrinsicCalibration", true);
-  xhttp.send();
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "/intrinsicCalibration", true);
+  xhr.send();
   xhr.onload = function (e) {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
         console.log(xhr.responseText)
-        var response = JSON.parse(xhr.responseText)
-        savelocation.textContent = "Intrinsics saved to : " + response.filename
+        savelocation.textContent = xhr.responseText
       } else {
         console.error(xhr.statusText);
       }

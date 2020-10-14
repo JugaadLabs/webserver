@@ -8,6 +8,7 @@ import os.path
 
 # INPUTS
 def intrinsicCalibration(calibration_dir, chessboard_size=(6,9), square_size=25.4):
+    print("Started calibration in", calibration_dir)
     chessboard_size = (6,9) # Provide chessboard size [rows,columns]
     square_size = 25.4 # Provide the size of each square in 'mm'
 

@@ -222,10 +222,10 @@ class URLHandler(object):
 
     @cherrypy.expose
     def intrinsicCalibration(self):
-        cherrypy.response.headers['Content-Type'] = 'application/json'
-        filename = intrinsicCalibration(self.calibration_dir)
+        calibrationThread = threading.Thread(None, intrinsicCalibration,args=(self.calibration_dir,))
+        calibrationThread.start()
         cherrypy.response.headers['Content-Type'] = 'text/markdown'
-        return simplejson.dumps(dict(filename=filename))
+        return "Calibrating. Check the calibration directory for results."
 
     @cherrypy.expose
     def index(self):
