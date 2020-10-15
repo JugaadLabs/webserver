@@ -109,6 +109,7 @@ class URLHandler(object):
         cherrypy.response.headers['Content-Type'] = "multipart/x-mixed-replace; boundary=zedframe"
         if ZED_ENABLED:
             return self.getZedFrame()
+        # TODO: needs to be a yueld with header
         return
     zedStream._cp_config = {'response.stream': True}
 
@@ -120,7 +121,7 @@ class URLHandler(object):
             frame = self.zedStreamer.lastFrame
             if frame is None:
                 continue
-            resized = cv2.resize(frame, (int(0.5*frame.shape[0]), int(0.5*frame.shape[1])), cv2.INTER_AREA)
+            resized = cv2.resize(frame, (int(0.5*frame.shape[1]), int(0.5*frame.shape[0])), cv2.INTER_AREA)
             (flag, encodeImage) = cv2.imencode(".jpg", resized)
             if flag:
                 yield(b'--zedframe\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
@@ -188,8 +189,8 @@ class URLHandler(object):
         return simplejson.dumps(dict(filename=filename))
 
     @cherrypy.expose
-    def intrinsics(self, command=""):
-        return self.template.intrinsics()
+    def intrinsics(self):
+        return self.template.intrinsics(ZED_ENABLED)
 
     @cherrypy.expose
     def index(self):

@@ -1,6 +1,6 @@
 <h2>Intrinsic Calibration</h2>
 <div class="row mt-4">
-  <div class="col-sm-6">
+  <div class="col-sm">
     <div class="card mb-4">
       <div class="card-header">Controls</div>
       <div class="card-body">
@@ -14,7 +14,7 @@
       </div>
     </div>
   </div>
-  <div class="col-sm-6">
+  <div class="col-sm">
     <div class="card">
       <div class="card-header">Camera View</div>
       <center>
@@ -22,6 +22,16 @@
       </center>
     </div>
   </div>
+  {% if zedenabled %}
+  <div class="col-sm">
+    <div class="card">
+      <div class="card-header">ZED Depth Camera View</div>
+      <center>
+        <img class="card-img-top mt-2 mb-2" style="width: 18rem;" src="/zedStream">
+      </center>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 <script type="text/javascript">
