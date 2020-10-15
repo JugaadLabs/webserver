@@ -38,8 +38,7 @@ class CameraState(enum.Enum):
     STOP = 3
 
 class URLHandler(object):
-    def __init__(self, config, recording_dir, streamer, frameLock, csi_device=0, zed_device=1, recording_interval=0):
-        self.config = config
+    def __init__(self, recording_dir, streamer, frameLock, csi_device=0, zed_device=1, recording_interval=0):
         self.recording_dir = os.path.abspath(recording_dir)
         self.calibration_dir = os.path.join(self.recording_dir, "calibration")
         Path(self.calibration_dir).mkdir(parents=True, exist_ok=True)
@@ -191,7 +190,6 @@ class URLHandler(object):
         csiText, zedText = self.command_handler(csi, zed, action)
         cherrypy.response.headers['Content-Type'] = 'text/markdown'
         return simplejson.dumps(dict(csi=csiText, zed=zedText))
-
 
     @cherrypy.expose
     def record(self, csi, zed):

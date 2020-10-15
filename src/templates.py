@@ -39,11 +39,3 @@ class Templates:
     def index(self, message):
         template = self.environment.get_template('base.html')
         return template.render(body_html=message)
-
-
-def main():
-    template = Templates(None)
-    print(template.data())
-
-if __name__=="__main__": 
-    main() 

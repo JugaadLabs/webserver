@@ -75,7 +75,7 @@ class Server(object):
         streamThread = threading.Thread(None, streamer.run, daemon=True)
         streamThread.start()
 
-        cherrypy.quickstart(URLHandler(self, dir, streamer, frameLock, csiDevice, zedDevice, 300), '/', config=CP_CONF)
+        cherrypy.quickstart(URLHandler(dir, streamer, frameLock, csiDevice, zedDevice, 300), '/', config=CP_CONF)
 
 def main():
     server = Server()
