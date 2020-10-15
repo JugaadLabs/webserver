@@ -105,6 +105,28 @@ class URLHandler(object):
         self.command_handler(True, True, CameraState.STOP)
 
     @cherrypy.expose
+    def zedStream(self):
+        cherrypy.response.headers['Content-Type'] = "multipart/x-mixed-replace; boundary=zedframe"
+        if ZED_ENABLED:
+            return self.getZedFrame()
+        return
+    zedStream._cp_config = {'response.stream': True}
+
+    def getZedFrame(self):
+        while True:
+            state = cherrypy.engine.state
+            if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
+                break
+            frame = self.zedStreamer.lastFrame
+            if frame is None:
+                continue
+            resized = cv2.resize(frame, (int(0.5*frame.shape[0]), int(0.5*frame.shape[1])), cv2.INTER_AREA)
+            (flag, encodeImage) = cv2.imencode(".jpg", resized)
+            if flag:
+                yield(b'--zedframe\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
+        print("Shutting down ZED!")
+
+    @cherrypy.expose
     def download(self, filepath):
         return serve_file(filepath, "application/x-download", "attachment")
 
