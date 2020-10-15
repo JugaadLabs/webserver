@@ -9,7 +9,7 @@ import os
 
 class ZEDRecorder:
     def __init__(self, pauseEvent, stopEvent, zedParams={
-    "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, "framerate": 30, "dir": "."},
+    "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, "framerate": 15, "dir": "."},
     recording_interval = sys.maxsize):
         self.initParams = sl.InitParameters()
         self.initParams.camera_resolution = zedParams['resolution']
@@ -63,6 +63,9 @@ class ZEDRecorder:
                         time.sleep(0.1)
                     else:
                         cam.grab(runtime)
+                        image = sl.Mat()
+                        cam.retrieve_image(image, sl.VIEW.LEFT)
+                        print(image.get_resolution())
                         frames_recorded += 1
-                        print("Frame count ZED: " + str(frames_recorded), end="\r")
+                        # print("Frame count ZED: " + str(frames_recorded), end="\r")
                 self.cleanup(frames_recorded, cam)

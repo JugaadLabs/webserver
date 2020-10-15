@@ -119,7 +119,7 @@ class URLHandler(object):
         elif currentStatus == CameraState.PAUSE:
             return " is paused."
         else:
-            return " is stopped."
+            return " has stopped recording."
 
     def command_handler(self, csi, zed, command):
         if csi:
@@ -128,9 +128,9 @@ class URLHandler(object):
         if zed and ZED_ENABLED:
             self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
             ZEDRecorder, self.zedParams, self.zedPause, self.zedStop, command)
-        csiText = "Monocamera " + self.getCurrentStatusText(self.getCurrentStatus(self.csiThread, self.csiPause, self.csiStop))
+        csiText = "Mono Camera " + self.getCurrentStatusText(self.getCurrentStatus(self.csiThread, self.csiPause, self.csiStop))
         if ZED_ENABLED:
-            zedText = "ZED camera " + self.getCurrentStatusText(self.getCurrentStatus(self.zedThread, self.zedPause, self.zedStop))
+            zedText = "ZED Depth camera " + self.getCurrentStatusText(self.getCurrentStatus(self.zedThread, self.zedPause, self.zedStop))
         else:
             zedText = "pyzed not detected. ZED camera is disabled."
         return csiText, zedText
