@@ -34,43 +34,21 @@ from src.CSIStreamer import CSIStreamer
 from src.CameraState import CameraState
 
 class URLHandler(object):
-    def __init__(self, recording_dir, streamer, frameLock, csi_device=0, zed_device=1, recording_interval=0):
+    def __init__(self, recording_dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csi_device=0, zed_device=1):
         self.recording_dir = os.path.abspath(recording_dir)
         self.calibration_dir = os.path.join(self.recording_dir, "calibration")
         Path(self.calibration_dir).mkdir(parents=True, exist_ok=True)
-
-        self.csiThread = None
-        self.zedThread = None
-
-        self.csiPause = threading.Event()
-        self.csiStop = threading.Event()
-        self.zedPause = threading.Event()
-        self.zedStop = threading.Event()
-
-        self.csiPause.clear()
-        self.csiStop.set()
-        self.zedPause.clear()
-        self.zedStop.set()
 
         self.template = Templates()
 
         self.csiDevice = csi_device
         self.zedDevice = zed_device
 
-        self.streamer = streamer
-        self.frameLock = frameLock
+        self.csiStreamer = csiStreamer
+        self.csiFrameLock = csiFrameLock
 
-        self.csiParams = {
-            "streamer": self.streamer, "resolution": (640,480), 
-            "framerate": 30, "dir": recording_dir, "framelock": self.frameLock
-        }
-        if ZED_ENABLED:
-            self.zedParams = {
-                "resolution": sl.RESOLUTION.HD720, "depth": sl.DEPTH_MODE.PERFORMANCE, 
-                "framerate": 30, "dir": recording_dir
-            }
-
-        self.recording_interval = sys.maxsize if recording_interval == 0 else recording_interval
+        self.zedStreamer = zedStreamer
+        self.zedFrameLock = zedFrameLock
 
     def camera_handler(self, cameraThread, cameraClass, cameraParams, pauseEvent, stopEvent, command):
         if cameraThread == None and command != CameraState.RECORD:
@@ -142,7 +120,7 @@ class URLHandler(object):
             state = cherrypy.engine.state
             if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
                 break
-            frame = self.streamer.lastFrame
+            frame = self.csiStreamer.lastFrame
             if frame is None:
                 continue
             resized = cv2.resize(frame, (int(0.5*frame.shape[1]), int(0.5*frame.shape[0])), cv2.INTER_AREA)
@@ -205,9 +183,9 @@ class URLHandler(object):
 
     @cherrypy.expose
     def captureImage(self):
-        self.frameLock.acquire()
-        frame = cv2.cvtColor(self.streamer.lastFrame, cv2.COLOR_BGR2RGB)
-        self.frameLock.release()
+        self.csiFrameLock.acquire()
+        frame = cv2.cvtColor(self.csiStreamer.lastFrame, cv2.COLOR_BGR2RGB)
+        self.csiFrameLock.release()
         im = Image.fromarray(frame)
         now = datetime.datetime.now()
         filename = now.strftime("IMG_%Y-%m-%d-%H-%M-%S")+".jpeg"
