@@ -9,6 +9,16 @@ import cherrypy
 import jinja2
 from src.URLHandler import URLHandler
 from src.CSIStreamer import CSIStreamer
+ZED_ENABLED = True
+
+try:
+    import pyzed.sl as sl
+except ImportError as e:
+    print("pyzed not available! Using V4L2 fallback.")
+    ZED_ENABLED = False
+else:
+    from src.ZEDStreamer import ZEDStreamer
+
 from pathlib import Path
 import sys
 import netifaces as ni
@@ -70,12 +80,18 @@ class Server(object):
         if csiDevice == -1 or zedDevice == -1:
             csiDevice, zedDevice = selfTest()
 
-        frameLock = threading.Lock()
-        streamer = CSIStreamer(frameLock, csiDevice)
-        streamThread = threading.Thread(None, streamer.run, daemon=True)
-        streamThread.start()
+        csiFrameLock = threading.Lock()
+        csiStreamer = CSIStreamer(csiFrameLock, dir, 300, csiDevice)
+        csiStreamThread = threading.Thread(None, csiStreamer.run, daemon=True)
+        csiStreamThread.start()
 
-        cherrypy.quickstart(URLHandler(dir, streamer, frameLock, csiDevice, zedDevice, 300), '/', config=CP_CONF)
+        if ZED_ENABLED:
+            zedFrameLock = threading.Lock()
+            zedStreamer = ZEDStreamer(zedFrameLock, dir, 300)
+            zedStreamThread = threading.Thread(None, zedStreamer.run, daemon=True)
+            zedStreamThread.start()
+
+        cherrypy.quickstart(URLHandler(dir, csiStreamer, csiFrameLock, csiDevice, zedDevice, 300), '/', config=CP_CONF)
 
 def main():
     server = Server()
