@@ -46,8 +46,9 @@ class URLHandler(object):
         self.csiStreamer = csiStreamer
         self.csiFrameLock = csiFrameLock
 
-        self.zedStreamer = zedStreamer
-        self.zedFrameLock = zedFrameLock
+        if ZED_ENABLED:
+            self.zedStreamer = zedStreamer
+            self.zedFrameLock = zedFrameLock
 
     def camera_handler(self, streamer, command, t):
         if command == CameraState.RECORD:

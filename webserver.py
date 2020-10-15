@@ -86,13 +86,16 @@ class Server(object):
         csiStreamThread = threading.Thread(None, csiStreamer.run, daemon=True)
         csiStreamThread.start()
 
+        zedFrameLock = None
+        zedStreamer = None
+
         if ZED_ENABLED:
             zedFrameLock = threading.Lock()
             zedStreamer = ZEDStreamer(zedFrameLock, dir, 300)
             zedStreamThread = threading.Thread(None, zedStreamer.run, daemon=True)
             zedStreamThread.start()
 
-        cherrypy.quickstart(URLHandler(dir, csiStreamer, csiFrameLock, csiDevice, zedDevice, 300), '/', config=CP_CONF)
+        cherrypy.quickstart(URLHandler(dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csiDevice, zedDevice), '/', config=CP_CONF)
 
 def main():
     server = Server()
