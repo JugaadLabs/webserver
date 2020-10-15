@@ -2,8 +2,7 @@ import jinja2
 import os
 
 class Templates:
-    def __init__(self, stateVars):
-        self.stateVars = stateVars
+    def __init__(self):
         loader = jinja2.FileSystemLoader(self.templatePath())
         self.environment = jinja2.Environment(loader=loader)
 

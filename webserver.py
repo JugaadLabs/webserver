@@ -8,6 +8,7 @@ import threading
 import cherrypy
 import jinja2
 from src.URLHandler import URLHandler
+from src.Streamer import Streamer
 from pathlib import Path
 import sys
 import netifaces as ni
@@ -68,7 +69,13 @@ class Server(object):
         })
         if csiDevice == -1 or zedDevice == -1:
             csiDevice, zedDevice = selfTest()
-        cherrypy.quickstart(URLHandler(self, dir, csiDevice, zedDevice, 300), '/', config=CP_CONF)
+
+        frameLock = threading.Lock()
+        streamer = Streamer(frameLock, csiDevice)
+        streamThread = threading.Thread(None, streamer.run, daemon=True)
+        streamThread.start()
+
+        cherrypy.quickstart(URLHandler(self, dir, streamer, frameLock, csiDevice, zedDevice, 300), '/', config=CP_CONF)
 
 def main():
     server = Server()

@@ -38,13 +38,12 @@ class CameraState(enum.Enum):
     STOP = 3
 
 class URLHandler(object):
-    def __init__(self, config, recording_dir, csi_device=0, zed_device=1, recording_interval=0):
+    def __init__(self, config, recording_dir, streamer, frameLock, csi_device=0, zed_device=1, recording_interval=0):
         self.config = config
         self.recording_dir = os.path.abspath(recording_dir)
         self.calibration_dir = os.path.join(self.recording_dir, "calibration")
         Path(self.calibration_dir).mkdir(parents=True, exist_ok=True)
 
-        self.streamThread = None
         self.csiThread = None
         self.zedThread = None
 
@@ -58,21 +57,13 @@ class URLHandler(object):
         self.zedPause.clear()
         self.zedStop.set()
 
-        stateVars = {}
-        stateVars['zedstop'] = self.zedStop
-        stateVars['zedpaused'] = self.zedPause
-        stateVars['csistop'] = self.csiStop
-        stateVars['csipaused'] = self.csiPause
-        self.template = Templates(stateVars)
-
-        self.frameLock = threading.Lock()
+        self.template = Templates()
 
         self.csiDevice = csi_device
         self.zedDevice = zed_device
 
-        self.streamer = Streamer(self.frameLock, self.csiDevice)
-        self.streamThread = threading.Thread(None, self.streamer.run, daemon=True)
-        self.streamThread.start()
+        self.streamer = streamer
+        self.frameLock = frameLock
 
         self.csiParams = {
             "streamer": self.streamer, "resolution": (640,480), 
@@ -163,7 +154,8 @@ class URLHandler(object):
             (flag, encodeImage) = cv2.imencode(".jpg", resized)
             if flag:
                 yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
-        self.streamThread.join()
+        print("Shutting down!")
+        self.command_handler(True, True, CameraState.STOP)
 
     @cherrypy.expose
     def download(self, filepath):
