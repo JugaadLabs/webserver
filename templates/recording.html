@@ -1,3 +1,4 @@
+<h2>Data Collection</h2>
 <div class="row mt-4">
     <div class="col-sm-6">
       <div class="row">
@@ -5,33 +6,31 @@
           <div class="card">
             <div class="card-header">Remote Control</div>
             <div class="card-body">
-              <form method="POST">
-                <div class="row">
-                  <div class="col text-center">
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="csi" id="CSI" value=True checked>
-                    <label class="form-check-label" for="CSI">
-                      CSI
-                    </label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="zed" id="ZED" value=True checked>
-                    <label class="form-check-label" for="ZED">
-                      ZED
-                    </label>
-                  </div>
-                </div>
-              </div>
               <div class="row">
                 <div class="col text-center">
-                <div class="btn-group mt-4 " role="group">
-                  <button type="submit" method="POST" formaction="/record" class="btn btn-success"><i class="fas fa-circle"></i><br>Record</button>
-                  <button type="submit" method="POST" formaction="/pause" class="btn btn-warning"><i class="fas fa-pause"></i><br>Pause</button>
-                  <button type="submit" method="POST" formaction="/stop" class="btn btn-danger btn-block"><i class="fas fa-stop"></i><br>Stop</button>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" name="csi" id="CSI" value=True checked>
+                  <label class="form-check-label" for="CSI">
+                    CSI
+                  </label>
                 </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" name="zed" id="ZED" value=True checked>
+                  <label class="form-check-label" for="ZED">
+                    ZED
+                  </label>
                 </div>
               </div>
-            </form>
+            </div>
+            <div class="row">
+              <div class="col text-center">
+              <div class="btn-group mt-4 " role="group">
+                <button onclick="executeAction('record')" class="btn btn-success"><i class="fas fa-circle"></i><br>Record</button>
+                <button onclick="executeAction('pause')" class="btn btn-warning"><i class="fas fa-pause"></i><br>Pause</button>
+                <button onclick="executeAction('stop')" class="btn btn-danger btn-block"><i class="fas fa-stop"></i><br>Stop</button>
+              </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -41,24 +40,11 @@
           <div class="card">
             <div class="card-header">Status</div>
             <div class="card-body">
-            <div class="row">
-            {% if state.zedstop %}
-              ZED Camera is NOT RECORDING.
-            {% elif state.zedpaused %}
-              ZED Camera is PAUSED.
-            {% else %}
-              ZED Camera is RECORDING.
-            {% endif %}
-          </div>
-          <div class="row">
-            {% if state.csistop %}
-            CSI Camera is NOT RECORDING.
-            {% elif state.csipaused %}
-              CSI Camera is PAUSED.
-            {% else %}
-              CSI Camera is RECORDING.
-            {% endif %}
-          </div>
+            <div class="row" id="csiStatus">
+              Press the above buttons to start recording data.
+            </div>
+            <div class="row" id="zedStatus">
+            </div>
           </div>
         </div>
       </div>
@@ -74,3 +60,28 @@
     </div>
   </div>
 </div>
+
+<script type = "text/javascript">
+  function executeAction(url) {
+    var xhr = new XMLHttpRequest();
+    var csiChecked = document.getElementById("CSI").checked;
+    var zedChecked = document.getElementById("ZED").checked;
+    var params = "/"+url+"?csi="+csiChecked+"&zed="+zedChecked;
+    xhr.open("GET", params, true);
+    xhr.onload = function (e) {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          console.log(xhr.responseText);
+          var json = JSON.parse(xhr.responseText);
+          var csiText = json.csi;
+          var zedText = json.zed;
+          csiStatus.textContent = csiText;
+          zedStatus.textContent = zedText;
+        } else {
+          console.error(xhr.statusText);
+        }
+      }
+    };
+    xhr.send();
+  }
+</script>

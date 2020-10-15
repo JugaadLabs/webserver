@@ -16,7 +16,6 @@ import datetime
 from PIL import Image
 import simplejson
 from pathlib import Path
-from src.calibration.calibrate import *
 
 ZED_ENABLED = True
 
@@ -116,6 +115,22 @@ class URLHandler(object):
                     print("Camera not yet started")
         return cameraThread, pauseEvent, stopEvent
 
+    def getCurrentStatus(self, camThread, pause, stop):
+        if not stop.is_set() and not pause.is_set() and camThread.is_alive():
+            return CameraState.RECORD
+        elif pause.is_set() and camThread.is_alive():
+            return CameraState.PAUSE
+        else:
+            return CameraState.STOP
+    
+    def getCurrentStatusText(self, currentStatus):
+        if currentStatus == CameraState.RECORD:
+            return " is recording."
+        elif currentStatus == CameraState.PAUSE:
+            return " is paused."
+        else:
+            return " is stopped."
+
     def command_handler(self, csi, zed, command):
         if csi:
             self.csiThread, self.csiPause, self.csiStop = self.camera_handler(self.csiThread, \
@@ -123,6 +138,12 @@ class URLHandler(object):
         if zed and ZED_ENABLED:
             self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
             ZEDRecorder, self.zedParams, self.zedPause, self.zedStop, command)
+        csiText = "Monocamera " + self.getCurrentStatusText(self.getCurrentStatus(self.csiThread, self.csiPause, self.csiStop))
+        if ZED_ENABLED:
+            zedText = "ZED camera " + self.getCurrentStatusText(self.getCurrentStatus(self.zedThread, self.zedPause, self.zedStop))
+        else:
+            zedText = "pyzed not detected. ZED camera is disabled."
+        return csiText, zedText
 
     @cherrypy.expose
     def stream(self):
@@ -173,13 +194,15 @@ class URLHandler(object):
         return self.template.documentation()
 
     def executeAction(self, csi, zed, action):
-        csi = True if csi=='True' else False
-        zed = True if zed=='True' else False
-        self.command_handler(csi, zed, action)
-        return self.template.data()
+        csi = True if csi=='true' else False
+        zed = True if zed=='true' else False
+        csiText, zedText = self.command_handler(csi, zed, action)
+        cherrypy.response.headers['Content-Type'] = 'text/markdown'
+        return simplejson.dumps(dict(csi=csiText, zed=zedText))
+
 
     @cherrypy.expose
-    def record(self, csi='False', zed='False'):
+    def record(self, csi, zed):
         return self.executeAction(csi, zed, CameraState.RECORD)
 
     @cherrypy.expose
@@ -210,13 +233,6 @@ class URLHandler(object):
     @cherrypy.expose
     def intrinsics(self, command=""):
         return self.template.intrinsics()
-
-    @cherrypy.expose
-    def intrinsicCalibration(self):
-        calibrationThread = threading.Thread(None, intrinsicCalibration,args=(self.calibration_dir,))
-        calibrationThread.start()
-        cherrypy.response.headers['Content-Type'] = 'text/markdown'
-        return "Calibrating. Check the calibration directory for results."
 
     @cherrypy.expose
     def index(self):
