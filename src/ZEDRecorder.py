@@ -65,7 +65,7 @@ class ZEDRecorder:
                         cam.grab(runtime)
                         image = sl.Mat()
                         cam.retrieve_image(image, sl.VIEW.LEFT)
-                        print(image.get_resolution())
+                        print(image.get_data().shape)
                         frames_recorded += 1
                         # print("Frame count ZED: " + str(frames_recorded), end="\r")
                 self.cleanup(frames_recorded, cam)
