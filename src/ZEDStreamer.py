@@ -64,7 +64,8 @@ class ZEDStreamer:
             runtime = sl.RuntimeParameters()
             self.cam.grab(runtime)
             image = sl.Mat()
-            self.lastFrame = self.cam.retrieve_image(image, sl.VIEW.LEFT)
+            self.cam.retrieve_image(image, sl.VIEW.LEFT)
+            self.lastFrame = image.get_data()
             # PAUSE is currently ignored, since disabling cam.grab would disable the stream
             if self.currentState != CameraState.STOP:
                 self.recordFrame()

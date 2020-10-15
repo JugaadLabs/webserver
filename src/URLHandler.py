@@ -172,7 +172,7 @@ class URLHandler(object):
 
     @cherrypy.expose
     def data(self):
-        return self.template.data()
+        return self.template.data(ZED_ENABLED)
 
     @cherrypy.expose
     def captureImage(self):

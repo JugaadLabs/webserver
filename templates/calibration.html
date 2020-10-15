@@ -1,45 +1,44 @@
 <h2>Intrinsic Calibration</h2>
 <div class="row mt-4">
-    <div class="col-sm-6">
-        <div class="card mb-4">
-            <div class="card-header">Controls</div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col text-center">
-                  <button id="captureButton" class="btn btn-success mr-2" onclick="captureImage()">Capture Image</button>
-                </div>
-              </div>
-              <div class="row mt-4" id="savelocation">
-              </div>
-            </div>
+  <div class="col-sm-6">
+    <div class="card mb-4">
+      <div class="card-header">Controls</div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col text-center">
+            <button id="captureButton" class="btn btn-success mr-2" onclick="captureImage()">Capture Image</button>
+          </div>
         </div>
-    </div>
-    <div class="col-sm-6">
-      <div class="card">
-        <div class="card-header">Camera View</div>
-        <center>
-        <img class="card-img-top mt-2 mb-2" style="width: 18rem;" src="/stream">
-        </center>
+        <div class="row mt-4" id="savelocation">
+        </div>
       </div>
+    </div>
   </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-header">Camera View</div>
+      <center>
+        <img class="card-img-top mt-2 mb-2" style="width: 18rem;" src="/stream">
+      </center>
+    </div>
   </div>
 </div>
 
-<script type = "text/javascript">
-function captureImage() {
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", "/captureImage", true);
-  xhr.send();
-  xhr.onload = function (e) {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        console.log(xhr.responseText)
-        var response = JSON.parse(xhr.responseText)
-        savelocation.textContent = "Image saved to: " + response.filename
-      } else {
-        console.error(xhr.statusText);
+<script type="text/javascript">
+  function captureImage() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/captureImage", true);
+    xhr.send();
+    xhr.onload = function (e) {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          console.log(xhr.responseText)
+          var response = JSON.parse(xhr.responseText)
+          savelocation.textContent = "Image saved to: " + response.filename
+        } else {
+          console.error(xhr.statusText);
+        }
       }
-    }
-  };
-}
+    };
+  }
 </script>

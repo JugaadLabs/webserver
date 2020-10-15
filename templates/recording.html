@@ -1,13 +1,13 @@
 <h2>Data Collection</h2>
 <div class="row mt-4">
-    <div class="col-sm-6">
-      <div class="row">
-        <div class="col">
-          <div class="card">
-            <div class="card-header">Remote Control</div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col text-center">
+  <div class="col-sm">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header">Remote Control</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col text-center">
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="checkbox" name="csi" id="CSI" value=True checked>
                   <label class="form-check-label" for="CSI">
@@ -24,22 +24,25 @@
             </div>
             <div class="row">
               <div class="col text-center">
-              <div class="btn-group mt-4 " role="group">
-                <button onclick="executeAction('record')" class="btn btn-success"><i class="fas fa-circle"></i><br>Record</button>
-                <button onclick="executeAction('pause')" class="btn btn-warning"><i class="fas fa-pause"></i><br>Pause</button>
-                <button onclick="executeAction('stop')" class="btn btn-danger btn-block"><i class="fas fa-stop"></i><br>Stop</button>
-              </div>
+                <div class="btn-group mt-4 " role="group">
+                  <button onclick="executeAction('record')" class="btn btn-success"><i
+                      class="fas fa-circle"></i><br>Record</button>
+                  <button onclick="executeAction('pause')" class="btn btn-warning"><i
+                      class="fas fa-pause"></i><br>Pause</button>
+                  <button onclick="executeAction('stop')" class="btn btn-danger btn-block"><i
+                      class="fas fa-stop"></i><br>Stop</button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      </div>
-      <div class="row mt-4 mb-4">
-        <div class="col">
-          <div class="card">
-            <div class="card-header">Status</div>
-            <div class="card-body">
+    </div>
+    <div class="row mt-4 mb-4">
+      <div class="col">
+        <div class="card">
+          <div class="card-header">Status</div>
+          <div class="card-body">
             <div class="row" id="csiStatus">
               Press the above buttons to start recording data.
             </div>
@@ -49,24 +52,33 @@
         </div>
       </div>
     </div>
-    </div>
-    <div class="col-sm-6">
-        <div class="card">
-          <div class="card-header">Camera View</div>
-          <center>
-          <img class="card-img-top mt-2 mb-2" style="width: 18rem;" src="/stream">
-          </center>
-        </div>
+  </div>
+  <div class="col-sm">
+    <div class="card">
+      <div class="card-header">Camera View</div>
+      <center>
+        <img class="card-img-top mt-2 mb-2" style="width: 18rem;" src="/stream">
+      </center>
     </div>
   </div>
+  {% if zedenabled %}
+  <div class="col-sm">
+    <div class="card">
+      <div class="card-header">ZED Depth Camera View</div>
+      <center>
+        <img class="card-img-top mt-2 mb-2" style="width: 18rem;" src="/zedStream">
+      </center>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
-<script type = "text/javascript">
+<script type="text/javascript">
   function executeAction(url) {
     var xhr = new XMLHttpRequest();
     var csiChecked = document.getElementById("CSI").checked;
     var zedChecked = document.getElementById("ZED").checked;
-    var params = "/"+url+"?csi="+csiChecked+"&zed="+zedChecked;
+    var params = "/" + url + "?csi=" + csiChecked + "&zed=" + zedChecked;
     xhr.open("GET", params, true);
     xhr.onload = function (e) {
       if (xhr.readyState === 4) {

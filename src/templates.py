@@ -15,9 +15,9 @@ class Templates:
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)
 
-    def data(self):
-        controlPanelTemplate = self.environment.get_template('recording.html')
-        html = controlPanelTemplate.render()
+    def data(self, ZED_ENABLED):
+        recordingTemplate = self.environment.get_template('recording.html')
+        html = recordingTemplate.render(zedenabled=ZED_ENABLED)
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)
 
