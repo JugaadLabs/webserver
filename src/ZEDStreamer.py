@@ -31,23 +31,27 @@ class ZEDStreamer:
             return cam
 
     def startRecording(self, startTime):
-        self.startTime = startTime
-        self.startUnixTime = time.time()
+        if self.currentState == CameraState.STOP:
+            self.startTime = startTime
+            self.startUnixTime = time.time()
 
-        startTimeString = self.startTime.strftime("ZED_%Y-%m-%d-%H-%M-%S")
-        filepath = os.path.join(self.dir, startTimeString+".svo")
-        print("ZED Camera - recording to " + filepath)
+            startTimeString = self.startTime.strftime("ZED_%Y-%m-%d-%H-%M-%S")
+            filepath = os.path.join(self.dir, startTimeString+".svo")
+            print("ZED Camera - recording to " + filepath)
 
-        recording_param = sl.RecordingParameters(filepath, sl.SVO_COMPRESSION_MODE.H264)
-        self.cam.enable_recording(recording_param)
+            recording_param = sl.RecordingParameters(filepath, sl.SVO_COMPRESSION_MODE.H264)
+            self.cam.enable_recording(recording_param)
         self.currentState = CameraState.RECORD
 
     def stopRecording(self):
+        if self.currentState != CameraState.STOP:
+            self.cam.disable_recording()
         self.currentState = CameraState.STOP
-        self.cam.disable_recording()
 
     def pauseRecording(self):
-        self.currentState = CameraState.PAUSE
+        if self.currentState != CameraState.STOP:
+            print("ZED Recording paused!")            
+            self.currentState = CameraState.PAUSE
 
     def recordFrame(self):
         if (time.time() - self.startUnixTime > self.recordingInterval):
@@ -61,6 +65,7 @@ class ZEDStreamer:
             self.cam.grab(runtime)
             image = sl.Mat()
             self.lastFrame = self.cam.retrieve_image(image, sl.VIEW.LEFT)
+            # PAUSE is currently ignored, since disabling cam.grab would disable the stream
             if self.currentState != CameraState.STOP:
                 self.recordFrame()
         if self.currentState != CameraState.STOP:

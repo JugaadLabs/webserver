@@ -22,29 +22,33 @@ class CSIStreamer:
         self.recordingInterval = recordingInterval
 
     def startRecording(self, startTime):
-        self.startTime = startTime
-        self.startUnixTime = time.time()
+        if self.currentState == CameraState.STOP:
+            self.startTime = startTime
+            self.startUnixTime = time.time()
 
-        startTimeString = self.startTime.strftime("CSI_%Y-%m-%d-%H-%M-%S")
-        filepath = os.path.join(self.dir, startTimeString+".avi")
-        print("CSI Camera - recording to " + filepath)
+            startTimeString = self.startTime.strftime("CSI_%Y-%m-%d-%H-%M-%S")
+            filepath = os.path.join(self.dir, startTimeString+".avi")
+            print("CSI Camera - recording to " + filepath)
 
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        self.out = cv2.VideoWriter(filepath, fourcc, self.framerate, (self.resolution[1], self.resolution[0]))
-        self.timestamps = []
+            fourcc = cv2.VideoWriter_fourcc(*'XVID')
+            self.out = cv2.VideoWriter(filepath, fourcc, self.framerate, (self.resolution[1], self.resolution[0]))
+            self.timestamps = []
         self.currentState = CameraState.RECORD
 
     def stopRecording(self):
+        if self.currentState != CameraState.STOP:
+            startTimeString = self.startTime.strftime("CSI_%Y-%m-%d-%H-%M-%S")
+            filepath = os.path.join(self.dir, startTimeString+".pkl")
+            with open(filepath, 'wb') as f:
+                pickle.dump(self.timestamps, f)
+            print("Stopped recording!")
+            self.out.release()
         self.currentState = CameraState.STOP
-        startTimeString = self.startTime.strftime("CSI_%Y-%m-%d-%H-%M-%S")
-        filepath = os.path.join(self.dir, startTimeString+".pkl")
-        with open(filepath, 'wb') as f:
-            pickle.dump(self.timestamps, f)
-        print("Stopped recording!")
-        self.out.release()
 
     def pauseRecording(self):
-        self.currentState = CameraState.PAUSE
+        if self.currentState != CameraState.STOP:
+            print("Recording paused!")
+            self.currentState = CameraState.PAUSE
 
     def recordFrame(self):
         if (time.time() - self.startUnixTime < self.recordingInterval):
