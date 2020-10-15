@@ -43,7 +43,7 @@ def selfTest():
     return csi, zed
 
 class Server(object):
-    def run(self, host="127.0.0.1", port=8000, dir='.'):
+    def run(self, host="127.0.0.1", port=8000, dir='.', csiDevice=-1, zedDevice=-1):
         dir = os.path.abspath(dir)
         Path(dir).mkdir(parents=True, exist_ok=True)
         print("Recording to: " + dir)
@@ -66,7 +66,8 @@ class Server(object):
             'server.socket_host': host,
             'server.socket_port': port,
         })
-        csiDevice, zedDevice = selfTest()
+        if csiDevice == -1 or zedDevice == -1:
+            csiDevice, zedDevice = selfTest()
         cherrypy.quickstart(URLHandler(self, dir, csiDevice, zedDevice, 300), '/', config=CP_CONF)
 
 def main():

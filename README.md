@@ -33,13 +33,13 @@ This project uses a CherryPy webserver for remotely receiving commands using HTT
 Start the webserver by running:
 
 ```
-python3 webserver.py <INTERFACE='lo'> <PORT=8000> <RECORDING_DIR='.'> <V4L DEVICE>
+python3 webserver.py <INTERFACE='lo'> <PORT=8000> <RECORDING_DIR='.'>
 ```
 
-The `interface` argument is the network interface on which you want to run the webserver. Examples include `wlan0`, `lo`, and `l4tbr0` on Jetsons. The web server serves the page based on the IP address of the interface. The `recording_dir` argument is for choosing the folder to save the videos recorded by the cameras. V4L device is the `X` in `/dev/videoX` for the camera from which you want to record video from. Use `v4l-utils` to figure out what the device ID of the CSI camera is. For example, the following command uses port 9999 on the IP address the Xavier is connected to on its wireless interface and streams video from `/dev/video1`:
+The `interface` argument is the network interface on which you want to run the webserver. Examples include `wlan0`, `lo`, and `l4tbr0` on Jetsons. The web server serves the page based on the IP address of the interface. The `recording_dir` argument is for choosing the folder to save the videos recorded by the cameras. The AR0591 camera module or any V4L2 webcam is auto-detected. An example launch command is:
 
 ```
-python3 webserver.py wlan0 9999 /home/nvidia/myrecordings 1
+python3 webserver.py wlan0 9999 /home/nvidia/myrecordings
 ```
 
 ### Client

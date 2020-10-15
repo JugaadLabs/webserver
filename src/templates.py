@@ -17,13 +17,8 @@ class Templates:
         return template.render(body_html=html)
 
     def data(self):
-        opts = {}
-        opts['zedstop'] = self.stateVars['zedstop'].is_set()
-        opts['zedpaused'] = self.stateVars['zedpaused'].is_set()
-        opts['csistop'] = self.stateVars['csistop'].is_set()
-        opts['csipaused'] = self.stateVars['csipaused'].is_set()
         controlPanelTemplate = self.environment.get_template('recording.html')
-        html = controlPanelTemplate.render(state=opts)
+        html = controlPanelTemplate.render()
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)
 
