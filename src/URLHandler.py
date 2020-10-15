@@ -30,8 +30,8 @@ else:
 from cherrypy.lib.static import serve_file
 from src.CSIRecorder import CSIRecorder
 from src.templates import Templates
-from src.Streamer import CSIStreamer
-from CameraState import CameraState
+from src.CSIStreamer import CSIStreamer
+from src.CameraState import CameraState
 
 class URLHandler(object):
     def __init__(self, recording_dir, streamer, frameLock, csi_device=0, zed_device=1, recording_interval=0):

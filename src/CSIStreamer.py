@@ -6,28 +6,30 @@ import time
 import pickle
 import os
 import cherrypy
-from CameraState import CameraState
+from src.CameraState import CameraState
 
 class CSIStreamer:
-    def __init__(self, frameLock, pause, stop, dir, device=0, recordingInterval=300, resolution= (640,480), framerate= 30):
+    def __init__(self, frameLock, dir, recordingInterval=300, device=0, resolution= (640,480), framerate= 30):
         self.device = device
         self.framerate = framerate
         self.resolution = resolution
         self.cap = None
         self.lastFrame = None
         self.lastTimestamp = time.time()
-        self.frameLock = frameLock
         self.dir = dir
-
+        self.frameLock = frameLock
         self.currentState = CameraState.STOP
         self.recordingInterval = recordingInterval
 
     def startRecording(self, startTime):
         self.startTime = startTime
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        self.startUnixTime = time.time()
+
         startTimeString = self.startTime.strftime("CSI_%Y-%m-%d-%H-%M-%S")
         filepath = os.path.join(self.dir, startTimeString+".avi")
         print("CSI Camera - recording to " + filepath)
+
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.out = cv2.VideoWriter(filepath, fourcc, self.framerate, (self.resolution[1], self.resolution[0]))
         self.timestamps = []
         self.currentState = CameraState.RECORD
@@ -45,7 +47,7 @@ class CSIStreamer:
         self.currentState = CameraState.PAUSE
 
     def recordFrame(self):
-        if (time.time() - self.startTime < self.recordingInterval):
+        if (time.time() - self.startUnixTime < self.recordingInterval):
             self.timestamps.append(self.lastTimestamp)
             self.out.write(self.lastFrame)
         else:
