@@ -25,10 +25,9 @@ except ImportError as e:
     print("pyzed not available! Using V4L2 fallback.")
     ZED_ENABLED = False
 else:
-    from src.ZEDRecorder import ZEDRecorder
+    from src.ZEDStreamer import ZEDStreamer
 
 from cherrypy.lib.static import serve_file
-from src.CSIRecorder import CSIRecorder
 from src.templates import Templates
 from src.CSIStreamer import CSIStreamer
 from src.CameraState import CameraState
@@ -50,43 +49,17 @@ class URLHandler(object):
         self.zedStreamer = zedStreamer
         self.zedFrameLock = zedFrameLock
 
-    def camera_handler(self, cameraThread, cameraClass, cameraParams, pauseEvent, stopEvent, command):
-        if cameraThread == None and command != CameraState.RECORD:
-            print("Process not initialized yet!")
-        else:
-            if command == CameraState.RECORD:
-                if cameraThread is not None and cameraThread.is_alive():
-                    print("Camera already active!")
-                    if pauseEvent.is_set():
-                        print("Resuming recording...")
-                        pauseEvent.clear()
-                else:
-                    stopEvent.clear()
-                    pauseEvent.clear()
-                    cc = cameraClass(pauseEvent, stopEvent, cameraParams, self.recording_interval)
-                    cameraThread = threading.Thread(None, cc.run)
-                    cameraThread.start()
-            elif command == CameraState.PAUSE:
-                if cameraThread is not None and cameraThread.is_alive():
-                    pauseEvent.set()
-                else:
-                    print("Camera not started")
-            elif command == CameraState.STOP:
-                if cameraThread is not None and cameraThread.is_alive():
-                    stopEvent.set()
-                    cameraThread.join()
-                else:
-                    print("Camera not yet started")
-        return cameraThread, pauseEvent, stopEvent
+    def camera_handler(self, streamer, command, t):
+        if command == CameraState.RECORD:
+            streamer.startRecording(t)
+        elif command == CameraState.PAUSE:
+            streamer.pauseRecording()
+        elif command == CameraState.STOP:
+            streamer.stopRecording()
 
-    def getCurrentStatus(self, camThread, pause, stop):
-        if not stop.is_set() and not pause.is_set() and camThread.is_alive():
-            return CameraState.RECORD
-        elif pause.is_set() and camThread.is_alive():
-            return CameraState.PAUSE
-        else:
-            return CameraState.STOP
-    
+    def getCurrentStatus(self, streamer):
+        return streamer.currentState
+
     def getCurrentStatusText(self, currentStatus):
         if currentStatus == CameraState.RECORD:
             return " is recording."
@@ -96,15 +69,15 @@ class URLHandler(object):
             return " has stopped recording."
 
     def command_handler(self, csi, zed, command):
+        t = datetime.datetime.now()
         if csi:
-            self.csiThread, self.csiPause, self.csiStop = self.camera_handler(self.csiThread, \
-            CSIRecorder, self.csiParams, self.csiPause, self.csiStop, command)
+            self.camera_handler(self.csiStreamer, command, t)
         if zed and ZED_ENABLED:
-            self.zedThread, self.zedPause, self.zedStop = self.camera_handler(self.zedThread, \
-            ZEDRecorder, self.zedParams, self.zedPause, self.zedStop, command)
-        csiText = "Mono Camera " + self.getCurrentStatusText(self.getCurrentStatus(self.csiThread, self.csiPause, self.csiStop))
+            self.camera_handler(self.zedStreamer, command, t)
+
+        csiText = "Mono Camera " + self.getCurrentStatusText(self.getCurrentStatus(self.csiStreamer))
         if ZED_ENABLED:
-            zedText = "ZED Depth camera " + self.getCurrentStatusText(self.getCurrentStatus(self.zedThread, self.zedPause, self.zedStop))
+            zedText = "ZED Depth camera " + self.getCurrentStatusText(self.getCurrentStatus(self.zedStreamer))
         else:
             zedText = "pyzed not detected. ZED camera is disabled."
         return csiText, zedText
@@ -138,9 +111,6 @@ class URLHandler(object):
     def ls(self, dir=None):
         if dir is None:
             dir = self.recording_dir
-        html = """<html><body><h1>Recordings</h1>
-        <a href="ls?dir=%s">Up</a><br />
-        """ % os.path.dirname(os.path.abspath(dir))
         dirs = []
         files = []
         for filename in glob.glob(dir + '/*'):
