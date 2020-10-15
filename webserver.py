@@ -8,7 +8,7 @@ import threading
 import cherrypy
 import jinja2
 from src.URLHandler import URLHandler
-from src.Streamer import Streamer
+from src.CSIStreamer import CSIStreamer
 from pathlib import Path
 import sys
 import netifaces as ni
@@ -71,7 +71,7 @@ class Server(object):
             csiDevice, zedDevice = selfTest()
 
         frameLock = threading.Lock()
-        streamer = Streamer(frameLock, csiDevice)
+        streamer = CSIStreamer(frameLock, csiDevice)
         streamThread = threading.Thread(None, streamer.run, daemon=True)
         streamThread.start()
 
