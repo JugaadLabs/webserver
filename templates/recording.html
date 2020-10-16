@@ -25,11 +25,9 @@
             <div class="row">
               <div class="col text-center">
                 <div class="btn-group mt-4 " role="group">
-                  <button onclick="executeAction('record')" class="btn btn-success"><i
+                  <button onclick="executeAction('record')" style="width: 5rem;" class="btn btn-success"><i
                       class="fas fa-circle"></i><br>Record</button>
-                  <button onclick="executeAction('pause')" class="btn btn-warning"><i
-                      class="fas fa-pause"></i><br>Pause</button>
-                  <button onclick="executeAction('stop')" class="btn btn-danger btn-block"><i
+                  <button onclick="executeAction('stop')" style="width: 5rem;" class="btn btn-danger btn-block"><i
                       class="fas fa-stop"></i><br>Stop</button>
                 </div>
               </div>
@@ -53,7 +51,7 @@
       </div>
     </div>
   </div>
-  <div class="col-md">
+  <div class="col-lg">
     <div class="card mb-4">
       <div class="card-header">Camera View</div>
       <center>
@@ -62,7 +60,7 @@
     </div>
   </div>
   {% if zedenabled %}
-  <div class="col-md">
+  <div class="col-lg">
     <div class="card mb-4">
       <div class="card-header">ZED Depth Camera View</div>
       <center>

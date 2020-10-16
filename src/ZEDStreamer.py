@@ -48,11 +48,6 @@ class ZEDStreamer:
             self.cam.disable_recording()
         self.currentState = CameraState.STOP
 
-    def pauseRecording(self):
-        if self.currentState != CameraState.STOP:
-            print("ZED Recording paused!")            
-            self.currentState = CameraState.PAUSE
-
     def recordFrame(self):
         if (time.time() - self.startUnixTime > self.recordingInterval):
             self.stopRecording()

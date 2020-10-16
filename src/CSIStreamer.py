@@ -45,11 +45,6 @@ class CSIStreamer:
             self.out.release()
         self.currentState = CameraState.STOP
 
-    def pauseRecording(self):
-        if self.currentState != CameraState.STOP:
-            print("Recording paused!")
-            self.currentState = CameraState.PAUSE
-
     def recordFrame(self):
         if (time.time() - self.startUnixTime < self.recordingInterval):
             self.timestamps.append(self.lastTimestamp)

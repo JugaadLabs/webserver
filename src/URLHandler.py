@@ -53,8 +53,6 @@ class URLHandler(object):
     def camera_handler(self, streamer, command, t):
         if command == CameraState.RECORD:
             streamer.startRecording(t)
-        elif command == CameraState.PAUSE:
-            streamer.pauseRecording()
         elif command == CameraState.STOP:
             streamer.stopRecording()
 
@@ -64,9 +62,7 @@ class URLHandler(object):
     def getCurrentStatusText(self, currentStatus):
         if currentStatus == CameraState.RECORD:
             return " is recording."
-        elif currentStatus == CameraState.PAUSE:
-            return " is paused."
-        else:
+        elif currentStatus == CameraState.STOP:
             return " has stopped recording."
 
     def command_handler(self, csi, zed, command):
@@ -162,10 +158,6 @@ class URLHandler(object):
     @cherrypy.expose
     def record(self, csi, zed):
         return self.executeAction(csi, zed, CameraState.RECORD)
-
-    @cherrypy.expose
-    def pause(self, csi='False', zed='False'):
-        return self.executeAction(csi, zed, CameraState.PAUSE)
 
     @cherrypy.expose
     def stop(self, csi='False', zed='False'):
