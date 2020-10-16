@@ -59,7 +59,9 @@ class ZEDStreamer:
             self.startRecording(now)
 
     def run(self):
-        while True and self.cam is not None:
+        if self.cam == None:
+            return
+        while True:
             runtime = sl.RuntimeParameters()
             self.cam.grab(runtime)
             image = sl.Mat()
