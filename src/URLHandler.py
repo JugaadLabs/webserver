@@ -33,15 +33,17 @@ from src.CSIStreamer import CSIStreamer
 from src.CameraState import CameraState
 
 class URLHandler(object):
-    def __init__(self, recording_dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csi_device=0, zed_device=1):
+    def __init__(self, recording_dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csiStatus=False, zedStatus=False):
         self.recording_dir = os.path.abspath(recording_dir)
         self.calibration_dir = os.path.join(self.recording_dir, "calibration")
         Path(self.calibration_dir).mkdir(parents=True, exist_ok=True)
 
         self.template = Templates()
 
-        self.csiDevice = csi_device
-        self.zedDevice = zed_device
+        self.csiStatus = csiStatus
+        self.zedStatus = zedStatus
+        if zedStatus == False:
+            ZED_ENABLED = False
 
         self.csiStreamer = csiStreamer
         self.csiFrameLock = csiFrameLock
@@ -196,13 +198,13 @@ class URLHandler(object):
 
     @cherrypy.expose
     def index(self):
-        if self.csiDevice != -1 and self.zedDevice != -1:
+        if self.csiStatus == True and self.zedStatus == True:
             raise cherrypy.HTTPRedirect("/data")
         msg = "<h1>Error</h1>"
-        if self.zedDevice == -1:
-            msg += "ZED2 not detected.<br>"
-        if self.csiDevice == -1:
-            msg += "Monocam not detected.<br>"
-        msg += "Please connect the missing camera(s) and restart the Jetson." \
-        " You can still choose to record data from the available cameras, view recordings, or read the documentation."
+        if self.zedStatus == False:
+            msg += "ZED Depth Camera not detected or <code>pyzed</code> not installed.<br>"
+        if self.csiStatus == False:
+            msg += "Mono camera not detected.<br>"
+        msg += "Please connect the missing camera(s), install the <code>pyzed</code> SDK, and restart the server." \
+        " You can still choose to record data from the available cameras, view files, or read the documentation."
         return self.template.index(msg)

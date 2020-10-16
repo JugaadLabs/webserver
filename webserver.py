@@ -30,32 +30,28 @@ def testCamera(camId):
     cap = cv2.VideoCapture(camId)
     w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    if w == 0 or h == 0:
+    if w == 0 or h == 0 or w/h >3:
         return -1
-    ratio = w/h
-    if ratio < 3:
-        return camId
-    if ratio > 3:
-        return 100
+    return camId
     cap.release()
 
 def selfTest():
     ret0 = testCamera(0)
     ret1 = testCamera(1)
-    csi = -1
-    zed = -1
-    if ret0 == 0:
-        csi = 0
-    elif ret1 == 1:
-        csi = 1
-    if ret0 == 100:
-        zed = 0
-    elif ret1 == 100:
-        zed = 1
+
+    csi = max(ret0, ret1)
+
+    zed = False
+    if ZED_ENABLED:
+        cam = sl.Camera()
+        status = cam.open()
+        if status == sl.ERROR_CODE.SUCCESS:
+            cam.close()
+            zed = True
     return csi, zed
 
 class Server(object):
-    def run(self, host="127.0.0.1", port=8000, dir='.', csiDevice=-1, zedDevice=-1):
+    def run(self, host="127.0.0.1", port=8000, dir='.', csiDevice=-1):
         dir = os.path.abspath(dir)
         Path(dir).mkdir(parents=True, exist_ok=True)
         print("Recording to: " + dir)
@@ -78,8 +74,14 @@ class Server(object):
             'server.socket_host': host,
             'server.socket_port': port,
         })
-        if csiDevice == -1 or zedDevice == -1:
-            csiDevice, zedDevice = selfTest()
+
+        zedStatus = False
+        if csiDevice == -1:
+            csiDevice, zedStatus = selfTest()
+        else:
+            _, zedStatus = selfTest()
+
+        csiStatus = True if csiDevice != -1 else False
 
         csiFrameLock = threading.Lock()
         csiStreamer = CSIStreamer(csiFrameLock, dir, 300, csiDevice)
@@ -95,7 +97,7 @@ class Server(object):
             zedStreamThread = threading.Thread(None, zedStreamer.run, daemon=True)
             zedStreamThread.start()
 
-        cherrypy.quickstart(URLHandler(dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csiDevice, zedDevice), '/', config=CP_CONF)
+        cherrypy.quickstart(URLHandler(dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csiStatus, zedStatus), '/', config=CP_CONF)
 
 def main():
     server = Server()
