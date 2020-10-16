@@ -42,6 +42,7 @@ class URLHandler(object):
 
         self.csiStatus = csiStatus
         self.zedStatus = zedStatus
+        global ZED_ENABLED
         if zedStatus == False:
             ZED_ENABLED = False
 
