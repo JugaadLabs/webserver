@@ -20,6 +20,7 @@ class ZEDStreamer:
         self.currentState = CameraState.STOP
         self.recordingInterval = recordingInterval
         self.cam = self.intializeCamera()
+        self.filename = ""
 
     def intializeCamera(self):
         cam = sl.Camera()
@@ -36,17 +37,20 @@ class ZEDStreamer:
             self.startUnixTime = time.time()
 
             startTimeString = self.startTime.strftime("ZED_%Y-%m-%d-%H-%M-%S")
-            filepath = os.path.join(self.dir, startTimeString+".svo")
+            self.filename = startTimeString+".svo"
+            filepath = os.path.join(self.dir, self.filename)
             print("ZED Camera - recording to " + filepath)
 
             recording_param = sl.RecordingParameters(filepath, sl.SVO_COMPRESSION_MODE.H264)
             self.cam.enable_recording(recording_param)
         self.currentState = CameraState.RECORD
+        return self.filename
 
     def stopRecording(self):
         if self.currentState != CameraState.STOP:
             self.cam.disable_recording()
         self.currentState = CameraState.STOP
+        return self.filename
 
     def recordFrame(self):
         if (time.time() - self.startUnixTime > self.recordingInterval):

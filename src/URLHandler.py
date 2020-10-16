@@ -54,32 +54,36 @@ class URLHandler(object):
             self.zedFrameLock = zedFrameLock
 
     def camera_handler(self, streamer, command, t):
+        msg = ""
         if command == CameraState.RECORD:
-            streamer.startRecording(t)
+            msg = streamer.startRecording(t)
         elif command == CameraState.STOP:
-            streamer.stopRecording()
+            msg = streamer.stopRecording()
+        return msg
 
     def getCurrentStatus(self, streamer):
         return streamer.currentState
 
-    def getCurrentStatusText(self, currentStatus):
+    def getCurrentStatusText(self, currentStatus, filename):
         if currentStatus == CameraState.RECORD:
-            return " is recording."
+            return " is recording to " + filename + "."
         elif currentStatus == CameraState.STOP:
-            return " has stopped recording."
+            return " file saved to " + filename + "."
 
     def command_handler(self, csi, zed, command):
         t = datetime.datetime.now()
+        csiFilename = ""
+        zedFilename = ""
         if csi:
-            self.camera_handler(self.csiStreamer, command, t)
+            csiFilename = self.camera_handler(self.csiStreamer, command, t)
         if zed and ZED_ENABLED:
-            self.camera_handler(self.zedStreamer, command, t)
+            zedFilename = self.camera_handler(self.zedStreamer, command, t)
 
-        csiText = "Mono Camera " + self.getCurrentStatusText(self.getCurrentStatus(self.csiStreamer))
+        csiText = "Mono Camera " + self.getCurrentStatusText(self.getCurrentStatus(self.csiStreamer), csiFilename)
         if ZED_ENABLED:
-            zedText = "ZED Depth camera " + self.getCurrentStatusText(self.getCurrentStatus(self.zedStreamer))
+            zedText = "ZED Depth camera " + self.getCurrentStatusText(self.getCurrentStatus(self.zedStreamer), zedFilename)
         else:
-            zedText = "pyzed not detected. ZED camera is disabled."
+            zedText = "pyzed not installed or ZED Depth Camera not connected. ZED Recording disabled."
         return csiText, zedText
 
     @cherrypy.expose
