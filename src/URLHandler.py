@@ -16,7 +16,7 @@ import datetime
 from PIL import Image
 import simplejson
 from pathlib import Path
-
+from operator import itemgetter
 ZED_ENABLED = True
 
 try:
@@ -106,6 +106,7 @@ class URLHandler(object):
                 yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
         print("Shutting down!")
         self.command_handler(True, True, CameraState.STOP)
+        # FIXME: not a very good shutdown approach
         sys.exit(0)
 
     @cherrypy.expose
@@ -150,6 +151,8 @@ class URLHandler(object):
                 dirs.append(item)
             else:
                 files.append(item)
+        dirs = sorted(dirs, key=itemgetter('filename'))
+        files = sorted(files, key=itemgetter('filename'))
         return self.template.ls(files, dirs)
 
     @cherrypy.expose
