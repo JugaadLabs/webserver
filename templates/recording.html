@@ -72,26 +72,33 @@
 </div>
 
 <script type="text/javascript">
+  var statusXHR = new XMLHttpRequest();
+  statusXHR.open("GET", "/camerastatus");
+  statusXHR.addEventListener("load", xhrCallback);
+  statusXHR.send();
+
   function executeAction(url) {
     var xhr = new XMLHttpRequest();
     var csiChecked = document.getElementById("CSI").checked;
     var zedChecked = document.getElementById("ZED").checked;
     var params = "/" + url + "?csi=" + csiChecked + "&zed=" + zedChecked;
     xhr.open("GET", params, true);
-    xhr.onload = function (e) {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          console.log(xhr.responseText);
-          var json = JSON.parse(xhr.responseText);
-          var csiText = json.csi;
-          var zedText = json.zed;
-          csiStatus.textContent = csiText;
-          zedStatus.textContent = zedText;
-        } else {
-          console.error(xhr.statusText);
-        }
-      }
-    };
+    xhr.addEventListener("load", xhrCallback);
     xhr.send();
+  }
+
+  function xhrCallback() {
+    if (this.readyState === 4) {
+      if (this.status === 200) {
+        console.log(this.responseText);
+        var json = JSON.parse(this.responseText);
+        var csiText = json.csi;
+        var zedText = json.zed;
+        csiStatus.textContent = csiText;
+        zedStatus.textContent = zedText;
+      } else {
+        console.error(this.statusText);
+      }
+    }
   }
 </script>

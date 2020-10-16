@@ -54,12 +54,10 @@ class URLHandler(object):
             self.zedFrameLock = zedFrameLock
 
     def camera_handler(self, streamer, command, t):
-        msg = ""
         if command == CameraState.RECORD:
-            msg = streamer.startRecording(t)
+            streamer.startRecording(t)
         elif command == CameraState.STOP:
-            msg = streamer.stopRecording()
-        return msg
+            streamer.stopRecording()
 
     def getCurrentStatus(self, streamer):
         return streamer.currentState
@@ -70,18 +68,25 @@ class URLHandler(object):
         elif currentStatus == CameraState.STOP:
             return " file saved to " + filename + "."
 
-    def command_handler(self, csi, zed, command):
+    def commandHandler(self, csi, zed, command):
         t = datetime.datetime.now()
-        csiFilename = ""
-        zedFilename = ""
         if csi:
-            csiFilename = self.camera_handler(self.csiStreamer, command, t)
+            self.camera_handler(self.csiStreamer, command, t)
         if zed and ZED_ENABLED:
-            zedFilename = self.camera_handler(self.zedStreamer, command, t)
+            self.camera_handler(self.zedStreamer, command, t)
 
-        csiText = "Mono Camera " + self.getCurrentStatusText(self.getCurrentStatus(self.csiStreamer), csiFilename)
+    def getCameraStatus(self):
+        csiFilename = self.csiStreamer.filename
+        if csiFilename == "":
+            csiText = "Mono Camera is streaming."
+        else:
+            csiText = "Mono Camera " + self.getCurrentStatusText(self.getCurrentStatus(self.csiStreamer), csiFilename)
         if ZED_ENABLED:
-            zedText = "ZED Depth camera " + self.getCurrentStatusText(self.getCurrentStatus(self.zedStreamer), zedFilename)
+            zedFilename = self.zedStreamer.filename
+            if zedFilename == "":
+                zedText = "ZED Depth Camera is streaming."
+            else:
+                zedText = "ZED Depth Camera " + self.getCurrentStatusText(self.getCurrentStatus(self.zedStreamer), zedFilename)
         else:
             zedText = "pyzed not installed or ZED Depth Camera not connected. ZED Recording disabled."
         return csiText, zedText
@@ -105,7 +110,7 @@ class URLHandler(object):
             if flag:
                 yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
         print("Shutting down!")
-        self.command_handler(True, True, CameraState.STOP)
+        self.commandHandler(True, True, CameraState.STOP)
         # FIXME: not a very good shutdown approach
         sys.exit(0)
 
@@ -114,7 +119,7 @@ class URLHandler(object):
         cherrypy.response.headers['Content-Type'] = "multipart/x-mixed-replace; boundary=zedframe"
         if ZED_ENABLED:
             return self.getZedFrame()
-        # TODO: needs to be a yueld with header
+        # TODO: needs to be a yield with header
         return
     zedStream._cp_config = {'response.stream': True}
 
@@ -131,6 +136,12 @@ class URLHandler(object):
             if flag:
                 yield(b'--zedframe\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
         print("Shutting down ZED!")
+
+    @cherrypy.expose
+    def camerastatus(self):
+        csiText, zedText = self.getCameraStatus()
+        cherrypy.response.headers['Content-Type'] = 'text/markdown'
+        return simplejson.dumps(dict(csi=csiText, zed=zedText))
 
     @cherrypy.expose
     def download(self, filepath):
@@ -162,9 +173,8 @@ class URLHandler(object):
     def executeAction(self, csi, zed, action):
         csi = True if csi=='true' else False
         zed = True if zed=='true' else False
-        csiText, zedText = self.command_handler(csi, zed, action)
-        cherrypy.response.headers['Content-Type'] = 'text/markdown'
-        return simplejson.dumps(dict(csi=csiText, zed=zedText))
+        self.commandHandler(csi, zed, action)
+        return self.camerastatus()
 
     @cherrypy.expose
     def record(self, csi, zed):

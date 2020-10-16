@@ -36,7 +36,6 @@ class CSIStreamer:
             self.out = cv2.VideoWriter(filepath, fourcc, self.framerate, (self.resolution[1], self.resolution[0]))
             self.timestamps = []
         self.currentState = CameraState.RECORD
-        return self.filename
 
     def stopRecording(self):
         if self.currentState != CameraState.STOP:
@@ -47,7 +46,6 @@ class CSIStreamer:
             print("Stopped recording!")
             self.out.release()
         self.currentState = CameraState.STOP
-        return self.filename
 
     def recordFrame(self):
         if (time.time() - self.startUnixTime < self.recordingInterval):
