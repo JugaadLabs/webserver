@@ -44,7 +44,7 @@
         if (xhr.status === 200) {
           console.log(xhr.responseText)
           var response = JSON.parse(xhr.responseText)
-          savelocation.textContent = "Image saved to: " + response.filename
+          savelocation.textContent = "Images saved to: " + response.csiFilename + " " + response.zedFilename
         } else {
           console.error(xhr.statusText);
         }

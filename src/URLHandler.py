@@ -169,16 +169,26 @@ class URLHandler(object):
 
     @cherrypy.expose
     def captureImage(self):
-        self.csiFrameLock.acquire()
-        frame = cv2.cvtColor(self.csiStreamer.lastFrame, cv2.COLOR_BGR2RGB)
-        self.csiFrameLock.release()
-        im = Image.fromarray(frame)
         now = datetime.datetime.now()
-        filename = now.strftime("IMG_%Y-%m-%d-%H-%M-%S")+".jpeg"
-        im.save(os.path.join(self.calibration_dir, filename))
+        fileTime = now.strftime("IMG_%Y-%m-%d-%H-%M-%S")+".jpeg"
+
+        self.csiFrameLock.acquire()
+        csiFrame = cv2.cvtColor(self.csiStreamer.lastFrame, cv2.COLOR_BGR2RGB)
+        self.csiFrameLock.release()
+        csiImage = Image.fromarray(csiFrame)
+        csiFilename = "CSI_" + fileTime
+        csiImage.save(os.path.join(self.calibration_dir, csiFilename))
+        zedFilename = ""
+        if ZED_ENABLED:
+            self.zedFrameLock.acquire()
+            zedFrame = cv2.cvtColor(self.zedStreamer.lastFrame, cv2.COLOR_BGR2RGB)
+            self.zedFrameLock.release()
+            zedImage = Image.fromarray(zedFrame)
+            zedFilename = "ZED_" + fileTime
+            zedImage.save(os.path.join(self.calibration_dir, zedFilename))
 
         cherrypy.response.headers['Content-Type'] = 'text/markdown'
-        return simplejson.dumps(dict(filename=filename))
+        return simplejson.dumps(dict(csiFilename=csiFilename, zedFilename=zedFilename))
 
     @cherrypy.expose
     def intrinsics(self):
