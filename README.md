@@ -2,6 +2,8 @@
 
 This utility allows one to remotely record timestamped video data from a V4L2 camera and the ZED stereo camera simultaneously. It targets the NVIDIA Jetson Xavier, but should work fine with any computer with an NVIDIA graphics card which supports the ZED camera. If you don't have the ZED camera attached or `pysdk` installed, the server falls back to serving a video stream from a V4L2 device.
 
+A video tutorial of using the dashboard can be found [here](https://youtu.be/_Sp9WvgxLE0).
+
 ## Install
 
 Download the project using:
@@ -21,7 +23,7 @@ Install the ZED Python SDK using the instructions [here](https://www.stereolabs.
 **Optional**: Autogenerate the `documentation.html` page by running:
 
 ```
-pandoc README.md -o html/documentation.html
+pandoc README.md -o templates/documentation.html
 ```
 
 ## Usage

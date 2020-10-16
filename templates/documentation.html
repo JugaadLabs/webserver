@@ -1,5 +1,6 @@
 <h2 id="introduction">Introduction</h2>
 <p>This utility allows one to remotely record timestamped video data from a V4L2 camera and the ZED stereo camera simultaneously. It targets the NVIDIA Jetson Xavier, but should work fine with any computer with an NVIDIA graphics card which supports the ZED camera. If you don’t have the ZED camera attached or <code>pysdk</code> installed, the server falls back to serving a video stream from a V4L2 device.</p>
+<p>A video tutorial of using the dashboard can be found <a href="https://youtu.be/_Sp9WvgxLE0">here</a>.</p>
 <h2 id="install">Install</h2>
 <p>Download the project using:</p>
 <pre><code>git clone https://github.com/JugaadLabs/webserver.git</code></pre>
@@ -7,7 +8,7 @@
 <pre><code>pip3 install -r requirements.txt</code></pre>
 <p>Install the ZED Python SDK using the instructions <a href="https://www.stereolabs.com/docs/app-development/python/install/">here</a>.</p>
 <p><strong>Optional</strong>: Autogenerate the <code>documentation.html</code> page by running:</p>
-<pre><code>pandoc README.md -o html/documentation.html</code></pre>
+<pre><code>pandoc README.md -o templates/documentation.html</code></pre>
 <h2 id="usage">Usage</h2>
 <p>This project uses a CherryPy webserver for remotely receiving commands using HTTP GET calls. Make sure your Xavier NX is running Jetpack 4.4 Developer Preview for use with the e-Con camera. The e-Con camera is a V4L2 device and you can find which device it is by checking the output of <code>v4l2-ctl --list-devices</code>.</p>
 <h3 id="server">Server</h3>
