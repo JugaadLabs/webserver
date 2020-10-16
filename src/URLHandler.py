@@ -106,6 +106,7 @@ class URLHandler(object):
                 yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
         print("Shutting down!")
         self.command_handler(True, True, CameraState.STOP)
+        sys.exit(0)
 
     @cherrypy.expose
     def zedStream(self):
