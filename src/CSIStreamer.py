@@ -56,6 +56,12 @@ class CSIStreamer:
             now = datetime.datetime.now()
             self.startRecording(now)
 
+    def getCurrentFrame(self):
+        self.frameLock.acquire()
+        frame = self.lastFrame
+        self.frameLock.release()
+        return frame
+
     def run(self):
         print("Starting streaming thread with /dev/video"+ str(self.device))
         self.cap = cv2.VideoCapture(self.device)

@@ -56,6 +56,12 @@ class ZEDStreamer:
             now = datetime.datetime.now()
             self.startRecording(now)
 
+    def getCurrentFrame(self):
+        self.frameLock.acquire()
+        frame = self.lastFrame
+        self.frameLock.release()
+        return frame
+
     def run(self):
         if self.cam == None:
             return

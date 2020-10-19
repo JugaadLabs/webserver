@@ -32,7 +32,7 @@ from src.CSIStreamer import CSIStreamer
 from src.CameraState import CameraState
 
 class URLHandler(object):
-    def __init__(self, recording_dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csiStatus=False, zedStatus=False):
+    def __init__(self, recording_dir, csiStreamer, zedStreamer, csiStatus=False, zedStatus=False):
         self.recording_dir = os.path.abspath(recording_dir)
         self.calibration_dir = os.path.join(self.recording_dir, "calibration")
         Path(self.calibration_dir).mkdir(parents=True, exist_ok=True)
@@ -46,11 +46,9 @@ class URLHandler(object):
             ZED_ENABLED = False
 
         self.csiStreamer = csiStreamer
-        self.csiFrameLock = csiFrameLock
 
         if ZED_ENABLED:
             self.zedStreamer = zedStreamer
-            self.zedFrameLock = zedFrameLock
 
     def camera_handler(self, streamer, command, t):
         if command == CameraState.RECORD:
@@ -101,7 +99,7 @@ class URLHandler(object):
             state = cherrypy.engine.state
             if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
                 break
-            frame = self.csiStreamer.lastFrame
+            frame = self.csiStreamer.getCurrentFrame()
             if frame is None:
                 continue
             resized = cv2.resize(frame, (int(0.5*frame.shape[1]), int(0.5*frame.shape[0])), cv2.INTER_AREA)
@@ -127,7 +125,7 @@ class URLHandler(object):
             state = cherrypy.engine.state
             if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
                 break
-            frame = self.zedStreamer.lastFrame
+            frame = self.zedStreamer.getCurrentFrame()
             if frame is None:
                 continue
             resized = cv2.resize(frame, (int(0.5*frame.shape[1]), int(0.5*frame.shape[0])), cv2.INTER_AREA)
@@ -145,25 +143,6 @@ class URLHandler(object):
     @cherrypy.expose
     def download(self, filepath):
         return serve_file(filepath, "application/x-download", "attachment")
-
-    @cherrypy.expose
-    def ls(self, dir=None):
-        if dir is None:
-            dir = self.recording_dir
-        dirs = []
-        files = []
-        for filename in glob.glob(dir + '/*'):
-            absPath = os.path.abspath(filename)
-            item = {}
-            item['filename'] = os.path.basename(filename)
-            item['path'] = absPath
-            if os.path.isdir(absPath):
-                dirs.append(item)
-            else:
-                files.append(item)
-        dirs = sorted(dirs, key=itemgetter('filename'))
-        files = sorted(files, key=itemgetter('filename'))
-        return self.template.ls(files, dirs)
 
     @cherrypy.expose
     def documentation(self):
@@ -191,18 +170,15 @@ class URLHandler(object):
     def captureImage(self):
         now = datetime.datetime.now()
         fileTime = now.strftime("IMG_%Y-%m-%d-%H-%M-%S")+".jpeg"
-
-        self.csiFrameLock.acquire()
-        csiFrame = cv2.cvtColor(self.csiStreamer.lastFrame, cv2.COLOR_BGR2RGB)
-        self.csiFrameLock.release()
+        csiFrame = self.csiStreamer.getCurrentFrame()
+        csiFrame = cv2.cvtColor(csiFrame, cv2.COLOR_BGR2RGB)
         csiImage = Image.fromarray(csiFrame)
         csiFilename = "CSI_" + fileTime
         csiImage.save(os.path.join(self.calibration_dir, csiFilename))
         zedFilename = ""
         if ZED_ENABLED:
-            self.zedFrameLock.acquire()
-            zedFrame = cv2.cvtColor(self.zedStreamer.lastFrame, cv2.COLOR_BGR2RGB)
-            self.zedFrameLock.release()
+            zedFrame = self.zedStreamer.getCurrentFrame()
+            zedFrame = cv2.cvtColor(zedFrame, cv2.COLOR_BGR2RGB)
             zedImage = Image.fromarray(zedFrame)
             zedFilename = "ZED_" + fileTime
             zedImage.save(os.path.join(self.calibration_dir, zedFilename))

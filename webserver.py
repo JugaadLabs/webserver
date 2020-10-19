@@ -7,6 +7,7 @@ import traceback
 import threading
 import cherrypy
 import jinja2
+from src.FilesHandler import FilesHandler
 from src.URLHandler import URLHandler
 from src.BarcodeHandler import BarcodeHandler
 from src.TestHandler import TestHandler
@@ -99,8 +100,9 @@ class Server(object):
             zedStreamThread = threading.Thread(None, zedStreamer.run, daemon=True)
             zedStreamThread.start()
 
-        cherrypy.tree.mount(URLHandler(dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csiStatus, zedStatus), '/', config=CP_CONF)
+        cherrypy.tree.mount(URLHandler(dir, csiStreamer, zedStreamer, csiStatus, zedStatus), '/', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
+        cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
         cherrypy.tree.mount(BarcodeHandler(csiStreamer), '/barcode', config=CP_CONF)
         cherrypy.engine.start()
         cherrypy.engine.block()
