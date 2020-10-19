@@ -8,6 +8,8 @@ import threading
 import cherrypy
 import jinja2
 from src.URLHandler import URLHandler
+from src.BarcodeHandler import BarcodeHandler
+from src.TestHandler import TestHandler
 from src.CSIStreamer import CSIStreamer
 ZED_ENABLED = True
 
@@ -97,7 +99,11 @@ class Server(object):
             zedStreamThread = threading.Thread(None, zedStreamer.run, daemon=True)
             zedStreamThread.start()
 
-        cherrypy.quickstart(URLHandler(dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csiStatus, zedStatus), '/', config=CP_CONF)
+        cherrypy.tree.mount(URLHandler(dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csiStatus, zedStatus), '/', config=CP_CONF)
+        cherrypy.tree.mount(TestHandler(), '/test')
+        cherrypy.tree.mount(BarcodeHandler(), '/barcode')
+        cherrypy.engine.start()
+        cherrypy.engine.block()
 
 def main():
     server = Server()

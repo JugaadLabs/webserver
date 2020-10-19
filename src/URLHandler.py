@@ -8,7 +8,6 @@ import threading
 import cherrypy
 import jinja2
 import signal
-import threading
 import enum
 import glob
 import cv2
