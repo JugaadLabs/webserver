@@ -39,3 +39,9 @@ class Templates:
     def index(self, message):
         template = self.environment.get_template('base.html')
         return template.render(body_html=message)
+
+    def barcode(self):
+        barcodeTemplate = self.environment.get_template('barcode.html')
+        html = barcodeTemplate.render()
+        template = self.environment.get_template('base.html')
+        return template.render(body_html=html)

@@ -101,7 +101,7 @@ class Server(object):
 
         cherrypy.tree.mount(URLHandler(dir, csiStreamer, csiFrameLock, zedStreamer, zedFrameLock, csiStatus, zedStatus), '/', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
-        cherrypy.tree.mount(BarcodeHandler(), '/barcode')
+        cherrypy.tree.mount(BarcodeHandler(csiStreamer), '/barcode', config=CP_CONF)
         cherrypy.engine.start()
         cherrypy.engine.block()
 
