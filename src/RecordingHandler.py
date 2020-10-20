@@ -31,7 +31,7 @@ from src.templates import Templates
 from src.CSIStreamer import CSIStreamer
 from src.CameraState import CameraState
 
-class URLHandler(object):
+class RecordingHandler(object):
     def __init__(self, recording_dir, csiStreamer, zedStreamer, csiStatus=False, zedStatus=False):
         self.recording_dir = os.path.abspath(recording_dir)
         self.calibration_dir = os.path.join(self.recording_dir, "calibration")
@@ -143,10 +143,6 @@ class URLHandler(object):
     @cherrypy.expose
     def download(self, filepath):
         return serve_file(filepath, "application/x-download", "attachment")
-
-    @cherrypy.expose
-    def documentation(self):
-        return self.template.documentation()
 
     def executeAction(self, csi, zed, action):
         csi = True if csi=='true' else False

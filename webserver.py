@@ -7,13 +7,16 @@ import traceback
 import threading
 import cherrypy
 import jinja2
+
 from src.FilesHandler import FilesHandler
-from src.URLHandler import URLHandler
+from src.RecordingHandler import RecordingHandler
 from src.BarcodeHandler import BarcodeHandler
 from src.TestHandler import TestHandler
 from src.CSIStreamer import CSIStreamer
-ZED_ENABLED = True
+from src.DocuHandler import DocuHandler
+from src.WebSocketHandler import WebSocketHandler
 
+ZED_ENABLED = True
 try:
     import pyzed.sl as sl
 except ImportError as e:
@@ -70,7 +73,11 @@ class Server(object):
             '/webfonts': {
                 'tools.staticdir.on': True,
                 'tools.staticdir.dir': os.path.abspath('./webfonts')
-                }
+                },
+            '/ws': {
+                'tools.websocket.on': True,
+                'tools.websocket.handler_cls': WebSocketHandler
+            }
         }
 
         cherrypy.config.update({
@@ -100,10 +107,11 @@ class Server(object):
             zedStreamThread = threading.Thread(None, zedStreamer.run, daemon=True)
             zedStreamThread.start()
 
-        cherrypy.tree.mount(URLHandler(dir, csiStreamer, zedStreamer, csiStatus, zedStatus), '/', config=CP_CONF)
-        cherrypy.tree.mount(TestHandler(), '/test')
-        cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
+        cherrypy.tree.mount(RecordingHandler(dir, csiStreamer, zedStreamer, csiStatus, zedStatus), '/', config=CP_CONF)
         cherrypy.tree.mount(BarcodeHandler(csiStreamer), '/barcode', config=CP_CONF)
+        cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
+        cherrypy.tree.mount(TestHandler(), '/test')
+        cherrypy.tree.mount(DocuHandler(), '/documentation', config=CP_CONF)
         cherrypy.engine.start()
         cherrypy.engine.block()
 
