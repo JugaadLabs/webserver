@@ -18,3 +18,24 @@
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+  // $(document).ready(function () {
+    var url = window.location.href;
+    var arr = url.split("/");
+    var websocket = "ws://" + arr[2] + "/barcode/ws";
+    console.log(websocket);
+    if (window.WebSocket) {
+      ws = new WebSocket(websocket);
+    }
+    ws.onopen = function() {
+      ws.send("Connection started");
+      console.log("Socket open");
+    };
+
+    ws.onmessage = function (evt) {
+      console.log(evt.data)
+      barcodeResults.textContent = evt.data;
+    };
+  // });
+</script>

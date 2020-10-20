@@ -8,6 +8,10 @@ import threading
 import cherrypy
 import jinja2
 
+from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
+from ws4py.websocket import WebSocket
+from ws4py.messaging import TextMessage
+
 from src.FilesHandler import FilesHandler
 from src.RecordingHandler import RecordingHandler
 from src.BarcodeHandler import BarcodeHandler
@@ -106,6 +110,9 @@ class Server(object):
             zedStreamer = ZEDStreamer(zedFrameLock, dir, 300)
             zedStreamThread = threading.Thread(None, zedStreamer.run, daemon=True)
             zedStreamThread.start()
+
+        WebSocketPlugin(cherrypy.engine).subscribe()
+        cherrypy.tools.websocket = WebSocketTool()
 
         cherrypy.tree.mount(RecordingHandler(dir, csiStreamer, zedStreamer, csiStatus, zedStatus), '/', config=CP_CONF)
         cherrypy.tree.mount(BarcodeHandler(csiStreamer), '/barcode', config=CP_CONF)
