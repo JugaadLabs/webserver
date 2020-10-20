@@ -19,6 +19,7 @@ from src.TestHandler import TestHandler
 from src.CSIStreamer import CSIStreamer
 from src.DocuHandler import DocuHandler
 from src.WebSocketHandler import WebSocketHandler
+from src.DetectionHandler import DetectionHandler
 
 ZED_ENABLED = True
 try:
@@ -116,6 +117,7 @@ class Server(object):
 
         cherrypy.tree.mount(RecordingHandler(dir, csiStreamer, zedStreamer, csiStatus, zedStatus), '/', config=CP_CONF)
         cherrypy.tree.mount(BarcodeHandler(csiStreamer), '/barcode', config=CP_CONF)
+        cherrypy.tree.mount(DetectionHandler(csiStreamer), '/detection', config=CP_CONF)
         cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
         cherrypy.tree.mount(DocuHandler(), '/documentation', config=CP_CONF)

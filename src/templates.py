@@ -45,3 +45,9 @@ class Templates:
         html = barcodeTemplate.render()
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)
+
+    def detection(self):
+        detectionTemplate = self.environment.get_template('detection.html')
+        html = detectionTemplate.render()
+        template = self.environment.get_template('base.html')
+        return template.render(body_html=html)
