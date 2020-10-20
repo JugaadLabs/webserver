@@ -16,14 +16,27 @@
   <link href="css/simple-sidebar.css" rel="stylesheet">
   <link href="css/all.css" rel="stylesheet">
   <!-- <link href="css/bootstrap-toggle.min.css" rel="stylesheet"> -->
-  <link rel="stylesheet "href="css/bootstrap4-toggle.min.css">
+  <link rel="stylesheet " href="css/bootstrap4-toggle.min.css">
+  <!-- <style>
+    #demo {
+      /* To play around, change this to absolute */
+      position: fixed;
+      bottom: 0px;
+      right: 0px;
+      z-index: 1;
+      padding: 0px;
+      margin: 0px;
+    }
+  </style> -->
 </head>
 
 <body>
   <div class="d-flex" id="wrapper">
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
-      <div class="sidebar-heading"><a href="/">Dashboard</a></div>
+      <div class="sidebar-heading"><a href="/"> <img style="height: 5rem;"
+            class="img-fluid" src="vendor/helvetica.png">
+        </a></div>
       <div class="list-group list-group-flush">
         <a href="/data" class="list-group-item list-group-item-action bg-light">Data Collection</a>
         <a href="/intrinsics" class="list-group-item list-group-item-action bg-light">Intrinsic Calibration</a>
@@ -45,7 +58,6 @@
       </div>
     </div>
     <!-- /#page-content-wrapper -->
-
   </div>
   <!-- /#wrapper -->
 
@@ -61,7 +73,6 @@
       $("#wrapper").toggleClass("toggled");
     });
   </script>
-
 </body>
 
 </html>

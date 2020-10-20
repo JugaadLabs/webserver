@@ -39,7 +39,7 @@ class BarcodeHandler(object):
         self.scanner.decodeBarcodes()
         self.scanner.drawBbox()
         scans = self.scanner.dms_list
-        text = "No barcodes detected"
+        text = "<b>No barcodes detected</b>"
         if (len(scans) > 0):
             text = ''.join(scans)
         self.sendWebsocketMessage(text)

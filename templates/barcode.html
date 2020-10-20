@@ -34,6 +34,6 @@
 
   ws.onmessage = function (evt) {
     console.log(evt.data)
-    barcodeResults.textContent = evt.data;
+    barcodeResults.innerHTML = evt.data;
   };
 </script>
