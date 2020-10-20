@@ -40,7 +40,8 @@ class BarcodeHandler(object):
         self.scanner.drawBbox()
         dm_scans = self.scanner.dms_list
         barcode_scans = self.scanner.bcs_list
-        if len(dm_scans)+len(barcode_scans) == 0:
+        detectedCount = len(dm_scans)+len(barcode_scans)
+        if detectedCount == 0:
             text = "No barcodes or data matrices detected"
         else:
             text = "<table class=\"table\"><thead><th>Type</th><th>Data</th></thead><tbody>"
@@ -48,7 +49,7 @@ class BarcodeHandler(object):
                 text+= "<tr><td>%s</td><td>%s</td></tr>" % ("ECC200", scan)
             for scan in barcode_scans:
                 text+= "<tr><td>%s</td><td>%s</td></tr>" % (scan[1], scan[0])
-            text += "</tbody></table>"
+            text += "</tbody></table><br>%d barcodes/data-matrices detected" % detectedCount
         self.sendWebsocketMessage(text)
 
     @cherrypy.expose
