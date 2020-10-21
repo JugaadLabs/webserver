@@ -51,7 +51,7 @@ class CSIStreamer:
         if (time.time() - self.startUnixTime < self.recordingInterval):
             self.timestamps.append(self.lastTimestamp)
             videoFrame = cv2.resize(self.lastFrame, (360,640), cv2.INTER_AREA)
-            self.out.write(self.lastFrame)
+            self.out.write(videoFrame)
         else:
             self.stopRecording()
             now = datetime.datetime.now()
