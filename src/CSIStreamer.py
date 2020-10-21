@@ -62,6 +62,16 @@ class CSIStreamer:
         self.frameLock.release()
         return frame
 
+    def getBarcodeFrame(self):
+        h = self.lastFrame.shape[0]
+        w = self.lastFrame.shape[1]
+        h_low = h//4
+        h_high = 3*h//4
+        w_low = w//4
+        w_high = 3*w//4
+        barcodeImage = self.lastFrame[h_low:h_high,w_low:w_high]
+        return barcodeImage
+
     def run(self):
         print("Starting streaming thread with /dev/video"+ str(self.device))
         self.cap = cv2.VideoCapture(self.device)

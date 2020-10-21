@@ -63,7 +63,7 @@ class BarcodeHandler(object):
             state = cherrypy.engine.state
             if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
                 break
-            frame = self.csiStreamer.getCurrentFrame()
+            frame = self.csiStreamer.getBarcodeFrame()
             if frame is None:
                 continue
             self.updateScan(frame)
