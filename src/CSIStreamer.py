@@ -9,7 +9,7 @@ import cherrypy
 from src.CameraState import CameraState
 
 class CSIStreamer:
-    def __init__(self, frameLock, dir, recordingInterval=300, device=0, resolution= (640,480), framerate= 30):
+    def __init__(self, frameLock, dir, recordingInterval=300, device=0, resolution= (2560,1440), framerate= 30):
         self.device = device
         self.framerate = framerate
         self.resolution = resolution
@@ -50,6 +50,7 @@ class CSIStreamer:
     def recordFrame(self):
         if (time.time() - self.startUnixTime < self.recordingInterval):
             self.timestamps.append(self.lastTimestamp)
+            videoFrame = cv2.resize(self.lastFrame, (360,640), cv2.INTER_AREA)
             self.out.write(self.lastFrame)
         else:
             self.stopRecording()
@@ -70,6 +71,7 @@ class CSIStreamer:
         w_low = w//4
         w_high = 3*w//4
         barcodeImage = self.lastFrame[h_low:h_high,w_low:w_high]
+        print(barcodeImage.shape)
         return barcodeImage
 
     def run(self):
