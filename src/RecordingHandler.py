@@ -33,7 +33,7 @@ from src.CameraState import CameraState
 
 class RecordingHandler(object):
     def __init__(self, recording_dir, csiStreamer, zedStreamer, csiStatus=False, zedStatus=False):
-        self.previewResolution = (360,640)
+        self.previewResolution = (480,640)
         self.recording_dir = os.path.abspath(recording_dir)
         self.calibration_dir = os.path.join(self.recording_dir, "calibration")
         Path(self.calibration_dir).mkdir(parents=True, exist_ok=True)
