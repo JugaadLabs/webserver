@@ -69,7 +69,7 @@ class BarcodeHandler(object):
                 continue
             self.updateScan(frame)
             barcodeImage = self.scanner.image
-            resized = cv2.resize(barcodeImage, self.previewResolution, cv2.INTER_AREA)
+            resized = barcodeImage#cv2.resize(barcodeImage, self.previewResolution, cv2.INTER_AREA)
             # TODO: insert barcode reading code here
             (flag, encodeImage) = cv2.imencode(".jpg", resized)
             if flag:

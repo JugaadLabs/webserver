@@ -70,7 +70,7 @@ class CSIStreamer:
         h_high = 3*h//4
         w_low = w//4
         w_high = 3*w//4
-        barcodeImage = self.lastFrame[h_low:h_high,w_low:w_high]
+        barcodeImage = self.lastFrame[h_low:h_high,:,:]
         print(barcodeImage.shape)
         return barcodeImage
 
