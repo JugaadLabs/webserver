@@ -12,7 +12,7 @@
               <button onclick="executeAction('stop')" style="width: 5rem;" class="btn btn-danger btn-block"><i
                   class="fas fa-stop"></i><br>Stop</button>
             </div>
-            <div class="row" id="barcodeStatus">
+            <div class="row" id="barcodestatus">
             </div>
           </div>
         </div>
@@ -37,6 +37,11 @@
 </div>
 
 <script type="text/javascript">
+  var statusXHR = new XMLHttpRequest();
+  statusXHR.open("GET", "/barcode/status");
+  statusXHR.addEventListener("load", xhrCallback);
+  statusXHR.send();
+
   var url = window.location.href;
   var arr = url.split("/");
   var websocket = "ws://" + arr[2] + "/barcode/ws";
@@ -67,6 +72,7 @@
     if (this.readyState === 4) {
       if (this.status === 200) {
         console.log(this.responseText);
+        barcodestatus.innerHTML = this.responseText;
       } else {
         console.error(this.statusText);
       }

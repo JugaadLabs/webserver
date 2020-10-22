@@ -106,7 +106,12 @@ class BarcodeHandler(object):
         return self.stopRecording()
 
     @cherrypy.expose
-    def barcodeStatus(self):
+    def status(self):
+        if self.filename != "":
+            if self.RECORDING:
+                self.currentStatus = "Recording to: " + self.filename
+            else:
+                self.currentStatus = "Saved recording to: " + self.filename
         return self.currentStatus
 
     def recordData(self):
@@ -132,7 +137,7 @@ class BarcodeHandler(object):
             self.out = cv2.VideoWriter(
                 filepath, fourcc, 30.0, self.recordingResolution)
             self.barcodeData = []
-        return self.filename
+        return self.status()
 
     def stopRecording(self):
         if self.RECORDING is True:
@@ -142,4 +147,4 @@ class BarcodeHandler(object):
             with open(filepath, 'wb') as f:
                 pickle.dump(self.barcodeData, f)
             self.out.release()
-        return "Stopped recording lah!"
+        return self.status()
