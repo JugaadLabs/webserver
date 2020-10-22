@@ -119,7 +119,7 @@ class Server(object):
 
         cherrypy.tree.mount(RecordingHandler(
             dir, csiStreamer, zedStreamer, csiStatus, zedStatus), '/', config=CP_CONF)
-        cherrypy.tree.mount(BarcodeHandler(csiStreamer),
+        cherrypy.tree.mount(BarcodeHandler(csiStreamer, dir),
                             '/barcode', config=CP_CONF)
         cherrypy.tree.mount(DetectionHandler(
             csiStreamer, enginePath), '/detection', config=CP_CONF)

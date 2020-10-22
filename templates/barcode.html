@@ -1,7 +1,24 @@
 <h2>Barcode</h2>
 <div class="row mt-4">
   <div class="col-md">
-    <div class="card mb-4">
+    <div class="card">
+      <div class="card-header">Remote Control</div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col text-center">
+            <div class="btn-group mb-2" role="group">
+              <button onclick="executeAction('record')" style="width: 5rem;" class="btn btn-success mr-2"><i
+                  class="fas fa-circle"></i><br>Record</button>
+              <button onclick="executeAction('stop')" style="width: 5rem;" class="btn btn-danger btn-block"><i
+                  class="fas fa-stop"></i><br>Stop</button>
+            </div>
+            <div class="row" id="barcodeStatus">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card mt-4 mb-4">
       <div class="card-header">Barcode Detections</div>
       <div class="card-body">
         <div class="row" id="barcodeResults">
@@ -36,4 +53,23 @@
     console.log(evt.data)
     barcodeResults.innerHTML = evt.data;
   };
+
+  function executeAction(url) {
+    console.log(url);
+    var xhr = new XMLHttpRequest();
+    var params = "/barcode/" + url
+    xhr.open("GET", params, true);
+    xhr.addEventListener("load", xhrCallback);
+    xhr.send();
+  }
+
+  function xhrCallback() {
+    if (this.readyState === 4) {
+      if (this.status === 200) {
+        console.log(this.responseText);
+      } else {
+        console.error(this.statusText);
+      }
+    }
+  }
 </script>
