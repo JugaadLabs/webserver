@@ -8,6 +8,7 @@ from time import perf_counter
 from src.uilts.tensorrt_uilts import get_engine, allocate_buffers, do_inference
 from src.uilts.image import transform_preds, iou
 from src.uilts.uilts import coco_class_name, color_list, detection_class_name_3cls
+import pycuda.driver as cuda
 
 class monoDistance():
     def __init__(self, image_size, bird_view_size, trt_engine_path, class_names, cls_index_list):
