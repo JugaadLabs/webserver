@@ -26,7 +26,7 @@ def main():
             "img": img,
             "birdsView": birds_view_img,
             "selectedBboxes": selected_bboxs,
-            "": bbox_distances
+            "bboxDistances": bbox_distances
         }
         sendResultsNode.send_zipped_pickle(dataDict)
 
