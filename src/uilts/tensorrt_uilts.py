@@ -68,6 +68,7 @@ def do_inference(engine, bindings, inputs, outputs, stream, batch_size=1):
     [cuda.memcpy_dtoh_async(out.host, out.device, stream) for out in outputs]
     # Synchronize the stream
     stream.synchronize()
+
     context.pop()
     del context
     # Return only the host outputs.
