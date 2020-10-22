@@ -17,7 +17,7 @@ import simplejson
 import numpy as np
 from pathlib import Path
 from operator import itemgetter
-from zmq_utils import zmqNode
+from src.zmq_utils import zmqNode
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
