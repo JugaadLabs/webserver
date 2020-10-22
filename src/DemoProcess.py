@@ -10,7 +10,7 @@ def main():
     recvResultsNode = zmqNode('recv', 9501)
 
     for i in tqdm(range(10000)):
-        img = np.random.rand((480,640,3))
+        img = np.random.rand(480,640,3)
         sendImgNode.send_array(img)
         dataDict = recvResultsNode.recv_zipped_pickle()
         print(dataDict['birdsView'].shape)
