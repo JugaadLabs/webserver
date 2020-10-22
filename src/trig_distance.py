@@ -19,9 +19,8 @@ class monoDistance():
         self.det_size = [image_size[0]//down_ratio, image_size[1]//down_ratio]
         self.font = cv2.FONT_HERSHEY_SIMPLEX
 
-        engine = get_engine(trt_engine_path, fp16_mode=True)
-        self.context = engine.create_execution_context()
-        self.inputs, self.outputs, self.bindings, self.stream = allocate_buffers(engine)
+        self.engine = get_engine(trt_engine_path, fp16_mode=True)
+        self.inputs, self.outputs, self.bindings, self.stream = allocate_buffers(self.engine)
         self.blank_birds_view_img = self.blank_birds_view(bird_view_size)
 
     def detect_object(self, img):
@@ -29,7 +28,7 @@ class monoDistance():
         x = img_x.transpose(2, 0, 1).reshape(
             1, 3, self.image_size[1], self.image_size[0]).astype(np.float32)
         self.inputs[0].host = x.reshape(-1)
-        outs = do_inference(self.context, bindings=self.bindings,
+        outs = do_inference(self.engine, bindings=self.bindings,
                                     inputs=self.inputs, outputs=self.outputs, stream=self.stream)
         dets = outs[0].reshape([1, 100, 6])
         return dets
