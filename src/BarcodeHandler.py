@@ -29,6 +29,7 @@ class BarcodeHandler(object):
         self.templates = Templates()
         self.scanner = BarcodeScanner(timeout=500)
         self.csiStreamer = csiStreamer
+        self.previewResolution = (360,640)
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
@@ -68,7 +69,7 @@ class BarcodeHandler(object):
                 continue
             self.updateScan(frame)
             barcodeImage = self.scanner.image
-            resized = cv2.resize(barcodeImage, (int(0.5*barcodeImage.shape[1]), int(0.5*barcodeImage.shape[0])), cv2.INTER_AREA)
+            resized = cv2.resize(barcodeImage, self.previewResolution, cv2.INTER_AREA)
             # TODO: insert barcode reading code here
             (flag, encodeImage) = cv2.imencode(".jpg", resized)
             if flag:
