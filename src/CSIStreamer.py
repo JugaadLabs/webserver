@@ -9,7 +9,7 @@ import cherrypy
 from src.CameraState import CameraState
 
 class CSIStreamer:
-    def __init__(self, frameLock, dir, recordingInterval=300, device=0, resolution= (2560,1440), framerate= 30):
+    def __init__(self,frameLock,dir,recordingInterval=300,device=0,resolution=(2560,1440),recordingResolution=(540,854),framerate= 30):
         self.device = device
         self.framerate = framerate
         self.resolution = resolution
@@ -20,20 +20,20 @@ class CSIStreamer:
         self.frameLock = frameLock
         self.currentState = CameraState.STOP
         self.recordingInterval = recordingInterval
+        self.recordingResolution = recordingResolution
         self.filename = ""
 
     def startRecording(self, startTime):
         if self.currentState == CameraState.STOP:
             self.startTime = startTime
             self.startUnixTime = time.time()
-
             startTimeString = self.startTime.strftime("CSI_%Y-%m-%d-%H-%M-%S")
             self.filename = startTimeString+".avi"
             filepath = os.path.join(self.dir, self.filename)
             print("CSI Camera - recording to " + filepath)
 
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            self.out = cv2.VideoWriter(filepath, fourcc, self.framerate, (self.resolution[1], self.resolution[0]))
+            self.out = cv2.VideoWriter(filepath, fourcc, self.framerate, self.recordingResolution)
             self.timestamps = []
         self.currentState = CameraState.RECORD
 
@@ -50,7 +50,7 @@ class CSIStreamer:
     def recordFrame(self):
         if (time.time() - self.startUnixTime < self.recordingInterval):
             self.timestamps.append(self.lastTimestamp)
-            videoFrame = cv2.resize(self.lastFrame, (360,640), cv2.INTER_AREA)
+            videoFrame = cv2.resize(self.lastFrame, self.recordingResolution, cv2.INTER_AREA)
             self.out.write(videoFrame)
         else:
             self.stopRecording()
