@@ -34,6 +34,7 @@ from src.CameraState import CameraState
 class RecordingHandler(object):
     def __init__(self, recording_dir, csiStreamer, zedStreamer, csiStatus=False, zedStatus=False):
         self.previewResolution = (480,640)
+        self.zedPreviewResolution = (360,640)
         self.recording_dir = os.path.abspath(recording_dir)
         self.calibration_dir = os.path.join(self.recording_dir, "calibration")
         Path(self.calibration_dir).mkdir(parents=True, exist_ok=True)
@@ -129,7 +130,7 @@ class RecordingHandler(object):
             frame = self.zedStreamer.getCurrentFrame()
             if frame is None:
                 continue
-            resized = cv2.resize(frame, (int(0.5*frame.shape[1]), int(0.5*frame.shape[0])), cv2.INTER_AREA)
+            resized = cv2.resize(frame, self.zedPreviewResolution, cv2.INTER_AREA)
             (flag, encodeImage) = cv2.imencode(".jpg", resized)
             if flag:
                 yield(b'--zedframe\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
