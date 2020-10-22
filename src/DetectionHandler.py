@@ -17,6 +17,7 @@ import simplejson
 import numpy as np
 from pathlib import Path
 from operator import itemgetter
+from zmq_utils import zmqNode
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
@@ -46,12 +47,10 @@ class DetectionHandler(object):
             self.currentDetectionFrame = np.zeros(
                 (self.inputResolution[0], self.inputResolution[1], 3))
             self.currentBirdsEyeFrame = np.zeros((480, 480, 3))
-            self.birdsEyeResolution = 480
-            self.vis_thresh = 0.35
-            self.nms_iou_thresh = 0.5
-            self.box_area_thresh = 500
-            self.monoDistance = monoDistance(
-                self.inputResolution, self.birdsEyeResolution, enginePath, detection_class_name_3cls, np.array(range(3)))
+            self.sendImgNode = zmqNode('send', 9500)
+            self.recvResultsNode = zmqNode('recv', 9501)
+            self.selectedBboxes = None
+            self.bboxDistances = None
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
@@ -62,8 +61,8 @@ class DetectionHandler(object):
             return
         resized = cv2.resize(
             image, (self.inputResolution), cv2.INTER_AREA)
-        self.currentDetectionFrame, self.currentBirdsEyeFrame, _, _ = self.monoDistance.detection_birdsview(
-            resized, self.vis_thresh, self.nms_iou_thresh, self.box_area_thresh)
+        self.sendImgNode.send_array(resized)
+        self.currentDetectionFrame, self.currentBirdsEyeFrame, self.selectedBboxes, self.bboxDistances = self.recvResultsNode.recv_zipped_pickle()
         # text = "Placeholder"
         # self.sendWebsocketMessage(text)
 
