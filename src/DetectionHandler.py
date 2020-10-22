@@ -62,7 +62,7 @@ class DetectionHandler(object):
             return
         resized = cv2.resize(
             image, (self.inputResolution), cv2.INTER_AREA)
-        self.currentBirdsEyeFrame, self.currentDetectionFrame, _, _ = self.monoDistance.detection_birdsview(
+        self.currentDetectionFrame, self.currentBirdsEyeFrame, _, _ = self.monoDistance.detection_birdsview(
             resized, self.vis_thresh, self.nms_iou_thresh, self.box_area_thresh)
         # text = "Placeholder"
         # self.sendWebsocketMessage(text)
