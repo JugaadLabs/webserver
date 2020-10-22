@@ -62,7 +62,7 @@ def selfTest():
     return csi, zed
 
 class Server(object):
-    def run(self, host="127.0.0.1", port=8000, dir='.', csiDevice=-1):
+    def run(self, host="127.0.0.1", port=8000, dir='.', enginePath=".", csiDevice=-1):
         dir = os.path.abspath(dir)
         Path(dir).mkdir(parents=True, exist_ok=True)
         print("Recording to: " + dir)
@@ -117,7 +117,7 @@ class Server(object):
 
         cherrypy.tree.mount(RecordingHandler(dir, csiStreamer, zedStreamer, csiStatus, zedStatus), '/', config=CP_CONF)
         cherrypy.tree.mount(BarcodeHandler(csiStreamer), '/barcode', config=CP_CONF)
-        cherrypy.tree.mount(DetectionHandler(csiStreamer), '/detection', config=CP_CONF)
+        cherrypy.tree.mount(DetectionHandler(csiStreamer, enginePath), '/detection', config=CP_CONF)
         cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
         cherrypy.tree.mount(DocuHandler(), '/documentation', config=CP_CONF)
@@ -126,9 +126,12 @@ class Server(object):
 
 def main():
     server = Server()
+    if len(sys.argv) == 6:
+        ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
+        server.run(ip, int(sys.argv[2]), sys.argv[3], sys.argv[4], int(sys.argv[5]))
     if len(sys.argv) == 5:
         ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
-        server.run(ip, int(sys.argv[2]), sys.argv[3], int(sys.argv[4]))
+        server.run(ip, int(sys.argv[2]), sys.argv[3], sys.argv[4])
     if len(sys.argv) == 4:
         ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
         server.run(ip, int(sys.argv[2]), sys.argv[3])

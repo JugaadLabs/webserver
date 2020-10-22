@@ -46,8 +46,11 @@ class Templates:
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)
 
-    def detection(self):
-        detectionTemplate = self.environment.get_template('detection.html')
-        html = detectionTemplate.render()
+    def detection(self, TENSORRT_ENABLED):
+        if TENSORRT_ENABLED:
+            detectionTemplate = self.environment.get_template('detection.html')
+            html = detectionTemplate.render()
+        else:
+            html = "<h1>Error</h1><code>TensorRT</code> and/or <code>PyCuda</code> not installed. Please install these libraries and restart the server."
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)

@@ -14,6 +14,7 @@ import cv2
 import datetime
 from PIL import Image
 import simplejson
+import numpy as np
 from pathlib import Path
 from operator import itemgetter
 
@@ -32,11 +33,15 @@ except ImportError as e:
 else:
     print("Loading TensorRT and PyCuda modules")
     from src.trig_distance import monoDistance
+    from src.uilts.uilts import detection_class_name_3cls
 
 class DetectionHandler(object):
-    def __init__(self, csiStreamer):
+    def __init__(self, csiStreamer, enginePath):
         self.templates = Templates()
         self.csiStreamer = csiStreamer
+
+        if TENSORRT_ENABLED:
+            self.monoDistance = monoDistance((480,640), 480, enginePath, detection_class_name_3cls, np.array(range(3)))
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
@@ -70,7 +75,7 @@ class DetectionHandler(object):
 
     @cherrypy.expose
     def index(self):
-        return self.templates.detection()
+        return self.templates.detection(TENSORRT_ENABLED)
 
     @cherrypy.expose
     def ws(self):
