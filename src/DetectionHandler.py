@@ -62,7 +62,11 @@ class DetectionHandler(object):
         resized = cv2.resize(
             image, (self.inputResolution), cv2.INTER_AREA)
         self.sendImgNode.send_array(resized)
-        self.currentDetectionFrame, self.currentBirdsEyeFrame, self.selectedBboxes, self.bboxDistances = self.recvResultsNode.recv_zipped_pickle()
+        dataDict = self.recvResultsNode.recv_zipped_pickle()
+        self.currentDetectionFrame = dataDict['img']
+        self.currentBirdsEyeFrame = dataDict['birdsView']
+        self.selectedBboxes = dataDict['selectedBboxes']
+        self.bboxDistances = dataDict['bboxDistances']
         # text = "Placeholder"
         # self.sendWebsocketMessage(text)
 
