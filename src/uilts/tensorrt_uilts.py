@@ -6,6 +6,7 @@
 import os
 import tensorrt as trt
 import pycuda.autoinit
+# import pycuda
 import pycuda.driver as cuda
 
 TRT_LOGGER = trt.Logger()
@@ -55,22 +56,15 @@ def allocate_buffers(engine):
     return inputs, outputs, bindings, stream
 
 
-def do_inference(engine, bindings, inputs, outputs, stream, batch_size=1):
+def do_inference(context, bindings, inputs, outputs, stream, batch_size=1):
     # Transfer data from CPU to the GPU.
-    device = cuda.Device(0)
-    context = device.make_context()
-    enginecontext = engine.create_execution_context()
-
     [cuda.memcpy_htod_async(inp.device, inp.host, stream) for inp in inputs]
     # Run inference.
-    enginecontext.execute_async(batch_size=batch_size, bindings=bindings, stream_handle=stream.handle)
+    context.execute_async(batch_size=batch_size, bindings=bindings, stream_handle=stream.handle)
     # Transfer predictions back from the GPU.
     [cuda.memcpy_dtoh_async(out.host, out.device, stream) for out in outputs]
     # Synchronize the stream
     stream.synchronize()
-
-    context.pop()
-    del context
     # Return only the host outputs.
     return [out.host for out in outputs]
 
