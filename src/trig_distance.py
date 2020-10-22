@@ -18,6 +18,8 @@ class monoDistance():
         down_ratio = 4
         self.det_size = [image_size[0]//down_ratio, image_size[1]//down_ratio]
         self.font = cv2.FONT_HERSHEY_SIMPLEX
+        device = cuda.Device(0)
+        context = device.make_context()
 
         self.engine = get_engine(trt_engine_path, fp16_mode=True)
         self.inputs, self.outputs, self.bindings, self.stream = allocate_buffers(self.engine)
