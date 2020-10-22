@@ -5,9 +5,9 @@ import numpy as np
 import cv2
 from time import perf_counter
 
-from uilts.tensorrt_uilts import get_engine, allocate_buffers, do_inference
-from uilts.image import transform_preds, iou
-from uilts.uilts import coco_class_name, color_list, detection_class_name_3cls
+from src.uilts.tensorrt_uilts import get_engine, allocate_buffers, do_inference
+from src.uilts.image import transform_preds, iou
+from src.uilts.uilts import coco_class_name, color_list, detection_class_name_3cls
 
 class monoDistance():
     def __init__(self, image_size, bird_view_size, trt_engine_path, class_names, cls_index_list):
