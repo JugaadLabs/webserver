@@ -12,6 +12,7 @@ from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
 from ws4py.messaging import TextMessage
 
+from src.trig_distance import monoDistance
 from src.FilesHandler import FilesHandler
 from src.RecordingHandler import RecordingHandler
 from src.BarcodeHandler import BarcodeHandler
