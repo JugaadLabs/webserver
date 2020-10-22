@@ -6,7 +6,6 @@
 import os
 import tensorrt as trt
 import pycuda.autoinit
-# import pycuda
 import pycuda.driver as cuda
 
 TRT_LOGGER = trt.Logger()

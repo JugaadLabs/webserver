@@ -10,7 +10,7 @@ import jinja2
 import signal
 import enum
 import glob
-import cv2
+from cv2 import cv2
 import datetime
 from PIL import Image
 import simplejson
@@ -22,6 +22,16 @@ from ws4py.websocket import WebSocket
 from ws4py.messaging import TextMessage
 
 from src.templates import Templates
+
+TENSORRT_ENABLED = True
+try:
+    from src.trig_distance import monoDistance
+except ImportError as e:
+    print("TensorRT and/or PyCuda not available!")
+    TENSORRT_ENABLED = False
+else:
+    print("Loading TensorRT and PyCuda modules")
+    from src.trig_distance import monoDistance
 
 class DetectionHandler(object):
     def __init__(self, csiStreamer):

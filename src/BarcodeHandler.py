@@ -10,7 +10,7 @@ import jinja2
 import signal
 import enum
 import glob
-import cv2
+from cv2 import cv2
 import datetime
 from PIL import Image
 import simplejson
