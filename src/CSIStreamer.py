@@ -8,8 +8,9 @@ import os
 import cherrypy
 from src.CameraState import CameraState
 
+
 class CSIStreamer:
-    def __init__(self,frameLock,dir,recordingInterval=300,device=0,resolution=(2592,1944),recordingResolution=(540,720),framerate= 30):
+    def __init__(self, frameLock, dir, recordingInterval=300, device=0, resolution=(2592, 1944), recordingResolution=(540, 720), framerate=30):
         self.device = device
         self.framerate = framerate
         self.resolution = resolution
@@ -33,7 +34,8 @@ class CSIStreamer:
             print("CSI Camera - recording to " + filepath)
 
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            self.out = cv2.VideoWriter(filepath, fourcc, self.framerate, self.recordingResolution)
+            self.out = cv2.VideoWriter(
+                filepath, fourcc, self.framerate, self.recordingResolution)
             self.timestamps = []
         self.currentState = CameraState.RECORD
 
@@ -50,7 +52,8 @@ class CSIStreamer:
     def recordFrame(self):
         if (time.time() - self.startUnixTime < self.recordingInterval):
             self.timestamps.append(self.lastTimestamp)
-            videoFrame = cv2.resize(self.lastFrame, self.recordingResolution, cv2.INTER_AREA)
+            videoFrame = cv2.resize(
+                self.lastFrame, self.recordingResolution, cv2.INTER_AREA)
             self.out.write(videoFrame)
         else:
             self.stopRecording()
@@ -70,11 +73,11 @@ class CSIStreamer:
         h_high = 3*h//4
         w_low = w//4
         w_high = 3*w//4
-        barcodeImage = self.lastFrame[h_low:h_high,:,:]
+        barcodeImage = self.lastFrame[h_low:h_high, :, :]
         return barcodeImage
 
     def run(self):
-        print("Starting streaming thread with /dev/video"+ str(self.device))
+        print("Starting streaming thread with /dev/video" + str(self.device))
         self.cap = cv2.VideoCapture(self.device)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolution[0])
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
@@ -94,4 +97,3 @@ class CSIStreamer:
             self.stopRecording()
         print("Disabled streaming thread")
         self.cap.release()
-

@@ -24,12 +24,13 @@ from ws4py.messaging import TextMessage
 from src.barcode_scanner import BarcodeScanner
 from src.templates import Templates
 
+
 class BarcodeHandler(object):
     def __init__(self, csiStreamer):
         self.templates = Templates()
         self.scanner = BarcodeScanner(timeout=500)
         self.csiStreamer = csiStreamer
-        self.previewResolution = (480,427)
+        self.previewResolution = (480, 427)
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
@@ -47,9 +48,11 @@ class BarcodeHandler(object):
         else:
             text = "<table class=\"table\"><thead><th>ID</th><th>Data</th><th>Type</th></thead><tbody>"
             for scan in dm_scans:
-                text+= "<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (scan[0], scan[1], scan[2])
+                text += "<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (
+                    scan[0], scan[1], scan[2])
             for scan in barcode_scans:
-                text+= "<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (scan[0], scan[1], scan[2])
+                text += "<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (
+                    scan[0], scan[1], scan[2])
             text += "</tbody></table><br>%d barcodes/data-matrices detected" % detectedCount
         self.sendWebsocketMessage(text)
 
@@ -69,12 +72,13 @@ class BarcodeHandler(object):
                 continue
             self.updateScan(frame)
             barcodeImage = self.scanner.image
-            resized = cv2.resize(barcodeImage, self.previewResolution, cv2.INTER_AREA)
+            resized = cv2.resize(
+                barcodeImage, self.previewResolution, cv2.INTER_AREA)
             print(resized.shape)
             # TODO: insert barcode reading code here
             (flag, encodeImage) = cv2.imencode(".jpg", resized)
             if flag:
-                yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
+                yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodeImage) + b'\r\n')
         print("Shutting down!")
 
     @cherrypy.expose

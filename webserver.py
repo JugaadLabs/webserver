@@ -1,3 +1,7 @@
+import cv2
+from cherrypy.process import plugins
+import netifaces as ni
+from pathlib import Path
 import os
 import sys
 import string
@@ -31,20 +35,16 @@ else:
     print("Loading ZED Streaming thread")
     from src.ZEDStreamer import ZEDStreamer
 
-from pathlib import Path
-import sys
-import netifaces as ni
-from cherrypy.process import plugins
-import cv2
 
 def testCamera(camId):
     cap = cv2.VideoCapture(camId)
     w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    if w == 0 or h == 0 or w/h >3:
+    if w == 0 or h == 0 or w/h > 3:
         return -1
     return camId
     cap.release()
+
 
 def selfTest():
     ret0 = testCamera(0)
@@ -61,6 +61,7 @@ def selfTest():
             zed = True
     return csi, zed
 
+
 class Server(object):
     def run(self, host="127.0.0.1", port=8000, dir='.', enginePath=".", csiDevice=-1):
         dir = os.path.abspath(dir)
@@ -70,15 +71,15 @@ class Server(object):
             '/vendor': {
                 'tools.staticdir.on': True,
                 'tools.staticdir.dir': os.path.abspath('./vendor')
-                },
+            },
             '/css': {
                 'tools.staticdir.on': True,
                 'tools.staticdir.dir': os.path.abspath('./css')
-                },
+            },
             '/webfonts': {
                 'tools.staticdir.on': True,
                 'tools.staticdir.dir': os.path.abspath('./webfonts')
-                },
+            },
             '/ws': {
                 'tools.websocket.on': True,
                 'tools.websocket.handler_cls': WebSocketHandler
@@ -109,26 +110,32 @@ class Server(object):
         if ZED_ENABLED:
             zedFrameLock = threading.Lock()
             zedStreamer = ZEDStreamer(zedFrameLock, dir, 300)
-            zedStreamThread = threading.Thread(None, zedStreamer.run, daemon=True)
+            zedStreamThread = threading.Thread(
+                None, zedStreamer.run, daemon=True)
             zedStreamThread.start()
 
         WebSocketPlugin(cherrypy.engine).subscribe()
         cherrypy.tools.websocket = WebSocketTool()
 
-        cherrypy.tree.mount(RecordingHandler(dir, csiStreamer, zedStreamer, csiStatus, zedStatus), '/', config=CP_CONF)
-        cherrypy.tree.mount(BarcodeHandler(csiStreamer), '/barcode', config=CP_CONF)
-        cherrypy.tree.mount(DetectionHandler(csiStreamer, enginePath), '/detection', config=CP_CONF)
+        cherrypy.tree.mount(RecordingHandler(
+            dir, csiStreamer, zedStreamer, csiStatus, zedStatus), '/', config=CP_CONF)
+        cherrypy.tree.mount(BarcodeHandler(csiStreamer),
+                            '/barcode', config=CP_CONF)
+        cherrypy.tree.mount(DetectionHandler(
+            csiStreamer, enginePath), '/detection', config=CP_CONF)
         cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
         cherrypy.tree.mount(DocuHandler(), '/documentation', config=CP_CONF)
         cherrypy.engine.start()
         cherrypy.engine.block()
 
+
 def main():
     server = Server()
     if len(sys.argv) == 6:
         ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
-        server.run(ip, int(sys.argv[2]), sys.argv[3], sys.argv[4], int(sys.argv[5]))
+        server.run(ip, int(sys.argv[2]), sys.argv[3],
+                   sys.argv[4], int(sys.argv[5]))
     if len(sys.argv) == 5:
         ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
         server.run(ip, int(sys.argv[2]), sys.argv[3], sys.argv[4])
@@ -145,5 +152,6 @@ def main():
         ip = ni.ifaddresses('lo')[ni.AF_INET][0]['addr']
         server.run(ip)
 
-if __name__=="__main__": 
-    main() 
+
+if __name__ == "__main__":
+    main()

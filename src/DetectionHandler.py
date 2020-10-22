@@ -35,42 +35,71 @@ else:
     from src.trig_distance import monoDistance
     from src.uilts.uilts import detection_class_name_3cls
 
+
 class DetectionHandler(object):
     def __init__(self, csiStreamer, enginePath):
         self.templates = Templates()
         self.csiStreamer = csiStreamer
 
         if TENSORRT_ENABLED:
-            self.monoDistance = monoDistance((480,640), 480, enginePath, detection_class_name_3cls, np.array(range(3)))
+            self.inputResolution = (480, 640)
+            self.currentDetectionFrame = np.zeros(
+                (self.inputResolution[0], self.inputResolution[1], 3))
+            self.currentBirdsEyeFrame = np.zeros((480, 480, 3))
+            self.birdsEyeResolution = 480
+            self.vis_thresh = 0.35
+            self.nms_iou_thresh = 0.5
+            self.box_area_thresh = 500
+            self.monoDistance = monoDistance(
+                self.inputResolution, self.birdsEyeResolution, enginePath, detection_class_name_3cls, np.array(range(3)))
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
 
-    def updateScan(self, image):
-        text = "Placeholder"
-        self.sendWebsocketMessage(text)
+    def updateDetections(self):
+        image = self.csiStreamer.getCurrentFrame()
+        if image is None:
+            return
+        resized = cv2.resize(
+            image, (self.inputResolution), cv2.INTER_AREA)
+        self.currentBirdsEyeFrame, self.currentDetectionFrame, _, _ = self.monoDistance.detection_birdsview(
+            resized, self.vis_thresh, self.nms_iou_thresh, self.box_area_thresh)
+        # text = "Placeholder"
+        # self.sendWebsocketMessage(text)
 
     @cherrypy.expose
-    def stream(self):
+    def detectionStream(self):
         cherrypy.response.headers['Content-Type'] = "multipart/x-mixed-replace; boundary=frame"
-        return self.getFrame()
-    stream._cp_config = {'response.stream': True}
+        return self.getDetectionFrame()
+    detectionStream._cp_config = {'response.stream': True}
 
-    def getFrame(self):
+    @cherrypy.expose
+    def birdeyeStream(self):
+        cherrypy.response.headers['Content-Type'] = "multipart/x-mixed-replace; boundary=frame"
+        return self.getBirdsEyeFrame()
+    birdeyeStream._cp_config = {'response.stream': True}
+
+    def getBirdsEyeFrame(self):
         while True:
             state = cherrypy.engine.state
             if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
                 break
-            frame = self.csiStreamer.getCurrentFrame()
-            if frame is None:
-                continue
-            self.updateScan(frame)
-            # TODO: change with real code
-            image = frame
-            resized = cv2.resize(image, (int(0.5*image.shape[1]), int(0.5*image.shape[0])), cv2.INTER_AREA)
-            (flag, encodeImage) = cv2.imencode(".jpg", resized)
+            image = self.currentBirdsEyeFrame
+            (flag, encodeImage) = cv2.imencode(".jpg", image)
             if flag:
-                yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' +  bytearray(encodeImage) + b'\r\n')
+                yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodeImage) + b'\r\n')
+        print("Shutting down!")
+
+    def getDetectionFrame(self):
+        while True:
+            state = cherrypy.engine.state
+            if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
+                break
+            self.updateDetections()
+            image = self.currentDetectionFrame
+            (flag, encodeImage) = cv2.imencode(".jpg", image)
+            if flag:
+                yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodeImage) + b'\r\n')
         print("Shutting down!")
 
     @cherrypy.expose
