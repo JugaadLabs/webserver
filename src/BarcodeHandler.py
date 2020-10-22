@@ -45,11 +45,11 @@ class BarcodeHandler(object):
         if detectedCount == 0:
             text = "No barcodes or data matrices detected"
         else:
-            text = "<table class=\"table\"><thead><th>Type</th><th>Data</th></thead><tbody>"
+            text = "<table class=\"table\"><thead><th>ID</th><th>Data</th><th>Type</th></thead><tbody>"
             for scan in dm_scans:
-                text+= "<tr><td>%s</td><td>%s</td></tr>" % ("ECC200", scan)
+                text+= "<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (scan[0], scan[1], scan[2])
             for scan in barcode_scans:
-                text+= "<tr><td>%s</td><td>%s</td></tr>" % (scan[1], scan[0])
+                text+= "<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (scan[0], scan[1], scan[2])
             text += "</tbody></table><br>%d barcodes/data-matrices detected" % detectedCount
         self.sendWebsocketMessage(text)
 
