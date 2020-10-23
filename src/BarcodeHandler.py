@@ -25,16 +25,18 @@ from ws4py.messaging import TextMessage
 
 from src.barcode_scanner import BarcodeScanner
 from src.templates import Templates
+from src.CSIRecorder import CSIRecorder
 
 
 class BarcodeHandler(object):
     def __init__(self, dir, crop, timeout, previewResolution, recordingResolution):
         self.templates = Templates()
-        self.timeout = timeout
-        self.scanner = BarcodeScanner(timeout=self.timeout)
+
+        framerate = 1000/timeout
+        self.scanner = BarcodeScanner(timeout=timeout)
+        self.recorder = CSIRecorder(dir, recordingResolution, framerate, "BARCODE")
+
         self.previewResolution = previewResolution
-        self.recordingResolution = recordingResolution
-        self.RECORDING = False
         self.filename = ""
         self.dir = dir
         self.barcodeData = []
@@ -68,8 +70,16 @@ class BarcodeHandler(object):
         dm_scans = self.scanner.dms_list
         barcode_scans = self.scanner.bcs_list
         detectedCount = len(dm_scans)+len(barcode_scans)
-        if self.RECORDING:
-            self.recordData()
+
+        if self.recorder.RECORDING:
+            timestamp = time.time()
+            dataDict = {
+                "barcodes": self.scanner.bcs_list,
+                "data_matrices": self.scanner.dms_list,
+                "timestamp": timestamp
+            }
+            self.recorder.recordData(self.scanner.image, dataDict)
+
         if detectedCount == 0:
             html = "No barcodes or data matrices detected"
         else:
@@ -117,53 +127,20 @@ class BarcodeHandler(object):
 
     @cherrypy.expose
     def record(self):
-        return self.startRecording()
+        self.recorder.startRecording()
+        return self.status()
 
     @cherrypy.expose
     def stop(self):
-        return self.stopRecording()
+        self.recorder.stopRecording()
+        return self.status()
 
     @cherrypy.expose
     def status(self):
-        if self.filename != "":
-            if self.RECORDING:
-                self.currentStatus = "Recording to: " + self.filename
+        filename = self.recorder.filename
+        if filename != "":
+            if self.recorder.RECORDING:
+                self.currentStatus = "Recording to: " + filename
             else:
-                self.currentStatus = "Saved recording to: " + self.filename
+                self.currentStatus = "Saved recording to: " + filename
         return self.currentStatus
-
-    def recordData(self):
-        timestamp = time.time()
-        dataDict = {
-            "barcodes": self.scanner.bcs_list,
-            "data_matrices": self.scanner.dms_list,
-            "timestamp": timestamp
-        }
-        videoFrame = cv2.resize(
-            self.scanner.image, self.recordingResolution, cv2.INTER_AREA)
-        self.out.write(videoFrame)
-        self.barcodeData.append(dataDict)
-
-    def startRecording(self):
-        if self.RECORDING is False:
-            startTime = datetime.datetime.now()
-            self.filename = startTime.strftime("BARCODE_%Y-%m-%d-%H-%M-%S")
-            print("Recording to - " + self.filename)
-            self.RECORDING = True
-            filepath = os.path.join(self.dir, self.filename+".avi")
-            fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            framerate = 1000/self.timeout
-            self.out = cv2.VideoWriter(
-                filepath, fourcc, framerate, self.recordingResolution)
-            self.barcodeData = []
-        return self.status()
-
-    def stopRecording(self):
-        if self.RECORDING is True:
-            self.RECORDING = False
-            print("Stopped recording to - " + self.filename)
-            filepath = os.path.join(self.dir, self.filename+".pkl")
-            with open(filepath, 'wb') as f:
-                pickle.dump(self.barcodeData, f)
-            self.out.release()
-        return self.status()

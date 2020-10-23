@@ -6,7 +6,8 @@ import time
 import sys
 import pyzed.sl as sl
 import os
-from src.CameraState import CameraState
+import cherrypy
+
 
 class ZEDStreamer:
     def __init__(self, frameLock, dir, recordingInterval, resolution, depth, framerate):
@@ -17,7 +18,7 @@ class ZEDStreamer:
         self.lastFrame = None
         self.dir = dir
         self.frameLock = frameLock
-        self.currentState = CameraState.STOP
+        self.RECORDING = False
         self.recordingInterval = recordingInterval
         self.cam = self.intializeCamera()
         self.filename = ""
@@ -32,7 +33,7 @@ class ZEDStreamer:
             return cam
 
     def startRecording(self, startTime):
-        if self.currentState == CameraState.STOP:
+        if self.RECORDING == False:
             self.startTime = startTime
             self.startUnixTime = time.time()
 
@@ -43,12 +44,15 @@ class ZEDStreamer:
 
             recording_param = sl.RecordingParameters(filepath, sl.SVO_COMPRESSION_MODE.H264)
             self.cam.enable_recording(recording_param)
-        self.currentState = CameraState.RECORD
+        self.RECORDING = True
+
+    def isRecording(self):
+        return self.RECORDING
 
     def stopRecording(self):
-        if self.currentState != CameraState.STOP:
+        if self.RECORDING == True:
             self.cam.disable_recording()
-        self.currentState = CameraState.STOP
+        self.RECORDING = False
 
     def recordFrame(self):
         if (time.time() - self.startUnixTime > self.recordingInterval):
@@ -70,8 +74,8 @@ class ZEDStreamer:
             cherrypy.engine.publish("zedFrame", self.lastFrame)
             self.frameLock.release()
             # PAUSE is currently ignored, since disabling cam.grab would disable the stream
-            if self.currentState != CameraState.STOP:
+            if self.RECORDING == True:
                 self.recordFrame()
-        if self.currentState != CameraState.STOP:
+        if self.RECORDING == True:
             self.cam.disable_recording()
         self.cam.close()

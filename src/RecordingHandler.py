@@ -70,13 +70,10 @@ class RecordingHandler(object):
         elif command == CameraState.STOP:
             streamer.stopRecording()
 
-    def getCurrentStatus(self, streamer):
-        return streamer.currentState
-
-    def getCurrentStatusText(self, currentStatus, filename):
-        if currentStatus == CameraState.RECORD:
+    def getCurrentStatusText(self, isRecording, filename):
+        if isRecording == True:
             return " is recording to " + filename + "."
-        elif currentStatus == CameraState.STOP:
+        elif isRecording == False:
             return " file saved to " + filename + "."
 
     def commandHandler(self, csi, zed, command):
@@ -87,17 +84,17 @@ class RecordingHandler(object):
             self.camera_handler(self.zedStreamer, command, t)
 
     def getCameraStatus(self):
-        csiFilename = self.csiStreamer.filename
+        csiFilename = self.csiStreamer.recorder.filename
         if csiFilename == "":
             csiText = "Mono Camera is streaming."
         else:
-            csiText = "Mono Camera " + self.getCurrentStatusText(self.getCurrentStatus(self.csiStreamer), csiFilename)
+            csiText = "Mono Camera " + self.getCurrentStatusText(self.csiStreamer.isRecording(), csiFilename)
         if ZED_ENABLED:
             zedFilename = self.zedStreamer.filename
             if zedFilename == "":
                 zedText = "ZED Depth Camera is streaming."
             else:
-                zedText = "ZED Depth Camera " + self.getCurrentStatusText(self.getCurrentStatus(self.zedStreamer), zedFilename)
+                zedText = "ZED Depth Camera " + self.getCurrentStatusText(self.zedStreamer.isRecording(), zedFilename)
         else:
             zedText = "pyzed not installed or ZED Depth Camera not connected. ZED Recording disabled."
         return csiText, zedText

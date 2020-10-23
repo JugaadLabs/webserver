@@ -6,59 +6,29 @@ import time
 import pickle
 import os
 import cherrypy
+
 from src.CameraState import CameraState
+from src.CSIRecorder import CSIRecorder
 
 
 class CSIStreamer:
     def __init__(self, frameLock, dir, recordingInterval, device, resolution, recordingResolution, framerate):
         self.device = device
-        self.framerate = framerate
         self.resolution = resolution
         self.cap = None
         self.lastFrame = None
         self.lastTimestamp = time.time()
-        self.dir = dir
         self.frameLock = frameLock
-        self.currentState = CameraState.STOP
-        self.recordingInterval = recordingInterval
-        self.recordingResolution = recordingResolution
-        self.filename = ""
+        self.recorder = CSIRecorder(dir, recordingResolution, framerate, "CSI", recordingInterval)
 
     def startRecording(self, startTime):
-        if self.currentState == CameraState.STOP:
-            self.startTime = startTime
-            self.startUnixTime = time.time()
-            startTimeString = self.startTime.strftime("CSI_%Y-%m-%d-%H-%M-%S")
-            self.filename = startTimeString+".avi"
-            filepath = os.path.join(self.dir, self.filename)
-            print("CSI Camera - recording to " + filepath)
-
-            fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            self.out = cv2.VideoWriter(
-                filepath, fourcc, self.framerate, self.recordingResolution)
-            self.timestamps = []
-        self.currentState = CameraState.RECORD
+        self.recorder.startRecording()
 
     def stopRecording(self):
-        if self.currentState != CameraState.STOP:
-            startTimeString = self.startTime.strftime("CSI_%Y-%m-%d-%H-%M-%S")
-            filepath = os.path.join(self.dir, startTimeString+".pkl")
-            with open(filepath, 'wb') as f:
-                pickle.dump(self.timestamps, f)
-            print("Stopped recording!")
-            self.out.release()
-        self.currentState = CameraState.STOP
+        self.recorder.stopRecording()
 
-    def recordFrame(self):
-        if (time.time() - self.startUnixTime < self.recordingInterval):
-            self.timestamps.append(self.lastTimestamp)
-            videoFrame = cv2.resize(
-                self.lastFrame, self.recordingResolution, cv2.INTER_AREA)
-            self.out.write(videoFrame)
-        else:
-            self.stopRecording()
-            now = datetime.datetime.now()
-            self.startRecording(now)
+    def isRecording(self):
+        return self.recorder.RECORDING
 
     def run(self):
         print("Starting streaming thread with /dev/video" + str(self.device))
@@ -76,9 +46,8 @@ class CSIStreamer:
             cherrypy.engine.publish("csiFrame", self.lastFrame)
             self.lastTimestamp = time.time()
             self.frameLock.release()
-            if self.currentState == CameraState.RECORD:
-                self.recordFrame()
-        if self.currentState != CameraState.STOP:
-            self.stopRecording()
+            if self.recorder.RECORDING == True:
+                self.recorder.recordData(self.lastFrame, self.lastTimestamp)
+        self.stopRecording()
         print("Disabled streaming thread")
         self.cap.release()

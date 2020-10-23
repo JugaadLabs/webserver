@@ -2,19 +2,28 @@ import cv2
 import datetime
 import os
 import pickle
+import time
+import sys
+
 
 class CSIRecorder:
-    def __init__(self, dir, recordingResolution, framerate):
+    def __init__(self, dir, recordingResolution, framerate, filenamePrefix, recordingInterval=-1):
         self.RECORDING = False
         self.recordingResolution = recordingResolution
         self.framerate = framerate
         self.dir = dir
         self.filename = ""
         self.out = None
+        self.startUnixTime = 0
+        self.filenamePrefix = filenamePrefix
+        self.recordingInterval = sys.maxsize if recordingInterval == -1 else recordingInterval
 
-    def startRecording(self, filename):
+    def startRecording(self):
         if self.RECORDING is False:
-            self.filename = filename
+            startTime = datetime.datetime.now()
+            self.filename = self.filenamePrefix + "_" + \
+                startTime.strftime("%Y-%m-%d-%H-%M-%S")
+            self.startUnixTime = time.time()
             print("Recording to - " + self.filename)
             filepath = os.path.join(self.dir, self.filename+".avi")
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -24,10 +33,15 @@ class CSIRecorder:
             self.RECORDING = True
 
     def recordData(self, frame, dataItem):
-        videoFrame = cv2.resize(
-            frame, self.recordingResolution, cv2.INTER_AREA)
-        self.out.write(videoFrame)
-        self.data.append(dataItem)
+        if (time.time() - self.startUnixTime < self.recordingInterval):
+            videoFrame = cv2.resize(
+                frame, self.recordingResolution, cv2.INTER_AREA)
+            self.out.write(videoFrame)
+            self.data.append(dataItem)
+        else:
+            self.stopRecording()
+            now = datetime.datetime.now()
+            self.startRecording()
 
     def stopRecording(self):
         if self.RECORDING is True:
