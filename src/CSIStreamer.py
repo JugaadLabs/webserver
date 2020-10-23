@@ -89,6 +89,7 @@ class CSIStreamer:
 
             self.frameLock.acquire()
             self.lastFrame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            cherrypy.engine.publish("currentFrame", self.lastFrame)
             self.lastTimestamp = time.time()
             self.frameLock.release()
             if self.currentState == CameraState.RECORD:
