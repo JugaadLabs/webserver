@@ -44,7 +44,7 @@
     data = evt.data;
     var protocol = data.substring(0,3);
     if (protocol == "DET") {
-      html = data.substring(4)
+      html = data.substring(3);
       detectionResults.innerHTML = html;
     }
   };
