@@ -75,10 +75,10 @@ class DetectionHandler(object):
             for i in range(detectedCount):
                 distance = self.bboxDistances[i]
                 bbox = self.selectedBboxes[i]
-                className = detection_class_name_3cls[bbox[5]]
-                X = str(distance[0])
-                Y = str(distance[1])
-                html += "<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (
+                className = detection_class_name_3cls[int(bbox[5])]
+                X = distance[0]
+                Y = distance[1]
+                html += "<tr><td>%s</td><td>%.2f m</td><td>%.2f m</td></tr>" % (
                     className, X, Y)
             html += "</tbody></table>"
         self.sendWebsocketMessage(html)
