@@ -17,6 +17,7 @@ import simplejson
 import numpy as np
 from pathlib import Path
 from operator import itemgetter
+import zmq
 from src.zmq_utils import zmqNode
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
@@ -60,28 +61,31 @@ class DetectionHandler(object):
             image, (self.inputResolution), cv2.INTER_AREA)
 
         self.sendImgNode.send_array(resized)
-        dataDict = self.recvResultsNode.recv_zipped_pickle()
-
-        self.currentDetectionFrame = dataDict['img']
-        self.currentBirdsEyeFrame = dataDict['birdsView']
-        self.selectedBboxes = dataDict['selectedBboxes']
-        self.bboxDistances = dataDict['bboxDistances']
-
-        detectedCount = len(self.selectedBboxes)
-        if detectedCount == 0:
-            html = "No objects detected."
+        try:
+            dataDict = self.recvResultsNode.recv_zipped_pickle()
+        except zmq.error.Again as e:
+            pass
         else:
-            html = "<table class=\"table\"><thead><th>Object</th><th>X</th><th>Y</th></thead><tbody>"
-            for i in range(detectedCount):
-                distance = self.bboxDistances[i]
-                bbox = self.selectedBboxes[i]
-                className = detection_class_name_3cls[int(bbox[5])]
-                X = distance[0]
-                Y = distance[1]
-                html += "<tr><td>%s</td><td>%.2f m</td><td>%.2f m</td></tr>" % (
-                    className, X, Y)
-            html += "</tbody></table>"
-        self.sendWebsocketMessage(html)
+            self.currentDetectionFrame = dataDict['img']
+            self.currentBirdsEyeFrame = dataDict['birdsView']
+            self.selectedBboxes = dataDict['selectedBboxes']
+            self.bboxDistances = dataDict['bboxDistances']
+
+            detectedCount = len(self.selectedBboxes)
+            if detectedCount == 0:
+                html = "No objects detected."
+            else:
+                html = "<table class=\"table\"><thead><th>Object</th><th>X</th><th>Y</th></thead><tbody>"
+                for i in range(detectedCount):
+                    distance = self.bboxDistances[i]
+                    bbox = self.selectedBboxes[i]
+                    className = detection_class_name_3cls[int(bbox[5])]
+                    X = distance[0]
+                    Y = distance[1]
+                    html += "<tr><td>%s</td><td>%.2f m</td><td>%.2f m</td></tr>" % (
+                        className, X, Y)
+                html += "</tbody></table>"
+            self.sendWebsocketMessage(html)
 
     @cherrypy.expose
     def detectionStream(self):

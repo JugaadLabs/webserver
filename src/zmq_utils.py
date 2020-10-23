@@ -7,21 +7,18 @@ class zmqNode():
 
     def __init__(self, mode, port):
         context = zmq.Context()
-        self.poller = zmq.Poller()
         if mode == 'send':
             self.socket = context.socket(zmq.PUB)
             self.socket.setsockopt(zmq.SNDHWM, 1)
             self.socket.bind("tcp://*:{:d}".format(port))
-            self.poller.register(self.socket, zmq.POLLOUT) # POLLIN for recv, POLLOUT for send
             print('Sending on {:d}'.format(port))
         elif mode == 'recv':
             self.socket = context.socket(zmq.SUB)
             self.socket.setsockopt(zmq.SUBSCRIBE, b"")
             self.socket.setsockopt(zmq.RCVHWM, 1)
             self.socket.connect("tcp://localhost:{:d}".format(port))
-            self.poller.register(self.socket, zmq.POLLIN) # POLLIN for recv, POLLOUT for send
+            self.socket.RCVTIMEO = 10
             print("Collecting on {:d}".format(port))
-        self.poller.poll(500)
 
     def send_array(self, A, flags=0, copy=True, track=False):
         """send a numpy array with metadata"""
