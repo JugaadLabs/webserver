@@ -16,6 +16,8 @@ from PIL import Image
 import simplejson
 from pathlib import Path
 from operator import itemgetter
+import numpy as np
+
 ZED_ENABLED = True
 
 try:
@@ -48,9 +50,19 @@ class RecordingHandler(object):
             ZED_ENABLED = False
 
         self.csiStreamer = csiStreamer
+        self.currentCSIFrame = np.zeros((512,512,3))
+        self.currentZEDFrame = np.zeros((512,512,3))
 
+        cherrypy.engine.subscribe("csiFrame", self.updateCSIFrame)
         if ZED_ENABLED:
             self.zedStreamer = zedStreamer
+            cherrypy.engine.subscribe("zedFrame", self.updateZEDFrame)
+
+    def updateCSIFrame(self, frame):
+        self.currentCSIFrame = frame
+    
+    def updateZEDFrame(self, frame):
+        self.currentZEDFrame = frame
 
     def camera_handler(self, streamer, command, t):
         if command == CameraState.RECORD:
@@ -101,7 +113,7 @@ class RecordingHandler(object):
             state = cherrypy.engine.state
             if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
                 break
-            frame = self.csiStreamer.getCurrentFrame()
+            frame = self.currentCSIFrame
             if frame is None:
                 continue
             resized = cv2.resize(frame, self.previewResolution, cv2.INTER_AREA)
@@ -127,7 +139,7 @@ class RecordingHandler(object):
             state = cherrypy.engine.state
             if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
                 break
-            frame = self.zedStreamer.getCurrentFrame()
+            frame = self.currentZEDFrame
             if frame is None:
                 continue
             resized = cv2.resize(frame, self.zedPreviewResolution, cv2.INTER_AREA)
@@ -168,14 +180,14 @@ class RecordingHandler(object):
     def captureImage(self):
         now = datetime.datetime.now()
         fileTime = now.strftime("IMG_%Y-%m-%d-%H-%M-%S")+".jpeg"
-        csiFrame = self.csiStreamer.getCurrentFrame()
+        csiFrame = self.currentCSIFrame
         csiFrame = cv2.cvtColor(csiFrame, cv2.COLOR_BGR2RGB)
         csiImage = Image.fromarray(csiFrame)
         csiFilename = "CSI_" + fileTime
         csiImage.save(os.path.join(self.calibration_dir, csiFilename))
         zedFilename = ""
         if ZED_ENABLED:
-            zedFrame = self.zedStreamer.getCurrentFrame()
+            zedFrame = self.currentZEDFrame
             zedFrame = cv2.cvtColor(zedFrame, cv2.COLOR_BGR2RGB)
             zedImage = Image.fromarray(zedFrame)
             zedFilename = "ZED_" + fileTime

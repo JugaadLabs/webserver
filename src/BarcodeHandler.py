@@ -17,6 +17,7 @@ import simplejson
 from pathlib import Path
 from operator import itemgetter
 import pickle
+import numpy as np
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
@@ -27,10 +28,10 @@ from src.templates import Templates
 
 
 class BarcodeHandler(object):
-    def __init__(self, csiStreamer, dir):
+    def __init__(self, dir):
         self.templates = Templates()
-        self.scanner = BarcodeScanner(timeout=500)
-        self.csiStreamer = csiStreamer
+        self.timeout = 500
+        self.scanner = BarcodeScanner(timeout=self.timeout)
         self.previewResolution = (480, 427)
         self.recordingResolution = (960, 854)
         self.RECORDING = False
@@ -38,6 +39,17 @@ class BarcodeHandler(object):
         self.dir = dir
         self.barcodeData = []
         self.currentStatus = "Press the Record button to record a video of barcode detections"
+        cherrypy.engine.subscribe("csiFrame", self.updateFrame)
+        self.currentBarcodeFrame = np.zeros((512,512,3))
+
+    def updateFrame(self, frame):
+        h = frame.shape[0]
+        w = frame.shape[1]
+        h_low = h//4
+        h_high = 3*h//4
+        w_low = w//4
+        w_high = 3*w//4
+        self.currentBarcodeFrame = frame[h_low:h_high, :, :].copy()
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
@@ -76,7 +88,7 @@ class BarcodeHandler(object):
             state = cherrypy.engine.state
             if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
                 break
-            frame = self.csiStreamer.getBarcodeFrame()
+            frame = self.currentBarcodeFrame
             if frame is None:
                 continue
             self.updateScan(frame)
@@ -134,8 +146,9 @@ class BarcodeHandler(object):
             self.RECORDING = True
             filepath = os.path.join(self.dir, self.filename+".avi")
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
+            framerate = 1000/self.timeout
             self.out = cv2.VideoWriter(
-                filepath, fourcc, 30.0, self.recordingResolution)
+                filepath, fourcc, framerate, self.recordingResolution)
             self.barcodeData = []
         return self.status()
 

@@ -56,12 +56,6 @@ class ZEDStreamer:
             now = datetime.datetime.now()
             self.startRecording(now)
 
-    def getCurrentFrame(self):
-        self.frameLock.acquire()
-        frame = self.lastFrame
-        self.frameLock.release()
-        return frame
-
     def run(self):
         if self.cam == None:
             return
@@ -73,6 +67,7 @@ class ZEDStreamer:
             self.frameLock.acquire()
             self.lastFrame = image.get_data()
             self.lastFrame = cv2.rotate(self.lastFrame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            cherrypy.engine.publish("zedFrame", self.lastFrame)
             self.frameLock.release()
             # PAUSE is currently ignored, since disabling cam.grab would disable the stream
             if self.currentState != CameraState.STOP:

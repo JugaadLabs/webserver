@@ -60,22 +60,6 @@ class CSIStreamer:
             now = datetime.datetime.now()
             self.startRecording(now)
 
-    def getCurrentFrame(self):
-        self.frameLock.acquire()
-        frame = self.lastFrame
-        self.frameLock.release()
-        return frame
-
-    def getBarcodeFrame(self):
-        h = self.lastFrame.shape[0]
-        w = self.lastFrame.shape[1]
-        h_low = h//4
-        h_high = 3*h//4
-        w_low = w//4
-        w_high = 3*w//4
-        barcodeImage = self.lastFrame[h_low:h_high, :, :]
-        return barcodeImage.copy()
-
     def run(self):
         print("Starting streaming thread with /dev/video" + str(self.device))
         self.cap = cv2.VideoCapture(self.device)
@@ -89,7 +73,7 @@ class CSIStreamer:
 
             self.frameLock.acquire()
             self.lastFrame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-            cherrypy.engine.publish("currentFrame", self.lastFrame)
+            cherrypy.engine.publish("csiFrame", self.lastFrame)
             self.lastTimestamp = time.time()
             self.frameLock.release()
             if self.currentState == CameraState.RECORD:
