@@ -52,23 +52,35 @@ class DetectionHandler(object):
             self.selectedBboxes = None
             self.bboxDistances = None
 
+            self.lastTimestamp = 0
+            threading.Thread(
+                None, self.updateDetections, daemon=True)
+
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
 
+    # FIXME: I should really change this to pub/sub model lah :(
+    # might have tons of concorruency issues here idk
     def updateDetections(self):
-        image = self.csiStreamer.getCurrentFrame()
-        if image is None:
-            return
-        resized = cv2.resize(
-            image, (self.inputResolution), cv2.INTER_AREA)
-        self.sendImgNode.send_array(resized)
-        dataDict = self.recvResultsNode.recv_zipped_pickle()
-        self.currentDetectionFrame = dataDict['img']
-        self.currentBirdsEyeFrame = dataDict['birdsView']
-        self.selectedBboxes = dataDict['selectedBboxes']
-        self.bboxDistances = dataDict['bboxDistances']
-        # text = "Placeholder"
-        # self.sendWebsocketMessage(text)
+        while True:
+            state = cherrypy.engine.state
+            if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
+                break
+            if self.csiStreamer.lastTimestamp > self.lastTimestamp:
+                image = self.csiStreamer.getCurrentFrame()
+                self.lastTimestamp = self.csiStreamer.lastTimestamp
+                if image is None:
+                    continue
+                resized = cv2.resize(
+                    image, (self.inputResolution), cv2.INTER_AREA)
+
+                self.sendImgNode.send_array(resized)
+                dataDict = self.recvResultsNode.recv_zipped_pickle()
+
+                self.currentDetectionFrame = dataDict['img']
+                self.currentBirdsEyeFrame = dataDict['birdsView']
+                self.selectedBboxes = dataDict['selectedBboxes']
+                self.bboxDistances = dataDict['bboxDistances']
 
     @cherrypy.expose
     def detectionStream(self):
@@ -98,7 +110,6 @@ class DetectionHandler(object):
             state = cherrypy.engine.state
             if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
                 break
-            self.updateDetections()
             image = self.currentDetectionFrame
             (flag, encodeImage) = cv2.imencode(".jpg", image)
             if flag:
