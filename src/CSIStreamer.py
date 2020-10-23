@@ -74,7 +74,7 @@ class CSIStreamer:
         w_low = w//4
         w_high = 3*w//4
         barcodeImage = self.lastFrame[h_low:h_high, :, :]
-        return barcodeImage
+        return barcodeImage.copy()
 
     def run(self):
         print("Starting streaming thread with /dev/video" + str(self.device))
