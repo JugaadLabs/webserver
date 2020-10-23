@@ -10,7 +10,7 @@ from src.CameraState import CameraState
 
 
 class CSIStreamer:
-    def __init__(self, frameLock, dir, recordingInterval=300, device=0, resolution=(2592, 1944), recordingResolution=(540, 720), framerate=30):
+    def __init__(self, frameLock, dir, recordingInterval, device, resolution, recordingResolution, framerate):
         self.device = device
         self.framerate = framerate
         self.resolution = resolution

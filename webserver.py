@@ -12,6 +12,8 @@ import threading
 import cherrypy
 import jinja2
 
+from settings import params
+
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
 from ws4py.messaging import TextMessage
@@ -100,7 +102,8 @@ class Server(object):
         csiStatus = True if csiDevice != -1 else False
 
         csiFrameLock = threading.Lock()
-        csiStreamer = CSIStreamer(csiFrameLock, dir, 300, csiDevice)
+        csiStreamer = CSIStreamer(csiFrameLock, dir, params["csiStreamer"]["framerate"], csiDevice, params["csiStreamer"]
+                                  ["resolution"], params["csiStreamer"]["recordingResolution"], params["csiStreamer"]["framerate"])
         csiStreamThread = threading.Thread(None, csiStreamer.run, daemon=True)
         csiStreamThread.start()
 
@@ -109,7 +112,8 @@ class Server(object):
 
         if ZED_ENABLED:
             zedFrameLock = threading.Lock()
-            zedStreamer = ZEDStreamer(zedFrameLock, dir, 300)
+            zedStreamer = ZEDStreamer(zedFrameLock, dir, params["zedStreamer"]["recordingInterval"], params["zedStreamer"]
+                                      ["resolution"], params["zedStreamer"]["depth"], params["zedStreamer"]["framerate"])
             zedStreamThread = threading.Thread(
                 None, zedStreamer.run, daemon=True)
             zedStreamThread.start()
@@ -118,8 +122,8 @@ class Server(object):
         cherrypy.tools.websocket = WebSocketTool()
 
         cherrypy.tree.mount(RecordingHandler(
-            dir, csiStreamer, zedStreamer, csiStatus, zedStatus), '/', config=CP_CONF)
-        cherrypy.tree.mount(BarcodeHandler(dir),
+            dir, csiStreamer, zedStreamer, csiStatus, zedStatus, params["recordingHandler"]["previewResolution"], params["recordingHandler"]["zedPreviewResolution"]), '/', config=CP_CONF)
+        cherrypy.tree.mount(BarcodeHandler(dir, params["barcodeHandler"]["crop"], params["barcodeHandler"]["timeout"], params["barcodeHandler"]["previewResolution"], params["barcodeHandler"]["recordingResolution"]),
                             '/barcode', config=CP_CONF)
         cherrypy.tree.mount(DetectionHandler(), '/detection', config=CP_CONF)
         cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)

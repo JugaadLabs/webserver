@@ -9,7 +9,7 @@ import os
 from src.CameraState import CameraState
 
 class ZEDStreamer:
-    def __init__(self, frameLock, dir, recordingInterval=300, resolution=sl.RESOLUTION.HD720, depth=sl.DEPTH_MODE.PERFORMANCE, framerate=15):
+    def __init__(self, frameLock, dir, recordingInterval, resolution, depth, framerate):
         self.initParams = sl.InitParameters()
         self.initParams.camera_resolution = resolution
         self.initParams.depth_mode = depth

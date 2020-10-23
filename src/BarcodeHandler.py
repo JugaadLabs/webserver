@@ -28,28 +28,34 @@ from src.templates import Templates
 
 
 class BarcodeHandler(object):
-    def __init__(self, dir):
+    def __init__(self, dir, crop, timeout, previewResolution, recordingResolution):
         self.templates = Templates()
-        self.timeout = 500
+        self.timeout = timeout
         self.scanner = BarcodeScanner(timeout=self.timeout)
-        self.previewResolution = (480, 427)
-        self.recordingResolution = (960, 854)
+        self.previewResolution = previewResolution
+        self.recordingResolution = recordingResolution
         self.RECORDING = False
         self.filename = ""
         self.dir = dir
         self.barcodeData = []
         self.currentStatus = "Press the Record button to record a video of barcode detections"
         cherrypy.engine.subscribe("csiFrame", self.updateFrame)
-        self.currentBarcodeFrame = np.zeros((512,512,3))
+        self.currentBarcodeFrame = np.zeros((512, 512, 3))
+        self.crop = crop
 
     def updateFrame(self, frame):
         h = frame.shape[0]
         w = frame.shape[1]
-        h_low = h//4
-        h_high = 3*h//4
-        w_low = w//4
-        w_high = 3*w//4
-        self.currentBarcodeFrame = frame[h_low:h_high, :, :].copy()
+        h_low = self.crop[0]
+        h_high = self.crop[1]
+        w_low = self.crop[2]
+        w_high = self.crop[3]
+        if h_low < 0 or w_low < 0 or h_high >= h or w_high >= w:
+            h_low = h//4
+            h_high = 3*h//4
+            w_low = 0
+            w_high = w-1
+        self.currentBarcodeFrame = frame[h_low:h_high, w_low:w_high, :].copy()
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage("BAR"+txt))
