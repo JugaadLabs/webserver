@@ -55,7 +55,7 @@ class DetectionHandler(object):
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
 
     def sendWebsocketMessage(self, txt):
-        cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
+        cherrypy.engine.publish('websocket-broadcast', TextMessage("DET"+txt))
 
     def updateDetections(self, image):
         resized = cv2.resize(

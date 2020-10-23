@@ -41,7 +41,11 @@
   };
 
   ws.onmessage = function (evt) {
-    console.log(evt.data)
-    detectionResults.innerHTML = evt.data;
+    data = evt.data;
+    var protocol = data.substring(0,3);
+    if (protocol == "DET") {
+      html = data.substring(4)
+      detectionResults.innerHTML = html;
+    }
   };
 </script>

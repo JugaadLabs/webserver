@@ -52,7 +52,7 @@ class BarcodeHandler(object):
         self.currentBarcodeFrame = frame[h_low:h_high, :, :].copy()
 
     def sendWebsocketMessage(self, txt):
-        cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
+        cherrypy.engine.publish('websocket-broadcast', TextMessage("BAR"+txt))
 
     def updateScan(self, image):
         self.scanner.readImage(image)

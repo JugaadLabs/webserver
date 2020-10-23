@@ -55,8 +55,13 @@
   };
 
   ws.onmessage = function (evt) {
-    console.log(evt.data)
-    barcodeResults.innerHTML = evt.data;
+    console.log(evt.data);
+    data = evt.data;
+    var protocol = data.substring(0,3);
+    if (protocol == "BAR") {
+      html = data.substring(4)
+      barcodeResults.innerHTML = html;
+    }
   };
 
   function executeAction(url) {
