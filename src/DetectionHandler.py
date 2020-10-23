@@ -53,8 +53,9 @@ class DetectionHandler(object):
             self.bboxDistances = None
 
             self.lastTimestamp = 0
-            threading.Thread(
+            self.detectionThread = threading.Thread(
                 None, self.updateDetections, daemon=True)
+            self.detectionThread.run()
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
