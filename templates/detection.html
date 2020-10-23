@@ -4,7 +4,7 @@
     <div class="card mb-4">
       <div class="card-header">Object Detections</div>
       <div class="card-body">
-        <div class="row" id="barcodeResults">
+        <div class="row" id="detectionResults">
         </div>
       </div>
     </div>
@@ -42,6 +42,6 @@
 
   ws.onmessage = function (evt) {
     console.log(evt.data)
-    barcodeResults.textContent = evt.data;
+    detectionResults.innerHTML = evt.data;
   };
 </script>

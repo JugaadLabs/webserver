@@ -38,9 +38,8 @@ else:
 
 
 class DetectionHandler(object):
-    def __init__(self, csiStreamer, enginePath):
+    def __init__(self):
         self.templates = Templates()
-        self.csiStreamer = csiStreamer
 
         if TENSORRT_ENABLED:
             self.inputResolution = (480, 640)
@@ -59,7 +58,6 @@ class DetectionHandler(object):
         cherrypy.engine.publish('websocket-broadcast', TextMessage(txt))
 
     def updateDetections(self, image):
-        self.lastTimestamp = self.csiStreamer.lastTimestamp
         resized = cv2.resize(
             image, (self.inputResolution), cv2.INTER_AREA)
 
@@ -70,6 +68,8 @@ class DetectionHandler(object):
         self.currentBirdsEyeFrame = dataDict['birdsView']
         self.selectedBboxes = dataDict['selectedBboxes']
         self.bboxDistances = dataDict['bboxDistances']
+        self.lastTimestamp = self.lastTimestamp + 1
+        self.sendWebsocketMessage(str(self.lastTimestamp))
 
     @cherrypy.expose
     def detectionStream(self):
