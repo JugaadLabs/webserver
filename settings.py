@@ -21,7 +21,7 @@ if ZED_ENABLED:
 
 params["barcodeHandler"] = {}
 # hmin,hmax,wmin,wmax, will be overriden if the crop is larger than the frame
-params["barcodeHandler"]["crop"] = (0, 0, 1000, 1000)
+params["barcodeHandler"]["crop"] = (0, 1000, 0, 1000)
 params["barcodeHandler"]["previewResolution"] = (480, 427)
 params["barcodeHandler"]["recordingResolution"] = (960, 854)
 params["barcodeHandler"]["timeout"] = 500
