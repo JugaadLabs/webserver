@@ -48,10 +48,8 @@ class DetectionHandler(object):
             self.currentBirdsEyeFrame = np.zeros((480, 480, 3))
             self.sendImgNode = zmqNode('send', 9500)
             self.recvResultsNode = zmqNode('recv', 9501)
-            self.selectedBboxes = None
-            self.bboxDistances = None
-
-            self.lastTimestamp = 0
+            self.selectedBboxes = np.array([])
+            self.bboxDistances = np.array([])
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
 
     def sendWebsocketMessage(self, txt):
@@ -68,8 +66,22 @@ class DetectionHandler(object):
         self.currentBirdsEyeFrame = dataDict['birdsView']
         self.selectedBboxes = dataDict['selectedBboxes']
         self.bboxDistances = dataDict['bboxDistances']
-        self.lastTimestamp = self.lastTimestamp + 1
-        self.sendWebsocketMessage(str(self.lastTimestamp))
+
+        detectedCount = len(self.selectedBboxes)
+        if detectedCount == 0:
+            html = "No objects detected."
+        else:
+            html = "<table class=\"table\"><thead><th>Object</th><th>X</th><th>Y</th></thead><tbody>"
+            for i in range(detectedCount):
+                distance = self.bboxDistances[i]
+                bbox = self.selectedBboxes[i]
+                className = detection_class_name_3cls[bbox[5]]
+                X = str(distance[0])
+                Y = str(distance[1])
+                html += "<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (
+                    className, X, Y)
+            html += "</tbody></table>"
+        self.sendWebsocketMessage(html)
 
     @cherrypy.expose
     def detectionStream(self):
