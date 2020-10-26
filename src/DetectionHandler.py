@@ -26,6 +26,8 @@ from ws4py.messaging import TextMessage
 
 from src.templates import Templates
 
+from CSIRecorder import CSIRecorder
+
 TENSORRT_ENABLED = True
 try:
     from src.trig_distance import monoDistance
@@ -39,7 +41,7 @@ else:
 
 
 class DetectionHandler(object):
-    def __init__(self):
+    def __init__(self, dir, timeout, recordingResolution):
         self.templates = Templates()
 
         if TENSORRT_ENABLED:
@@ -51,6 +53,7 @@ class DetectionHandler(object):
             self.recvResultsNode = zmqNode('recv', 9501)
             self.selectedBboxes = np.array([])
             self.bboxDistances = np.array([])
+            self.recorder = CSIRecorder(dir, recordingResolution, 30, "DETECTION")
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
 
     def sendWebsocketMessage(self, txt):
@@ -62,14 +65,23 @@ class DetectionHandler(object):
 
         self.sendImgNode.send_array(resized)
         try:
-            dataDict = self.recvResultsNode.recv_zipped_pickle()
+            detectionsDict = self.recvResultsNode.recv_zipped_pickle()
         except zmq.error.Again as e:
             pass
         else:
-            self.currentDetectionFrame = dataDict['img']
-            self.currentBirdsEyeFrame = dataDict['birdsView']
-            self.selectedBboxes = dataDict['selectedBboxes']
-            self.bboxDistances = dataDict['bboxDistances']
+            self.currentDetectionFrame = detectionsDict['img']
+            self.currentBirdsEyeFrame = detectionsDict['birdsView']
+            self.selectedBboxes = detectionsDict['selectedBboxes']
+            self.bboxDistances = detectionsDict['bboxDistances']
+
+            if self.recorder.RECORDING:
+                timestamp = time.time()
+                dataDict = {
+                    "bboxes": self.selectedBboxes,
+                    "distances": self.bboxDistances,
+                    "timestamp": timestamp
+                }
+                self.recorder.recordData(self.currentDetectionFrame, dataDict)
 
             detectedCount = len(self.selectedBboxes)
             if detectedCount == 0:
@@ -128,3 +140,23 @@ class DetectionHandler(object):
     @cherrypy.expose
     def ws(self):
         cherrypy.log("Handler created: %s" % repr(cherrypy.request.ws_handler))
+
+    @cherrypy.expose
+    def record(self):
+        self.recorder.startRecording()
+        return self.status()
+
+    @cherrypy.expose
+    def stop(self):
+        self.recorder.stopRecording()
+        return self.status()
+
+    @cherrypy.expose
+    def status(self):
+        filename = self.recorder.filename
+        if filename != "":
+            if self.recorder.RECORDING:
+                self.currentStatus = "Recording to: " + filename
+            else:
+                self.currentStatus = "Saved recording to: " + filename
+        return self.currentStatus
