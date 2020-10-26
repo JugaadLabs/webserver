@@ -41,7 +41,7 @@ else:
 
 
 class DetectionHandler(object):
-    def __init__(self, dir, timeout, recordingResolution):
+    def __init__(self, dir, framerate, recordingResolution):
         self.templates = Templates()
 
         if TENSORRT_ENABLED:
@@ -53,7 +53,7 @@ class DetectionHandler(object):
             self.recvResultsNode = zmqNode('recv', 9501)
             self.selectedBboxes = np.array([])
             self.bboxDistances = np.array([])
-            self.recorder = CSIRecorder(dir, recordingResolution, 30, "DETECTION")
+            self.recorder = CSIRecorder(dir, recordingResolution, framerate, "DETECTION")
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
             self.currentStatus = "Press the Record button to record a video of object detections"
 

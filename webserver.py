@@ -127,7 +127,7 @@ class Server(object):
                             '/barcode', config=CP_CONF)
         # FIXME: get from settings.py
         cherrypy.tree.mount(DetectionHandler(
-            dir, -1, (480, 640)), '/detection', config=CP_CONF)
+            dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"]), '/detection', config=CP_CONF)
         cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
         cherrypy.tree.mount(DocuHandler(), '/documentation', config=CP_CONF)

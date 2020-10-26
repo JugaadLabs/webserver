@@ -29,3 +29,7 @@ params["barcodeHandler"]["timeout"] = 500
 params["recordingHandler"] = {}
 params["recordingHandler"]["previewResolution"] = (480, 640)
 params["recordingHandler"]["zedPreviewResolution"] = (360, 640)
+
+params["detectionHandler"] = {}
+params["detectionHandler"]["framerate"] = 9
+params["detectionHandler"]["recordingResolution"] = (480, 640)
