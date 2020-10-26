@@ -6,4 +6,3 @@ __pycache__/
 *.svo
 *.jpeg
 ./calibration/
-*.trt
