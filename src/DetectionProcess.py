@@ -3,6 +3,7 @@ from src.uilts.uilts import detection_class_name_3cls
 import numpy as np
 import zmq
 from src.zmq_utils import zmqNode
+import sys
 
 
 def main():
@@ -12,6 +13,8 @@ def main():
     nms_iou_thresh = 0.5
     box_area_thresh = 500
     enginePath = "/home/nvidia/engine/forklift_68fds_3cls_1.trt"
+    if len(sys.argv) > 1:
+        enginePath = sys.argv[1]
     monoDist = monoDistance(
         inputResolution, birdsEyeResolution, enginePath, detection_class_name_3cls, np.array(range(3)))
 
