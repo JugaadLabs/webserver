@@ -12,9 +12,9 @@
               <button onclick="executeAction('stop')" style="width: 5rem;" class="btn btn-danger btn-block"><i
                   class="fas fa-stop"></i><br>Stop</button>
             </div>
-            <div class="row" id="barcodestatus">
-            </div>
           </div>
+        </div>
+        <div class="row mt-4" id="barcodestatus">
         </div>
       </div>
     </div>
@@ -57,7 +57,7 @@
   ws.onmessage = function (evt) {
     console.log(evt.data);
     data = evt.data;
-    var protocol = data.substring(0,3);
+    var protocol = data.substring(0, 3);
     if (protocol == "BAR") {
       html = data.substring(3);
       barcodeResults.innerHTML = html;
