@@ -1,4 +1,5 @@
 <h2>Files</h2>
+<a href="/files?dir={{ state.parent }}"><i class="fas fa-arrow-up"></i> Parent Directory</a><br />
 {% for item in state.dirs %}
 <a href="/files?dir={{ item.path }}"><i class="far fa-folder"></i> {{ item.filename }}</a><br />
 {% endfor %}

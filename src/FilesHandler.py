@@ -40,4 +40,5 @@ class FilesHandler:
                 files.append(item)
         dirs = sorted(dirs, key=itemgetter('filename'))
         files = sorted(files, key=itemgetter('filename'))
-        return self.template.ls(files, dirs)
+        parentDir = os.path.dirname(os.path.abspath(dir))
+        return self.template.ls(files, dirs, parentDir)

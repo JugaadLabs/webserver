@@ -27,10 +27,11 @@ class Templates:
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)
 
-    def ls(self, files, dirs):
+    def ls(self, files, dirs, parentDir):
         opts = {}
         opts['files'] = files
         opts['dirs'] = dirs
+        opts['parent'] = parentDir
         ls_template = self.environment.get_template('ls.html')
         html = ls_template.render(state=opts)
         template = self.environment.get_template('base.html')
