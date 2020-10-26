@@ -45,6 +45,11 @@
 </div>
 
 <script type="text/javascript">
+  var statusXHR = new XMLHttpRequest();
+  statusXHR.open("GET", "/detection/status");
+  statusXHR.addEventListener("load", xhrCallback);
+  statusXHR.send();
+
   var url = window.location.href;
   var arr = url.split("/");
   var websocket = "ws://" + arr[2] + "/detection/ws";
