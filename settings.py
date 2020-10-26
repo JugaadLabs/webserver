@@ -9,7 +9,7 @@ params = {}
 params["csiStreamer"] = {}
 params["csiStreamer"]["resolution"] = (2592, 1944)
 params["csiStreamer"]["recordingResolution"] = (540, 720)
-params["csiStreamer"]["framerate"] = 30
+params["csiStreamer"]["framerate"] = 20
 params["csiStreamer"]["recordingInterval"] = 300
 
 if ZED_ENABLED:
