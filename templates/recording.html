@@ -9,16 +9,18 @@
             <div class="row">
               <div class="col text-center">
                 <!-- <div class="form-check form-check-inline text-center"> -->
-                  <input data-toggle="toggle" data-on="Mono" data-off="Mono" type="checkbox" data-offstyle="secondary" data-onstyle="primary" name="csi" id="CSI" value=True checked>
-                  <!-- <input data-toggle="toggle" data-on="Mono" data-off="Mono" type="checkbox" name="csi" id="CSI" value=True checked> -->
-                  <!-- <label class="form-check-label" for="CSI">
+                <input data-toggle="toggle" data-on="Mono" data-off="Mono" type="checkbox" data-offstyle="secondary"
+                  data-onstyle="primary" name="csi" id="CSI" value=True checked>
+                <!-- <input data-toggle="toggle" data-on="Mono" data-off="Mono" type="checkbox" name="csi" id="CSI" value=True checked> -->
+                <!-- <label class="form-check-label" for="CSI">
                     Mono Camera
                   </label> -->
                 <!-- </div> -->
                 <!-- <div class="form-check form-check-inline"> -->
-                  <input data-toggle="toggle" data-on="ZED2" data-off="ZED2" type="checkbox" data-offstyle="secondary" data-onstyle="primary" name="zed" id="ZED" value=True checked>
-                  <!-- <input data-toggle="toggle" data-on="ZED2" data-off="ZED2" type="checkbox" name="zed" id="ZED" value=True checked> -->
-                  <!-- <label class="form-check-label" for="ZED">
+                <input data-toggle="toggle" data-on="ZED2" data-off="ZED2" type="checkbox" data-offstyle="secondary"
+                  data-onstyle="primary" name="zed" id="ZED" value=True checked>
+                <!-- <input data-toggle="toggle" data-on="ZED2" data-off="ZED2" type="checkbox" name="zed" id="ZED" value=True checked> -->
+                <!-- <label class="form-check-label" for="ZED">
                     ZED Depth Camera
                   </label> -->
                 <!-- </div> -->
@@ -32,21 +34,12 @@
                   <button onclick="executeAction('stop')" style="width: 5rem;" class="btn btn-danger btn-block"><i
                       class="fas fa-stop"></i><br>Stop</button>
                 </div>
+                <div class="row" id="csiStatus">
+                  Press the above buttons to start recording data.
+                </div>
+                <div class="row" id="zedStatus">
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row mt-4 mb-4">
-      <div class="col">
-        <div class="card">
-          <div class="card-header">Status</div>
-          <div class="card-body">
-            <div class="row" id="csiStatus">
-              Press the above buttons to start recording data.
-            </div>
-            <div class="row" id="zedStatus">
             </div>
           </div>
         </div>
