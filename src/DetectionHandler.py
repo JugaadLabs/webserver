@@ -25,8 +25,8 @@ from ws4py.websocket import WebSocket
 from ws4py.messaging import TextMessage
 
 from src.templates import Templates
+from src.CSIRecorder import CSIRecorder
 
-from CSIRecorder import CSIRecorder
 
 TENSORRT_ENABLED = True
 try:
