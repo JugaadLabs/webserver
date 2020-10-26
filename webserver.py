@@ -125,7 +125,9 @@ class Server(object):
             dir, csiStreamer, zedStreamer, csiStatus, zedStatus, params["recordingHandler"]["previewResolution"], params["recordingHandler"]["zedPreviewResolution"]), '/', config=CP_CONF)
         cherrypy.tree.mount(BarcodeHandler(dir, params["barcodeHandler"]["crop"], params["barcodeHandler"]["timeout"], params["barcodeHandler"]["previewResolution"], params["barcodeHandler"]["recordingResolution"]),
                             '/barcode', config=CP_CONF)
-        cherrypy.tree.mount(DetectionHandler(), '/detection', config=CP_CONF)
+        # FIXME: get from settings.py
+        cherrypy.tree.mount(DetectionHandler(
+            dir, -1, (480, 640)), '/detection', config=CP_CONF)
         cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
         cherrypy.tree.mount(DocuHandler(), '/documentation', config=CP_CONF)

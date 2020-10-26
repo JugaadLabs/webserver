@@ -69,7 +69,7 @@
   function executeAction(url) {
     console.log(url);
     var xhr = new XMLHttpRequest();
-    var params = "/barcode/" + url
+    var params = "/detection/" + url
     xhr.open("GET", params, true);
     xhr.addEventListener("load", xhrCallback);
     xhr.send();
