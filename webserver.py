@@ -102,7 +102,7 @@ class Server(object):
         csiStatus = True if csiDevice != -1 else False
 
         csiFrameLock = threading.Lock()
-        csiStreamer = CSIStreamer(csiFrameLock, dir, params["csiStreamer"]["framerate"], csiDevice, params["csiStreamer"]
+        csiStreamer = CSIStreamer(csiFrameLock, dir, params["csiStreamer"]["recordingInterval"], csiDevice, params["csiStreamer"]
                                   ["resolution"], params["csiStreamer"]["recordingResolution"], params["csiStreamer"]["framerate"])
         csiStreamThread = threading.Thread(None, csiStreamer.run, daemon=True)
         csiStreamThread.start()
