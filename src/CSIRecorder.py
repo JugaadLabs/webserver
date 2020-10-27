@@ -50,4 +50,4 @@ class CSIRecorder:
             filepath = os.path.join(self.dir, self.filename+".pkl")
             with open(filepath, 'wb') as f:
                 pickle.dump(self.data, f)
-            self.out.release()
+            # self.out.release()
