@@ -201,11 +201,14 @@ class RecordingHandler(object):
     def index(self):
         if self.csiStatus == True and self.zedStatus == True:
             raise cherrypy.HTTPRedirect("/data")
-        msg = "<h1>Error</h1>"
+        header = ""
+        msg = ""
         if self.zedStatus == False:
+            header = "<h1>No ZED Camera connected</h1>"
             msg += "ZED Depth Camera not detected or <code>pyzed</code> not installed.<br>"
         if self.csiStatus == False:
+            header = "<h1>Error</h1>"
             msg += "Mono camera not detected.<br>"
         msg += "Please connect the missing camera(s), install the <code>pyzed</code> SDK, and restart the server." \
-        " You can still choose to record data from the available cameras, view files, or read the documentation."
-        return self.template.index(msg)
+        " Click on the sidebar to record data from the available cameras, view files, or read the documentation."
+        return self.template.index(header+msg)

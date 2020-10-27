@@ -52,7 +52,8 @@ class BarcodeHandler(object):
         h_high = self.crop[1]
         w_low = self.crop[2]
         w_high = self.crop[3]
-        if h_low < 0 or w_low < 0 or h_high >= h or w_high >= w:
+        # fallback if the crop is unreasonable
+        if h_low < 0 or w_low < 0 or h_high > h or w_high > w:
             h_low = h//4
             h_high = 3*h//4
             w_low = 0
