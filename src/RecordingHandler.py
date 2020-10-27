@@ -204,10 +204,10 @@ class RecordingHandler(object):
         header = ""
         msg = ""
         if self.zedStatus == False:
-            header = "<h1>No ZED Camera connected</h1>"
+            header = "<h2>No ZED Camera connected</h2>"
             msg += "ZED Depth Camera not detected or <code>pyzed</code> not installed.<br>"
         if self.csiStatus == False:
-            header = "<h1>Error</h1>"
+            header = "<h2>Error</h2>"
             msg += "Mono camera not detected.<br>"
         msg += "Please connect the missing camera(s), install the <code>pyzed</code> SDK, and restart the server." \
         " Click on the sidebar to record data from the available cameras, view files, or read the documentation."
