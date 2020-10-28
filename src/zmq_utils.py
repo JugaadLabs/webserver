@@ -17,7 +17,7 @@ class zmqNode():
             self.socket.setsockopt(zmq.SUBSCRIBE, b"")
             self.socket.setsockopt(zmq.RCVHWM, 1)
             self.socket.connect("tcp://localhost:{:d}".format(port))
-            self.socket.RCVTIMEO = 10
+            self.socket.RCVTIMEO = 1
             print("Collecting on {:d}".format(port))
 
     def send_array(self, A, flags=0, copy=True, track=False):

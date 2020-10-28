@@ -49,8 +49,11 @@ class DetectionHandler(object):
             self.currentDetectionFrame = np.zeros(
                 (self.inputResolution[0], self.inputResolution[1], 3))
             self.currentBirdsEyeFrame = np.zeros((480, 480, 3))
-            self.sendImgNode = zmqNode('send', 9500)
-            self.recvResultsNode = zmqNode('recv', 9501)
+            try:
+                self.sendImgNode = zmqNode('send', 9500)
+                self.recvResultsNode = zmqNode('recv', 9501)
+            except zmq.error.ZMQError:
+                print("Port might be already in use. Object detection may not work")
             self.selectedBboxes = np.array([])
             self.bboxDistances = np.array([])
             self.recorder = CSIRecorder(dir, recordingResolution, framerate, "DETECTION")
