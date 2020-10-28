@@ -7,10 +7,11 @@ import pickle as pkl
 import pyzed.sl as sl
 import bisect
 from matplotlib import pyplot as plt
+from tqdm import tqdm
 
 
 DIR = '/home/nvidia/recordings/'
-ZED_SVO = 'ZED_2020-10-27-16-53-45.svo'
+ZED_SVO = 'ZED_2020-10-28-19-25-22.svo'
 ZED_SVO_PATH = os.path.join(DIR, ZED_SVO)
 
 framerate = 20
@@ -29,7 +30,7 @@ runtime = sl.RuntimeParameters()
 svo_image = sl.Mat(resolution[1], resolution[0], sl.MAT_TYPE.U8_C4)
 depth_map = sl.Mat(resolution[1], resolution[0], sl.MAT_TYPE.U8_C4)
 i = 0
-while True:
+for i in tqdm(range(zed.get_svo_number_of_frames())):
     if zed.grab(runtime) == sl.ERROR_CODE.SUCCESS:
         i+=1
         zed.retrieve_image(svo_image, sl.VIEW.LEFT, sl.MEM.CPU)
@@ -44,11 +45,8 @@ while True:
         depthNumpy = cv2.cvtColor(depthNumpy, cv2.COLOR_BGR2RGB)
         depthVideoOut.write(depthNumpy)
         t = zed.get_timestamp(sl.TIME_REFERENCE.IMAGE).get_nanoseconds()/1e9
-        print("Frames processed: %d" % i, end='\r')
     else:
         break
 depthVideoOut.release()
 colorVideoOut.release()
 print("Videos saved")
-
-
