@@ -1,5 +1,5 @@
 <h2 id="introduction">Introduction</h2>
-<p>This utility allows one to remotely record timestamped video data from a V4L2 camera and the ZED stereo camera simultaneously. It targets the NVIDIA Jetson Xavier, but should work fine with any computer with an NVIDIA graphics card which supports the ZED camera. If you don’t have the ZED camera attached or <code>pysdk</code> installed, the server falls back to serving a video stream from a V4L2 device.</p>
+<p>This project allows one to remotely record timestamped video data from a V4L2 camera and the ZED stereo camera simultaneously. It targets the NVIDIA Jetson Xavier, but should work fine with any computer with an NVIDIA graphics card which supports the ZED camera. If you don’t have the ZED camera attached or <code>pysdk</code> installed, the server falls back to serving a video stream from a V4L2 device. It has been tested to work on the Raspberry Pi for streaming video using the Raspberry Pi camera.</p>
 <p>A video tutorial of using the dashboard can be found <a href="https://youtu.be/_Sp9WvgxLE0">here</a>.</p>
 <h2 id="install">Install</h2>
 <p>Download the project using:</p>
@@ -13,28 +13,33 @@
 <p>This project uses a CherryPy webserver for remotely receiving commands using HTTP GET calls. Make sure your Xavier NX is running Jetpack 4.4 Developer Preview for use with the e-Con camera. The e-Con camera is a V4L2 device and you can find which device it is by checking the output of <code>v4l2-ctl --list-devices</code>.</p>
 <h3 id="server">Server</h3>
 <p>On the NVIDIA Jetson, the server can be started directly by using:</p>
-<pre><code>./startJetsonServer.sh</code></pre>
-<p>Start the webserver by running:</p>
+<pre><code>./jetsonStart.sh</code></pre>
+<p>Otherwise start the webserver by running:</p>
 <pre><code>python3 webserver.py &lt;INTERFACE=&#39;lo&#39;&gt; &lt;PORT=8000&gt; &lt;RECORDING_DIR=&#39;.&#39;&gt; &lt;V4L2_DEVICE=-1&gt;</code></pre>
 <p>The <code>interface</code> argument is the network interface on which you want to run the webserver. Examples include <code>wlan0</code>, <code>lo</code>, and <code>l4tbr0</code> on the NVIDIA Jetson. The web server serves the page based on the IP address of the interface. The <code>RECORDING_DIR</code> argument is for choosing the folder to save the videos and images recorded by the cameras. The folder will be created if it doesn’t already exist. The AR0591 camera module or any V4L2 webcam is auto-detected by default, but can also be specified in an argument. An example launch command where the camera is connected on <code>/dev/video1</code> is:</p>
 <pre><code>python3 webserver.py wlan0 8000 /home/nvidia/recordings 1</code></pre>
 <p>Now go to the address where the webserver is serving pages (e.g. http://192.168.55.1:8000) in your web browser. This loads a webpage with the options to control the cameras, take pictures for calibration, download files, and view documentation.</p>
 <p>On recording a video, the videos will record to the specified location in the arguments. Each recording over 5 minutes is split into multiple files each 5 minutes long. Images captured for calibration are saved to <code>RECORDING_DIR/calibration</code>. Every file is timestamped.</p>
-<h3 id="features">Features</h3>
+<h2 id="features">Features</h2>
 <p>The webserver provides the following bespoke features:</p>
-<p><strong>File Browser</strong></p>
+<h3 id="file-browser">File Browser</h3>
 <p><img src="vendor/screenshots/files.png" /></p>
 <p>This utility allows the user to download files directly from the server. Clicking on a file opens an option to download it to the device. The rest of the utilities can be accessed from the sidebar. Press the blue hamburger icon at the top left corner to open or close the sidebar.</p>
-<p><strong>Data Collection</strong></p>
+<h3 id="data-collection">Data Collection</h3>
 <p><img src="vendor/screenshots/data.png" /></p>
-<p>This utility allows the user to record data from the Mono camera and the ZED depth camera simultaneously. Slide the toggle switch to apply the “Record” or “Stop” button on either one, or both of the cameras. By default, both cameras will record simultaneously. In case the ZED depth camera is not connected, only the view from the Mono camera will be shown.</p>
+<p>This utility allows the user to record data from the Mono camera and the ZED depth camera simultaneously. Slide the toggle switch to apply the “Record” or “Stop” button on either one, or both of the cameras. By default, both cameras will record simultaneously. In case the ZED depth camera is not connected, only the view from the Mono camera will be shown. To reduce the chances of data corruption, a new file is created every five minutes when recording video.</p>
 <p>The recorder records the video in the AVI file format. Each frame of the video is timestamped. The timestamps can be found in the Pickle file with the same filename as the video. Refer to <code>analysis/dataprocess.ipynb</code> for processing these files.</p>
-<p><strong>Barcode Detector</strong></p>
+<h3 id="intrinsic-calibration">Intrinsic Calibration</h3>
+<p><img src="vendor/screenshots/calibration.png" /></p>
+<p>This utility allows the user to capture pictures from the Mono camera and the ZED depth camera simultaneously for the purposes of intrinsic calibration. Press the “Capture Image” button to take a picture with both cameras. In case the ZED depth camera is not connected, only the view from the Mono camera will be shown.</p>
+<h3 id="barcode-detector">Barcode Detector</h3>
 <p><img src="vendor/screenshots/barcode.png" /></p>
 <p>This utility allows the user to read barcodes and record the video feed and the barcode data to a file. The barcodes are scanned in realtime and the detected values can be seen in the Barcode Detections panel. The user can use the Recording and Stop button to record an AVI file and an accompanying Pickle file with the same filename as the video. This Pickle file will have data about the barcodes detected at each frame with the timestamp.</p>
-<p><strong>Object Detector</strong></p>
+<h3 id="object-detector">Object Detector</h3>
 <p><img src="vendor/screenshots/detector.png" /></p>
 <p>This utility allows the user to detect objects in realtime and record the video feed and the detected objects data to a file. The objects are processed in realtime and the detected values can be seen in the Object Detections panel. Currently three classes the classifier can detect - person, forklift, and pallet. The user can use the Recording and Stop button to record an AVI file and an accompanying Pickle file with the same filename as the video. This Pickle file will have data about the objects detected at each frame, their relative positions with respect to the camera, and the timestamp.</p>
-<h3 id="recordings">Recordings</h3>
+<h2 id="settings">Settings</h2>
+<p>All the settings for all the utilities in this project can be adjusted by modifying <code>settings.py</code>.</p>
+<h2 id="recordings">Recordings</h2>
 <p>The data from the ZED camera is saved in the SVO format. Instructions for processing this data can be found <a href="https://www.stereolabs.com/docs/video/recording/">here</a>. The SVO file can be converted to an AVI file for color and depth using the <code>svo2avi.py</code> script in the <code>analysis/</code> folder of the project.</p>
 <p>Video from the V4L2 camera is saved to a timestamped <code>.avi</code> file. The UNIX timestamp for each frame of the video can be found in its accompanying <code>.pkl</code> file which contains a list of timestamps, one for each frame of the video. Please refer to the <code>analysis/dataprocess.ipynb</code> Jupyter notebook for processing the <code>.avi</code>, <code>.pkl</code>, <code>.svo</code> files.</p>
