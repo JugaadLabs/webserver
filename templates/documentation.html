@@ -2,6 +2,8 @@
 <p>This project allows one to remotely record timestamped video data from a V4L2 camera and the ZED stereo camera simultaneously. It targets the NVIDIA Jetson Xavier, but should work fine with any computer with an NVIDIA graphics card which supports the ZED camera. If you don’t have the ZED camera attached or <code>pysdk</code> installed, the server falls back to serving a video stream from a V4L2 device. It has been tested to work on the Raspberry Pi for streaming video using the Raspberry Pi camera.</p>
 <p>A video tutorial of using the dashboard can be found <a href="https://youtu.be/_Sp9WvgxLE0">here</a>.</p>
 <h2 id="install">Install</h2>
+<p>Switch the Jetson Xavier NX to using 15W 2 Core mode for the best performance:</p>
+<pre><code>sudo nvpmodel -m 0</code></pre>
 <p>Download the project using:</p>
 <pre><code>git clone https://github.com/JugaadLabs/webserver.git</code></pre>
 <p>Install the Python dependencies by running:</p>
@@ -37,7 +39,8 @@
 <p>This utility allows the user to read barcodes and record the video feed and the barcode data to a file. The barcodes are scanned in realtime and the detected values can be seen in the Barcode Detections panel. The user can use the Recording and Stop button to record an AVI file and an accompanying Pickle file with the same filename as the video. This Pickle file will have data about the barcodes detected at each frame with the timestamp.</p>
 <h3 id="object-detector">Object Detector</h3>
 <p><img src="vendor/screenshots/detector.png" /></p>
-<p>This utility allows the user to detect objects in realtime and record the video feed and the detected objects data to a file. The objects are processed in realtime and the detected values can be seen in the Object Detections panel. Currently three classes the classifier can detect - person, forklift, and pallet. The user can use the Recording and Stop button to record an AVI file and an accompanying Pickle file with the same filename as the video. This Pickle file will have data about the objects detected at each frame, their relative positions with respect to the camera, and the timestamp.</p>
+<p>This utility allows the user to detect objects in realtime and record the video feed and the detected objects data to a file. The objects are processed in realtime and the detected values can be seen in the Object Detections panel. Currently three classes the classifier can detect - person, forklift, and pallet. The Birds Eye View panel gives a visual indication of the position of the objects with respect to the camera.</p>
+<p>The user can use the Recording and Stop button to record an AVI file and an accompanying Pickle file with the same filename as the video. This Pickle file will have data about the objects detected at each frame, their relative positions with respect to the camera, and the timestamp.</p>
 <h2 id="settings">Settings</h2>
 <p>All the settings for all the utilities in this project can be adjusted by modifying <code>settings.py</code>.</p>
 <h2 id="recordings">Recordings</h2>

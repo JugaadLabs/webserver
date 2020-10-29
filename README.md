@@ -6,6 +6,12 @@ A video tutorial of using the dashboard can be found [here](https://youtu.be/_Sp
 
 ## Install
 
+Switch the Jetson Xavier NX to using 15W 2 Core mode for the best performance:
+
+```
+sudo nvpmodel -m 0
+```
+
 Download the project using:
 
 ```
@@ -88,7 +94,9 @@ This utility allows the user to read barcodes and record the video feed and the 
 
 ![](vendor/screenshots/detector.png)
 
-This utility allows the user to detect objects in realtime and record the video feed and the detected objects data to a file. The objects are processed in realtime and the detected values can be seen in the Object Detections panel. Currently three classes the classifier can detect - person, forklift, and pallet. The user can use the Recording and Stop button to record an AVI file and an accompanying Pickle file with the same filename as the video. This Pickle file will have data about the objects detected at each frame, their relative positions with respect to the camera, and the timestamp.
+This utility allows the user to detect objects in realtime and record the video feed and the detected objects data to a file. The objects are processed in realtime and the detected values can be seen in the Object Detections panel. Currently three classes the classifier can detect - person, forklift, and pallet. The Birds Eye View panel gives a visual indication of the position of the objects with respect to the camera.
+
+ The user can use the Recording and Stop button to record an AVI file and an accompanying Pickle file with the same filename as the video. This Pickle file will have data about the objects detected at each frame, their relative positions with respect to the camera, and the timestamp.
 
 ## Settings
 
