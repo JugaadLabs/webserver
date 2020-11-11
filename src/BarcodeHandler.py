@@ -40,26 +40,27 @@ class BarcodeHandler(object):
         self.filename = ""
         self.dir = dir
         self.barcodeData = []
-        self.currentStatus = "Press the Record button to record a video of barcode detections"
+        self.currentStatus = "Press the Record button to record a video of barcode detections. Use 5MP mode for better detection accuracy. This will disable any currently live recordings."
         cherrypy.engine.subscribe("csiFrame", self.updateFrame)
         self.currentBarcodeFrame = np.zeros((512, 512, 3))
         self.crop = crop
 
     def updateFrame(self, frame):
-        if frame is not None:
-            h = frame.shape[0]
-            w = frame.shape[1]
-            h_low = self.crop[0]
-            h_high = self.crop[1]
-            w_low = self.crop[2]
-            w_high = self.crop[3]
-            # fallback if the crop is unreasonable
-            if h_low < 0 or w_low < 0 or h_high > h or w_high > w:
-                h_low = h//4
-                h_high = 3*h//4
-                w_low = 0
-                w_high = w-1
-            self.currentBarcodeFrame = frame[h_low:h_high, w_low:w_high, :].copy()
+        if frame is None:
+            return
+        h = frame.shape[0]
+        w = frame.shape[1]
+        h_low = self.crop[0]
+        h_high = self.crop[1]
+        w_low = self.crop[2]
+        w_high = self.crop[3]
+        # fallback if the crop is unreasonable
+        if h_low < 0 or w_low < 0 or h_high > h or w_high > w:
+            h_low = h//4
+            h_high = 3*h//4
+            w_low = 0
+            w_high = w-1
+        self.currentBarcodeFrame = frame[h_low:h_high, w_low:w_high, :].copy()
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage("BAR"+txt))

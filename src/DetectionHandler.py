@@ -65,6 +65,8 @@ class DetectionHandler(object):
         cherrypy.engine.publish('websocket-broadcast', TextMessage("DET"+txt))
 
     def updateDetections(self, image):
+        if image is None:
+            return
         resized = cv2.resize(
             image, (self.inputResolution), cv2.INTER_AREA)
 
