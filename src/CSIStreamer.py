@@ -27,7 +27,7 @@ class CSIStreamer:
         cherrypy.engine.subscribe("hdResolution", self.setResolution)
 
     def startRecording(self, startTime):
-        self.setResolution(True)
+        self.setResolution(False)
         self.recorder.startRecording()
 
     def stopRecording(self):
