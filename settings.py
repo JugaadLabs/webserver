@@ -7,7 +7,8 @@ except ImportError as e:
 params = {}
 
 params["csiStreamer"] = {}
-params["csiStreamer"]["resolution"] = (2592, 1944)
+params["csiStreamer"]["hdResolution"] = (2592, 1944)
+params["csiStreamer"]["stdResolution"] = (640, 480)
 params["csiStreamer"]["recordingResolution"] = (540, 720)
 params["csiStreamer"]["framerate"] = 20
 params["csiStreamer"]["recordingInterval"] = 300

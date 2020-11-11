@@ -11,6 +11,7 @@ import traceback
 import threading
 import cherrypy
 import jinja2
+import multiprocessing
 
 from settings import params
 
@@ -103,9 +104,8 @@ class Server(object):
 
         csiFrameLock = threading.Lock()
         csiStreamer = CSIStreamer(csiFrameLock, dir, params["csiStreamer"]["recordingInterval"], csiDevice, params["csiStreamer"]
-                                  ["resolution"], params["csiStreamer"]["recordingResolution"], params["csiStreamer"]["framerate"])
-        csiStreamThread = threading.Thread(None, csiStreamer.run, daemon=True)
-        csiStreamThread.start()
+                                  ["stdResolution"], params["csiStreamer"]["hdResolution"], params["csiStreamer"]["recordingResolution"], params["csiStreamer"]["framerate"])
+        # threading.Thread(None, csiStreamer.run).start()
 
         zedFrameLock = None
         zedStreamer = None

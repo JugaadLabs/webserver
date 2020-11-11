@@ -46,19 +46,20 @@ class BarcodeHandler(object):
         self.crop = crop
 
     def updateFrame(self, frame):
-        h = frame.shape[0]
-        w = frame.shape[1]
-        h_low = self.crop[0]
-        h_high = self.crop[1]
-        w_low = self.crop[2]
-        w_high = self.crop[3]
-        # fallback if the crop is unreasonable
-        if h_low < 0 or w_low < 0 or h_high > h or w_high > w:
-            h_low = h//4
-            h_high = 3*h//4
-            w_low = 0
-            w_high = w-1
-        self.currentBarcodeFrame = frame[h_low:h_high, w_low:w_high, :].copy()
+        if frame is not None:
+            h = frame.shape[0]
+            w = frame.shape[1]
+            h_low = self.crop[0]
+            h_high = self.crop[1]
+            w_low = self.crop[2]
+            w_high = self.crop[3]
+            # fallback if the crop is unreasonable
+            if h_low < 0 or w_low < 0 or h_high > h or w_high > w:
+                h_low = h//4
+                h_high = 3*h//4
+                w_low = 0
+                w_high = w-1
+            self.currentBarcodeFrame = frame[h_low:h_high, w_low:w_high, :].copy()
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage("BAR"+txt))
@@ -135,6 +136,10 @@ class BarcodeHandler(object):
     def stop(self):
         self.recorder.stopRecording()
         return self.status()
+    
+    @cherrypy.expose
+    def hd(self):
+        return
 
     @cherrypy.expose
     def status(self):

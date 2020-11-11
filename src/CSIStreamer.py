@@ -6,22 +6,27 @@ import time
 import pickle
 import os
 import cherrypy
+import threading
 
 from src.CameraState import CameraState
 from src.CSIRecorder import CSIRecorder
 
 
 class CSIStreamer:
-    def __init__(self, frameLock, dir, recordingInterval, device, resolution, recordingResolution, framerate):
+    def __init__(self, frameLock, dir, recordingInterval, device, stdResolution, hdResolution, recordingResolution, framerate):
         self.device = device
-        self.resolution = resolution
+        self.stdResolution = stdResolution
+        self.hdResolution = hdResolution
         self.cap = None
         self.lastFrame = None
         self.lastTimestamp = time.time()
         self.frameLock = frameLock
         self.recorder = CSIRecorder(dir, recordingResolution, framerate, "CSI", recordingInterval)
+        # self.cap = cv2.VideoCapture(self.device)
+        self.setResolution(False)
 
     def startRecording(self, startTime):
+        self.setResolution(True)
         self.recorder.startRecording()
 
     def stopRecording(self):
@@ -30,15 +35,22 @@ class CSIStreamer:
     def isRecording(self):
         return self.recorder.RECORDING
 
+    def setResolution(self, HDResolution):
+        if self.cap is not None:
+            self.cap.release()
+        self.cap = cv2.VideoCapture(self.device)
+        if HDResolution:
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.hdResolution[0])
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.hdResolution[1])
+        else:
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.stdResolution[0])
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.stdResolution[1])
+        threading.Thread(None, self.run).start()
+
     def run(self):
         print("Starting streaming thread with /dev/video" + str(self.device))
-        self.cap = cv2.VideoCapture(self.device)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolution[0])
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
         while (self.cap.isOpened()):
             state = cherrypy.engine.state
-            if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
-                break
             ret, frame = self.cap.read()
 
             self.frameLock.acquire()
