@@ -37,6 +37,7 @@ class CSIRecorder:
     def recordData(self, frame, dataItem):
         if frame is None:
             self.stopRecording()
+            return
         if (time.time() - self.startUnixTime < self.recordingInterval):
             videoFrame = cv2.resize(
                 frame, self.recordingResolution, cv2.INTER_AREA)
