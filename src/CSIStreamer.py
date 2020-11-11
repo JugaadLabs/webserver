@@ -24,6 +24,7 @@ class CSIStreamer:
         self.recorder = CSIRecorder(dir, recordingResolution, framerate, "CSI", recordingInterval)
         # self.cap = cv2.VideoCapture(self.device)
         self.setResolution(False)
+        cherrypy.engine.subscribe("hdResolution", self.setResolution)
 
     def startRecording(self, startTime):
         self.setResolution(True)

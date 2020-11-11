@@ -136,10 +136,16 @@ class BarcodeHandler(object):
     def stop(self):
         self.recorder.stopRecording()
         return self.status()
-    
+
+    @cherrypy.expose
+    def sd(self):
+        cherrypy.engine.publish("hdResolution", False)
+        return self.status()
+
     @cherrypy.expose
     def hd(self):
-        return
+        cherrypy.engine.publish("hdResolution", True)
+        return self.status()
 
     @cherrypy.expose
     def status(self):
