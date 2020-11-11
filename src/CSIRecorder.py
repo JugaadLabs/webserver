@@ -21,6 +21,7 @@ class CSIRecorder:
 
     def startRecording(self):
         if self.RECORDING is False:
+            self.framesRecorded = 0
             startTime = datetime.datetime.now()
             self.filename = self.filenamePrefix + "_" + \
                 startTime.strftime("%Y-%m-%d-%H-%M-%S")
@@ -37,9 +38,9 @@ class CSIRecorder:
         if (time.time() - self.startUnixTime < self.recordingInterval):
             videoFrame = cv2.resize(
                 frame, self.recordingResolution, cv2.INTER_AREA)
-            self.framesRecorded += 1
             self.out.write(videoFrame)
             self.data.append(dataItem)
+            self.framesRecorded += 1
         else:
             self.stopRecording()
             now = datetime.datetime.now()
@@ -52,7 +53,7 @@ class CSIRecorder:
             filepath = os.path.join(self.dir, self.filename+".pkl")
             t = time.time()-self.startUnixTime
             fps = self.framesRecorded/t
-            print("FPS %f" % (fps))
+            print("FPS %f Frames %d Time %f" % (fps,self.framesRecorded,t))
             with open(filepath, 'wb') as f:
                 pickle.dump(self.data, f)
             # JIALAT!!! out.release() causes crash lah!
