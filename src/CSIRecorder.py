@@ -15,6 +15,7 @@ class CSIRecorder:
         self.filename = ""
         self.out = None
         self.startUnixTime = 0
+        self.framesRecorded = 0
         self.filenamePrefix = filenamePrefix
         self.recordingInterval = sys.maxsize if recordingInterval == -1 else recordingInterval
 
@@ -36,6 +37,7 @@ class CSIRecorder:
         if (time.time() - self.startUnixTime < self.recordingInterval):
             videoFrame = cv2.resize(
                 frame, self.recordingResolution, cv2.INTER_AREA)
+            self.framesRecorded += 1
             self.out.write(videoFrame)
             self.data.append(dataItem)
         else:
@@ -48,6 +50,9 @@ class CSIRecorder:
             self.RECORDING = False
             print("Stopped recording to - " + self.filename)
             filepath = os.path.join(self.dir, self.filename+".pkl")
+            t = time.time()-self.startUnixTime
+            fps = self.framesRecorded/t
+            print("FPS %f" % (fps))
             with open(filepath, 'wb') as f:
                 pickle.dump(self.data, f)
             # JIALAT!!! out.release() causes crash lah!
