@@ -23,10 +23,13 @@ class ZEDStreamer:
 
         self.recordEvent = multiprocessing.Event()
         self.terminateEvent = multiprocessing.Event()
+        self.recordEvent.clear()
+        self.terminateEvent.clear()
         self.commandQueue = multiprocessing.Queue()
         self.imageQueue = multiprocessing.Queue()
-        multiprocessing.Process(target=ZEDProcess.run, args=(
-            initParams, dir, recordingInterval, self.commandQueue, self.imageQueue, self.recordEvent, self.terminateEvent))
+        proc = multiprocessing.Process(target=ZEDProcess.run, args=(
+            initParams, dir, recordingInterval, self.commandQueue, self.imageQueue, self.recordEvent, self.terminateEvent)).start()
+        proc.start()
 
     def startRecording(self, startTime):
         self.commandQueue.put('REC')

@@ -59,6 +59,8 @@ class ZEDProcess:
         if self.cam == None:
             print("ZED Error, terminating process.")
             return
+        print("Running ZED Process!")
+        sys.stdout.flush()
         while terminateEvent.is_set() == False:
             runtime = sl.RuntimeParameters()
             self.cam.grab(runtime)
@@ -71,7 +73,7 @@ class ZEDProcess:
             imageQueue.put(lastFrame)
 
             # PAUSE is currently ignored, since disabling cam.grab would disable the stream
-            if recordEvent.is_set() == True:
+            if recordEvent.is_set():
                 self.recordFrame()
         if recordEvent.is_set() == True:
             self.cam.disable_recording()
