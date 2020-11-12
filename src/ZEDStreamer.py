@@ -18,8 +18,9 @@ class ZEDStreamer:
         initParams.camera_resolution = resolution
         initParams.depth_mode = depth
         initParams.camera_fps = framerate
-
+        self.filename = ""
         self.lastFrame = None
+        multiprocessing.set_start_method('spawn')
 
         self.recordEvent = multiprocessing.Event()
         self.terminateEvent = multiprocessing.Event()
@@ -27,9 +28,9 @@ class ZEDStreamer:
         self.terminateEvent.clear()
         self.commandQueue = multiprocessing.Queue()
         self.imageQueue = multiprocessing.Queue()
-        proc = multiprocessing.Process(target=ZEDProcess.run, args=(
-            initParams, dir, recordingInterval, self.commandQueue, self.imageQueue, self.recordEvent, self.terminateEvent)).start()
-        proc.start()
+        zedProcessObject = ZEDProcess()
+        multiprocessing.Process(target=zedProcessObject.run, args=(
+            None, dir, recordingInterval, self.commandQueue, self.imageQueue, self.recordEvent, self.terminateEvent,)).start()
 
     def startRecording(self, startTime):
         self.commandQueue.put('REC')

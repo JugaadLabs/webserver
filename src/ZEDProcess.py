@@ -9,8 +9,15 @@ import os
 import threading
 
 class ZEDProcess:
+    def __init__(self):
+        return
     def intializeCamera(self, initParams):
         self.cam = sl.Camera()
+        initParams = sl.InitParameters()
+        initParams.camera_resolution = sl.RESOLUTION.HD720
+        initParams.depth_mode = sl.DEPTH_MODE.PERFORMANCE
+        initParams.camera_fps = 15
+
         status = self.cam.open(initParams)
         if status != sl.ERROR_CODE.SUCCESS:
             print(repr(status))
@@ -40,10 +47,10 @@ class ZEDProcess:
             self.stopRecording()
             self.startRecording()
 
-    def commandLoop(self, cam, commandQueue, recordEvent):
+    def commandLoop(self):
         while True:
-            while not commandQueue.empty():
-                command = commandQueue.get()
+            while not self.commandQueue.empty():
+                command = self.commandQueue.get()
                 if command == 'REC':
                     self.startRecording()
                 elif command == 'STOP':
@@ -55,11 +62,14 @@ class ZEDProcess:
         self.terminateEvent = terminateEvent
         self.recordEvent = recordEvent
         self.recordingInterval = recordingInterval
+        self.commandQueue = commandQueue
+        self.imageQueue = imageQueue
 
         if self.cam == None:
             print("ZED Error, terminating process.")
             return
         print("Running ZED Process!")
+        threading.Thread(target=self.commandLoop).start()
         sys.stdout.flush()
         while terminateEvent.is_set() == False:
             runtime = sl.RuntimeParameters()
