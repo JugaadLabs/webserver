@@ -19,6 +19,7 @@ from pathlib import Path
 from operator import itemgetter
 import zmq
 from src.zmq_utils import zmqNode
+import multiprocessing
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
@@ -26,6 +27,7 @@ from ws4py.messaging import TextMessage
 
 from src.templates import Templates
 from src.CSIRecorder import CSIRecorder
+from src.DetectionProcess import detectionProcessFunction
 
 
 TENSORRT_ENABLED = True
@@ -49,17 +51,16 @@ class DetectionHandler(object):
             self.currentDetectionFrame = np.zeros(
                 (self.inputResolution[0], self.inputResolution[1], 3))
             self.currentBirdsEyeFrame = np.zeros((480, 480, 3))
-            try:
-                self.sendImgNode = zmqNode('send', 9500)
-                self.recvResultsNode = zmqNode('recv', 9501)
-            except zmq.error.ZMQError:
-                print("Port might be already in use. Object detection may not work")
             self.selectedBboxes = np.array([])
             self.bboxDistances = np.array([])
             self.recorder = CSIRecorder(dir, recordingResolution, framerate, "DETECTION")
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
             self.currentStatus = "Press the Record button to record a video of object detections"
 
+            self.sendQueue = multiprocessing.Queue()
+            self.recvQueue = multiprocessing.Queue()
+            p = multiprocessing.Process(target=detectionProcessFunction, args=(self.recvQueue, self.sendQueue))
+            p.start()
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage("DET"+txt))
@@ -70,12 +71,9 @@ class DetectionHandler(object):
         resized = cv2.resize(
             image, (self.inputResolution), cv2.INTER_AREA)
 
-        self.sendImgNode.send_array(resized)
-        try:
-            detectionsDict = self.recvResultsNode.recv_zipped_pickle()
-        except zmq.error.Again as e:
-            pass
-        else:
+        self.sendQueue.put(resized)
+        while not self.recvQueue.empty():
+            detectionsDict = self.recvQueue.get()
             self.currentDetectionFrame = detectionsDict['img']
             self.currentBirdsEyeFrame = detectionsDict['birdsView']
             self.selectedBboxes = detectionsDict['selectedBboxes']
