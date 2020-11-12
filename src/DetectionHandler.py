@@ -57,8 +57,8 @@ class DetectionHandler(object):
             self.selectedBboxes = np.array([])
             self.bboxDistances = np.array([])
             self.recorder = CSIRecorder(dir, recordingResolution, framerate, "DETECTION")
-            cherrypy.engine.subscribe("csiFrame", self.updateDetections)
             self.currentStatus = "Press the Record button to record a video of object detections"
+            cherrypy.engine.subscribe("csiFrame", self.updateDetections)
 
 
     def sendWebsocketMessage(self, txt):

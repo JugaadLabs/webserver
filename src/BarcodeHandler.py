@@ -41,9 +41,9 @@ class BarcodeHandler(object):
         self.dir = dir
         self.barcodeData = []
         self.currentStatus = "Press the Record button to record a video of barcode detections. Use 5MP mode for better detection accuracy. This will disable any currently live recordings."
-        cherrypy.engine.subscribe("csiFrame", self.updateFrame)
         self.currentBarcodeFrame = np.zeros((512, 512, 3))
         self.crop = crop
+        cherrypy.engine.subscribe("csiFrame", self.updateFrame)
 
     def updateFrame(self, frame):
         if frame is None:
