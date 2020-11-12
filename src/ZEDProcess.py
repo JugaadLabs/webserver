@@ -8,15 +8,13 @@ import pyzed.sl as sl
 import os
 import threading
 
+
 class ZEDProcess:
     def __init__(self):
         return
+
     def intializeCamera(self, initParams):
         self.cam = sl.Camera()
-        initParams = sl.InitParameters()
-        initParams.camera_resolution = sl.RESOLUTION.HD720
-        initParams.depth_mode = sl.DEPTH_MODE.PERFORMANCE
-        initParams.camera_fps = 15
 
         status = self.cam.open(initParams)
         if status != sl.ERROR_CODE.SUCCESS:
@@ -34,7 +32,8 @@ class ZEDProcess:
             filepath = os.path.join(self.dir, self.filename)
             print("ZED Camera - recording to " + filepath)
 
-            recording_param = sl.RecordingParameters(filepath, sl.SVO_COMPRESSION_MODE.H264)
+            recording_param = sl.RecordingParameters(
+                filepath, sl.SVO_COMPRESSION_MODE.H264)
             self.cam.enable_recording(recording_param)
 
     def stopRecording(self):
@@ -55,8 +54,13 @@ class ZEDProcess:
                     self.startRecording()
                 elif command == 'STOP':
                     self.stopRecording()
-    # FIXME: take ctr properly
-    def run(self, initParams, dir, recordingInterval, commandQueue, imageQueue, recordEvent, terminateEvent):
+
+    def run(self, resolution, depth, framerate, dir, recordingInterval, commandQueue, imageQueue, recordEvent, terminateEvent):
+        initParams = sl.InitParameters()
+        initParams.camera_resolution = resolution
+        initParams.depth_mode = depth
+        initParams.camera_fps = framerate
+
         self.intializeCamera(initParams)
         self.dir = dir
         self.terminateEvent = terminateEvent

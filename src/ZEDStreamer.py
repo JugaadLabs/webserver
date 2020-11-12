@@ -14,10 +14,6 @@ from src.ZEDProcess import ZEDProcess
 
 class ZEDStreamer:
     def __init__(self, frameLock, dir, recordingInterval, resolution, depth, framerate):
-        initParams = sl.InitParameters()
-        initParams.camera_resolution = resolution
-        initParams.depth_mode = depth
-        initParams.camera_fps = framerate
         self.filename = ""
         self.lastFrame = None
         multiprocessing.set_start_method('spawn')
@@ -30,7 +26,7 @@ class ZEDStreamer:
         self.imageQueue = multiprocessing.Queue()
         zedProcessObject = ZEDProcess()
         proc = multiprocessing.Process(target=zedProcessObject.run, args=(
-            None, dir, recordingInterval, self.commandQueue, self.imageQueue, self.recordEvent, self.terminateEvent,))
+            resolution, depth, framerate, dir, recordingInterval, self.commandQueue, self.imageQueue, self.recordEvent, self.terminateEvent,))
         proc.daemon = True
         proc.start()
 

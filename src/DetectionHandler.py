@@ -56,10 +56,10 @@ class DetectionHandler(object):
                 print("Port might be already in use. Object detection may not work")
             self.selectedBboxes = np.array([])
             self.bboxDistances = np.array([])
-            self.recorder = CSIRecorder(dir, recordingResolution, framerate, "DETECTION")
+            self.recorder = CSIRecorder(
+                dir, recordingResolution, framerate, "DETECTION")
             self.currentStatus = "Press the Record button to record a video of object detections"
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
-
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage("DET"+txt))
