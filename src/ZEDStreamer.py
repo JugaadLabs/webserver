@@ -48,6 +48,11 @@ class ZEDStreamer:
 
     def run(self):
         while True:
+            state = cherrypy.engine.state
+            if state == cherrypy.engine.states.STOPPING or state == cherrypy.engine.states.STOPPED:
+                print("Engine stopping - terminating ZED Thread")
+                self.terminateEvent.set()
+                break
             while not self.imageQueue.empty():
                 self.lastFrame = self.imageQueue.get()
                 cherrypy.engine.publish("zedFrame", self.lastFrame)

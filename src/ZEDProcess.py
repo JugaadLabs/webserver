@@ -25,6 +25,7 @@ class ZEDProcess:
 
     def startRecording(self):
         if self.recordEvent.is_set() == False:
+            self.recordEvent.set()
             self.startTime = datetime.datetime.now()
             self.startUnixTime = time.time()
 
@@ -35,7 +36,6 @@ class ZEDProcess:
 
             recording_param = sl.RecordingParameters(filepath, sl.SVO_COMPRESSION_MODE.H264)
             self.cam.enable_recording(recording_param)
-        self.recordEvent.set()
 
     def stopRecording(self):
         if self.recordEvent.is_set():
@@ -55,7 +55,7 @@ class ZEDProcess:
                     self.startRecording()
                 elif command == 'STOP':
                     self.stopRecording()
-
+    # FIXME: take ctr properly
     def run(self, initParams, dir, recordingInterval, commandQueue, imageQueue, recordEvent, terminateEvent):
         self.intializeCamera(initParams)
         self.dir = dir
