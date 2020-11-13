@@ -54,13 +54,13 @@ class DetectionHandler(object):
             self.selectedBboxes = np.array([])
             self.bboxDistances = np.array([])
             self.recorder = CSIRecorder(dir, recordingResolution, framerate, "DETECTION")
-            cherrypy.engine.subscribe("csiFrame", self.updateDetections)
             self.currentStatus = "Press the Record button to record a video of object detections"
-
-            self.sendQueue = multiprocessing.Queue()
-            self.recvQueue = multiprocessing.Queue()
+            multiprocessing.set_start_method('spawn')
+            self.sendQueue = multiprocessing.Queue(maxsize=5)
+            self.recvQueue = multiprocessing.Queue(maxsize=5)
             p = multiprocessing.Process(target=detectionProcessFunction, args=(self.recvQueue, self.sendQueue))
             p.start()
+            cherrypy.engine.subscribe("csiFrame", self.updateDetections)
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage("DET"+txt))

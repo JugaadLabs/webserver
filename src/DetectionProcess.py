@@ -12,9 +12,7 @@ def detectionProcessFunction(sendQueue, recvQueue):
     vis_thresh = 0.35
     nms_iou_thresh = 0.5
     box_area_thresh = 500
-    enginePath = "/home/nvidia/engine/forklift_68fds_3cls_1.trt"
-    if len(sys.argv) > 1:
-        enginePath = sys.argv[1]
+    enginePath = "/home/nvidia/webserver/src/uilts/forklift_68fds_3cls_1.trt"
     monoDist = monoDistance(
         inputResolution, birdsEyeResolution, enginePath, detection_class_name_3cls, np.array(range(3)))
 
