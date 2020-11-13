@@ -65,7 +65,7 @@ class DetectionHandler(object):
             except zmq.error.ZMQError:
                 print("Port might be already in use. Object detection may not work")
 
-            p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath))
+            p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath,))
             p.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
 
