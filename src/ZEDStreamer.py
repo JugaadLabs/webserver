@@ -22,8 +22,8 @@ class ZEDStreamer:
         self.terminateEvent = multiprocessing.Event()
         self.recordEvent.clear()
         self.terminateEvent.clear()
-        self.commandQueue = multiprocessing.Queue()
-        self.imageQueue = multiprocessing.Queue()
+        self.commandQueue = multiprocessing.Queue(maxsize=1)
+        self.imageQueue = multiprocessing.Queue(maxsize=5)
         zedProcessObject = ZEDProcess()
         proc = multiprocessing.Process(target=zedProcessObject.run, args=(
             resolution, depth, framerate, dir, recordingInterval, self.commandQueue, self.imageQueue, self.recordEvent, self.terminateEvent,))
