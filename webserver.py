@@ -126,7 +126,7 @@ class Server(object):
         cherrypy.tree.mount(BarcodeHandler(dir, params["barcodeHandler"]["crop"], params["barcodeHandler"]["timeout"], params["barcodeHandler"]["previewResolution"], params["barcodeHandler"]["recordingResolution"]),
                             '/barcode', config=CP_CONF)
         cherrypy.tree.mount(DetectionHandler(
-            dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"]), '/detection', config=CP_CONF)
+            dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"], params["detectionHandler"]["enginepath"]), '/detection', config=CP_CONF)
         cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
         cherrypy.tree.mount(DocuHandler(), '/documentation', config=CP_CONF)

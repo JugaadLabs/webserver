@@ -17,8 +17,6 @@ import simplejson
 import numpy as np
 from pathlib import Path
 from operator import itemgetter
-import zmq
-from src.zmq_utils import zmqNode
 import multiprocessing
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
@@ -43,7 +41,7 @@ else:
 
 
 class DetectionHandler(object):
-    def __init__(self, dir, framerate, recordingResolution):
+    def __init__(self, dir, framerate, recordingResolution, enginePath):
         self.templates = Templates()
 
         if TENSORRT_ENABLED:
@@ -55,10 +53,13 @@ class DetectionHandler(object):
             self.bboxDistances = np.array([])
             self.recorder = CSIRecorder(dir, recordingResolution, framerate, "DETECTION")
             self.currentStatus = "Press the Record button to record a video of object detections"
-            multiprocessing.set_start_method('spawn')
+            try:
+                multiprocessing.set_start_method('spawn')
+            except RuntimeError:
+                pass
             self.sendQueue = multiprocessing.Queue(maxsize=5)
             self.recvQueue = multiprocessing.Queue(maxsize=5)
-            p = multiprocessing.Process(target=detectionProcessFunction, args=(self.recvQueue, self.sendQueue))
+            p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath, self.recvQueue, self.sendQueue))
             p.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
 

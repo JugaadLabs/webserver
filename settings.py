@@ -34,3 +34,4 @@ params["recordingHandler"]["zedPreviewResolution"] = (360, 640)
 params["detectionHandler"] = {}
 params["detectionHandler"]["framerate"] = 9
 params["detectionHandler"]["recordingResolution"] = (480, 640)
+params["detectionHandler"]["enginepath"] = "/home/nvidia/webserver/src/uilts/forklift_68fds_3cls_1.trt"

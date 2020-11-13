@@ -16,7 +16,10 @@ class ZEDStreamer:
     def __init__(self, frameLock, dir, recordingInterval, resolution, depth, framerate):
         self.filename = ""
         self.lastFrame = None
-        multiprocessing.set_start_method('spawn')
+        try:
+            multiprocessing.set_start_method('spawn')
+        except RuntimeError:
+            pass
 
         self.recordEvent = multiprocessing.Event()
         self.terminateEvent = multiprocessing.Event()
@@ -32,11 +35,8 @@ class ZEDStreamer:
 
     def startRecording(self, startTime):
         self.commandQueue.put('REC')
-        self.startTime = startTime
-        self.startUnixTime = time.time()
-
-        startTimeString = self.startTime.strftime("ZED_%Y-%m-%d-%H-%M-%S")
-        self.filename = startTimeString+".svo"
+        startTimeString = startTime.strftime("ZED_%Y-%m-%d-%H-%M-%S")
+        self.filename = startTimeString
 
     def isRecording(self):
         time.sleep(0.15)
