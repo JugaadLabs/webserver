@@ -18,6 +18,7 @@ import numpy as np
 from pathlib import Path
 from operator import itemgetter
 import multiprocessing
+import zmq
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
@@ -26,7 +27,7 @@ from ws4py.messaging import TextMessage
 from src.templates import Templates
 from src.CSIRecorder import CSIRecorder
 from src.DetectionProcess import detectionProcessFunction
-
+from src.zmq_utils import zmqNode
 
 TENSORRT_ENABLED = True
 try:
@@ -57,9 +58,14 @@ class DetectionHandler(object):
                 multiprocessing.set_start_method('spawn')
             except RuntimeError:
                 pass
-            self.sendQueue = multiprocessing.Queue(maxsize=5)
-            self.recvQueue = multiprocessing.Queue(maxsize=5)
-            p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath, self.recvQueue, self.sendQueue))
+
+            try:
+                self.sendImgNode = zmqNode('send', 9500)
+                self.recvResultsNode = zmqNode('recv', 9501)
+            except zmq.error.ZMQError:
+                print("Port might be already in use. Object detection may not work")
+
+            p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath))
             p.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
 
@@ -72,9 +78,12 @@ class DetectionHandler(object):
         resized = cv2.resize(
             image, (self.inputResolution), cv2.INTER_AREA)
 
-        self.sendQueue.put(resized)
-        while not self.recvQueue.empty():
-            detectionsDict = self.recvQueue.get()
+        self.sendImgNode.send_array(resized)
+        try:
+            detectionsDict = self.recvResultsNode.recv_zipped_pickle()
+        except zmq.error.Again as e:
+            pass
+        else:
             self.currentDetectionFrame = detectionsDict['img']
             self.currentBirdsEyeFrame = detectionsDict['birdsView']
             self.selectedBboxes = detectionsDict['selectedBboxes']
