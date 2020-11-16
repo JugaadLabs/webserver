@@ -25,12 +25,12 @@ from ws4py.messaging import TextMessage
 
 from src.templates import Templates
 from src.CSIRecorder import CSIRecorder
-from src.DetectionProcess import detectionProcessFunction
 
 
 TENSORRT_ENABLED = True
 try:
     from src.trig_distance import monoDistance
+    from src.DetectionProcess import detectionProcessFunction
 except ImportError as e:
     print("TensorRT and/or PyCuda not available!")
     TENSORRT_ENABLED = False
