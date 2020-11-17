@@ -57,17 +57,34 @@ class DetectionHandler(object):
                 multiprocessing.set_start_method('spawn')
             except RuntimeError:
                 pass
-            self.sendQueue = multiprocessing.Queue(maxsize=5)
-            self.recvQueue = multiprocessing.Queue(maxsize=5)
+            self.sendQueue = multiprocessing.Queue(maxsize=1)
+            self.recvQueue = multiprocessing.Queue(maxsize=1)
             p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath, self.recvQueue, self.sendQueue))
             p.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
+            cherrypy.engine.subscribe("distanceCalibrationFiles", self.calibrateDistance)
+
+    def calibrateDistance(self, distanceCalibrationFiles):
+        cherrypy.engine.unsubscribe("csiFrame", self.updateDetections)
+        # FIXME: Maybe note needed to stop? But just to be safe lah!!
+        self.recorder.stopRecording()
+        self.sendQueue.put(distanceCalibrationFiles)
+        # wait till we have the message ready
+        while self.recvQueue.empty():
+            time.sleep(0.1)
+        calibrationResult = self.recvQueue.get()
+        # TODO: Add method in Camera intrinics which publishes this
+        print(calibrationResult)
+        if type(calibrationResult) is list:
+            cherrypy.engine.publish("calibrationResult", calibrationResult)
+        cherrypy.engine.subscribe("csiFrame", self.updateDetections)
+
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage("DET"+txt))
 
     def updateDetections(self, image):
-        if image is None:
+        if image is None or image is not np.ndarray:
             return
         resized = cv2.resize(
             image, (self.inputResolution), cv2.INTER_AREA)

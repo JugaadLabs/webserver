@@ -21,6 +21,7 @@ import simplejson
 from pathlib import Path
 from operator import itemgetter
 import numpy as np
+import re
 
 ZED_ENABLED = True
 
@@ -177,6 +178,14 @@ class RecordingHandler(object):
     @cherrypy.expose
     def data(self):
         return self.template.data(ZED_ENABLED)
+
+    @cherrypy.expose
+    def calibrateDistance(self):
+        files = os.listdir(self.calibration_dir)
+        r = re.compile('[0-9]_CSI.*')
+        calibrationFiles = list(filter(r.match, files)).sort()
+        calibrationFiles = [os.path.join(self.calibration_dir, x) for x in calibrationFiles]
+        cherrypy.engine.publish("distanceCalibrationFiles", calibrationFiles)
 
     @cherrypy.expose
     def captureImage(self, csiFilename="", zedFilename=""):

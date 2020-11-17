@@ -21,6 +21,8 @@ coco_class_name = [
      'scissors', 'teddy bear', 'hair drier', 'toothbrush'
 ]
 
+detection_class_name_8cls = ['person', 'forklift', 'pallet', 'sign_stop', 'sign_speed', 'sign_height', 'sign_end', 'sign_forklift']
+
 detection_class_name_7cls = ['person', 'bicycle', 'car', 'motorcycle', 'bus', 'truck', 'stop sign']
 
 detection_class_name_3cls = ['person', 'forklift', 'pallet']
