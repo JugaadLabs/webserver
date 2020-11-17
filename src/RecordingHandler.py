@@ -180,7 +180,7 @@ class RecordingHandler(object):
 
     @cherrypy.expose
     def captureImage(self, csiFilename="", zedFilename=""):
-        print(csiFilename,zedFilename)
+        print(csiFilename, zedFilename)
         now = datetime.datetime.now()
         fileTime = now.strftime("IMG_%Y-%m-%d-%H-%M-%S")+".jpeg"
         csiFilename += "CSI_" + fileTime
@@ -196,14 +196,14 @@ class RecordingHandler(object):
             zedFilename += "ZED_" + fileTime
             zedImage.save(os.path.join(self.calibration_dir, zedFilename))
         else:
-            zedFilename=""
+            zedFilename = ""
 
         cherrypy.response.headers['Content-Type'] = 'text/markdown'
         return simplejson.dumps(dict(csiFilename=csiFilename, zedFilename=zedFilename))
 
     @cherrypy.expose
-    def intrinsics(self):
-        return self.template.intrinsics(ZED_ENABLED)
+    def calibration(self):
+        return self.template.calibration(ZED_ENABLED)
 
     @cherrypy.expose
     def index(self):

@@ -9,7 +9,7 @@ class Templates:
     def templatePath(self):
         return os.path.join(os.getcwd(), 'templates')
 
-    def intrinsics(self, ZED_ENABLED):
+    def calibration(self, ZED_ENABLED):
         calibrationTemplate = self.environment.get_template('calibration.html')
         html = calibrationTemplate.render(zedenabled=ZED_ENABLED)
         template = self.environment.get_template('base.html')
