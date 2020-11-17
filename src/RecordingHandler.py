@@ -183,11 +183,15 @@ class RecordingHandler(object):
     def calibrateDistance(self):
         files = os.listdir(self.calibration_dir)
         r = re.compile('[0-9]_CSI.*')
-        calibrationFiles = list(filter(r.match, files)).sort()
-        calibrationFiles = [os.path.join(
-            self.calibration_dir, x) for x in calibrationFiles]
-        if len(calibrationFiles) < 8:
+        calibrationFiles = list(filter(r.match, files))
+        if calibrationFiles is not None:
+            calibrationFiles = [os.path.join(
+                self.calibration_dir, x) for x in calibrationFiles]
+        else:
             return "Images missing. Please record images for each distance before starting distance calibration."
+        if len(calibrationFiles) < 8:
+            return "Insufficient images to start calibration. Please record images for each distance before starting distance calibration."
+        calibrationFiles.sort()
         cherrypy.engine.publish("distanceCalibrationFiles", calibrationFiles)
         return "Starting distance calibration!"
 
