@@ -184,15 +184,19 @@ class RecordingHandler(object):
         files = os.listdir(self.calibration_dir)
         r = re.compile('[0-9]_CSI.*')
         calibrationFiles = list(filter(r.match, files)).sort()
-        calibrationFiles = [os.path.join(self.calibration_dir, x) for x in calibrationFiles]
+        calibrationFiles = [os.path.join(
+            self.calibration_dir, x) for x in calibrationFiles]
+        if len(calibrationFiles) < 8:
+            return "Images missing. Please record images for each distance before starting distance calibration."
         cherrypy.engine.publish("distanceCalibrationFiles", calibrationFiles)
+        return "Starting distance calibration!"
 
     @cherrypy.expose
     def captureImage(self, csiFilename="", zedFilename=""):
         print(csiFilename, zedFilename)
         now = datetime.datetime.now()
         fileTime = now.strftime("IMG_%Y-%m-%d-%H-%M-%S")+".jpeg"
-        csiFilename += "CSI_" + fileTime
+        csiFilename = csiFilename + "_CSI.jpeg" if csiFilename is not "" else "CSI_" + fileTime
         csiFrame = self.currentCSIFrame
         csiFrame = cv2.cvtColor(csiFrame, cv2.COLOR_BGR2RGB)
         csiImage = Image.fromarray(csiFrame)
@@ -202,7 +206,7 @@ class RecordingHandler(object):
             zedFrame = self.currentZEDFrame
             zedFrame = cv2.cvtColor(zedFrame, cv2.COLOR_BGR2RGB)
             zedImage = Image.fromarray(zedFrame)
-            zedFilename += "ZED_" + fileTime
+            zedFilename = zedFilename + "_ZED.jpeg" if zedFilename is not "" else "ZED_" + fileTime
             zedImage.save(os.path.join(self.calibration_dir, zedFilename))
         else:
             zedFilename = ""
