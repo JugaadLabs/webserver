@@ -57,7 +57,7 @@ class RecordingHandler(object):
         cherrypy.engine.subscribe("csiFrame", self.updateCSIFrame)
         cherrypy.engine.subscribe(
             "calibrationResult", self.calibrationResultCallback)
-        self.calibrationResult = ""
+        self.calibrationResult = "Calibration failed."
         if ZED_ENABLED:
             self.zedStreamer = zedStreamer
             cherrypy.engine.subscribe("zedFrame", self.updateZEDFrame)
@@ -191,6 +191,20 @@ class RecordingHandler(object):
     @cherrypy.expose
     def data(self):
         return self.template.data(ZED_ENABLED)
+
+    @cherrypy.expose
+    def clearAll(self):
+        files = os.listdir(self.calibration_dir)
+        r = re.compile('[0-9]_CSI.*')
+        calibrationFiles = list(filter(r.match, files))
+        if calibrationFiles is not None:
+            calibrationFiles = [os.path.join(
+                self.calibration_dir, x) for x in calibrationFiles]
+        else:
+            return "No files for calibration have been saved yet."
+        for filename in calibrationFiles:
+            os.remove(filename)
+        return "Distance calibration images deleted."
 
     @cherrypy.expose
     def calibrateDistance(self):

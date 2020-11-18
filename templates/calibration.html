@@ -18,32 +18,38 @@
         Distance Calibration
       </div>
       <div class="card-body">
-        <div class="row mb-2">
-          <div class="col text-center">
-            <button class="btn btn-info mr-2" onclick="captureImage('0')">0.50m</button>
-            <button class="btn btn-info mr-2" onclick="captureImage('1')">0.75m</button>
-            <button class="btn btn-info mr-2" onclick="captureImage('2')">1.00m</button>
-            <button class="btn btn-info mr-2" onclick="captureImage('3')">1.25m</button>
+        <div class="col text-center">
+          <div class="row mb-2">
+            <div class="col text-center">
+              <button class="btn btn-info mr-2" onclick="captureImage('0')">0.50m</button>
+              <button class="btn btn-info mr-2" onclick="captureImage('1')">0.75m</button>
+              <button class="btn btn-info mr-2" onclick="captureImage('2')">1.00m</button>
+            </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col text-center">
-            <button class="btn btn-info mr-2" onclick="captureImage('4')">1.50m</button>
-            <button class="btn btn-info mr-2" onclick="captureImage('5')">2.00m</button>
-            <button class="btn btn-info mr-2" onclick="captureImage('6')">2.50m</button>
-            <button class="btn btn-info mr-2" onclick="captureImage('7')">3.00m</button>
+          <div class="row mb-2">
+            <div class="col text-center">
+              <button class="btn btn-info mr-2" onclick="captureImage('3')">1.25m</button>
+              <button class="btn btn-info mr-2" onclick="captureImage('4')">1.50m</button>
+              <button class="btn btn-info mr-2" onclick="captureImage('5')">2.00m</button>
+            </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col text-center">
-            <button class="btn btn-success mt-4 mr-2" onclick="calibrateDistance()">Calibrate Distance!</button>
-            <button class="btn btn-warning mt-4 mr-4"
-              onclick="alert('The calibration process needs a person to stand 0.50m, 0.75m, 1.00m, 1.25m, 1.50m, 2.00m, 2.50m and 3.00m away from the forklift and capture an image at each position. Press the corresponding button above when the person is at that distance from the base of the forklift. It is the tip of the person’s foot to be at each position. The distance on the ground needs to be measured as precisely as possible with a measuring tape or other methods. The person needs to be at the center of the image and no other person should appear in the same frame.')">
-              <i class="fas fa-question-circle"></i>
-            </button>
+          <div class="row">
+            <div class="col text-center">
+              <button class="btn btn-info mr-2" onclick="captureImage('6')">2.50m</button>
+              <button class="btn btn-info mr-2" onclick="captureImage('7')">3.00m</button>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col text-center">
+              <button class="btn btn-success mr-2" onclick="executeAction('/calibrateDistance')">Calibrate Distance!</button>
+              <button class="btn btn-danger mr-2" onclick="executeAction('/clearAll')">Clear All</button>
+            </div>
           </div>
         </div>
         <div class="row mt-4" id="calibrationresults">
+        </div>
+        <div class="row mt-2">
+          'The calibration process needs a person to stand 0.50m, 0.75m, 1.00m, 1.25m, 1.50m, 2.00m, 2.50m and 3.00m away from the forklift and capture an image at each position. Press the corresponding button above when the person is at that distance from the base of the forklift. It is the tip of the person’s foot to be at each position. The distance on the ground needs to be measured as precisely as possible with a measuring tape or other methods. The person needs to be at the center of the image and no other person should appear in the same frame.'
         </div>
       </div>
     </div>
@@ -90,9 +96,9 @@
     };
   }
 
-  function calibrateDistance() {
+  function executeAction(url) {
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "/calibrateDistance", true);
+    xhr.open("POST", url, true);
     xhr.send();
     xhr.onload = function (e) {
       if (xhr.readyState === 4) {
