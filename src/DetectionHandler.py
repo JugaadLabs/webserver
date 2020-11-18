@@ -43,8 +43,9 @@ else:
 class DetectionHandler(object):
     def __init__(self, dir, framerate, recordingResolution, enginePath):
         self.templates = Templates()
-
+        self.HD_STREAMING = False
         if TENSORRT_ENABLED:
+            cherrypy.engine.subscribe("hdResolution", self.getCurrentResolution)
             self.inputResolution = (480, 640)
             self.currentDetectionFrame = np.zeros(
                 (self.inputResolution[0], self.inputResolution[1], 3))
@@ -64,6 +65,13 @@ class DetectionHandler(object):
             p.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
             cherrypy.engine.subscribe("distanceCalibrationFiles", self.calibrateDistance)
+
+    def getCurrentResolution(self, HD):
+        self.HD_STREAMING = HD
+
+    def setResolution(self):
+        if self.HD_STREAMING:
+            cherrypy.engine.publish("hdResolution", False)
 
     def calibrateDistance(self, distanceCalibrationFiles):
         cherrypy.engine.unsubscribe("csiFrame", self.updateDetections)
@@ -167,6 +175,7 @@ class DetectionHandler(object):
 
     @cherrypy.expose
     def index(self):
+        self.setResolution()
         return self.templates.detection(TENSORRT_ENABLED)
 
     @cherrypy.expose

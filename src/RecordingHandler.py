@@ -43,6 +43,7 @@ class RecordingHandler(object):
         Path(self.calibration_dir).mkdir(parents=True, exist_ok=True)
 
         self.template = Templates()
+        self.HD_STREAMING = False
 
         self.csiStatus = csiStatus
         self.zedStatus = zedStatus
@@ -54,6 +55,7 @@ class RecordingHandler(object):
         self.currentCSIFrame = np.zeros((512, 512, 3))
         self.currentZEDFrame = np.zeros((512, 512, 3))
 
+        cherrypy.engine.subscribe("hdResolution", self.getCurrentResolution)
         cherrypy.engine.subscribe("csiFrame", self.updateCSIFrame)
         cherrypy.engine.subscribe(
             "calibrationResult", self.calibrationResultCallback)
@@ -61,6 +63,13 @@ class RecordingHandler(object):
         if ZED_ENABLED:
             self.zedStreamer = zedStreamer
             cherrypy.engine.subscribe("zedFrame", self.updateZEDFrame)
+
+    def getCurrentResolution(self, HD):
+        self.HD_STREAMING = HD
+
+    def setResolution(self):
+        if self.HD_STREAMING:
+            cherrypy.engine.publish("hdResolution", False)
 
     def calibrationResultCallback(self, calibrationResult):
         error = calibrationResult[0]
@@ -190,6 +199,7 @@ class RecordingHandler(object):
 
     @cherrypy.expose
     def data(self):
+        self.setResolution()
         return self.template.data(ZED_ENABLED)
 
     @cherrypy.expose
@@ -247,6 +257,7 @@ class RecordingHandler(object):
 
     @cherrypy.expose
     def calibration(self):
+        self.setResolution()
         return self.template.calibration(ZED_ENABLED)
 
     @cherrypy.expose
