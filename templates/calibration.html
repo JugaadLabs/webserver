@@ -69,31 +69,6 @@
 </div>
 
 <script type="text/javascript">
-
-  var url = window.location.href;
-  var arr = url.split("/");
-  var websocket = "ws://" + arr[2] + "/barcode/ws";
-  console.log(websocket);
-  if (window.WebSocket) {
-    ws = new WebSocket(websocket);
-  }
-  ws.onopen = function () {
-    ws.send("Connection started");
-    console.log("Socket open");
-  };
-
-  ws.onmessage = function (evt) {
-    console.log(evt.data);
-    data = evt.data;
-    var protocol = data.substring(0, 3);
-    if (protocol == "CBR") {
-      html = data.substring(3);
-      calibrationresults.innerHTML = html;
-    }
-  };
-
-
-
   function captureImage(distance) {
     var xhr = new XMLHttpRequest();
     if (distance === undefined) {

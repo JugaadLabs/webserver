@@ -23,10 +23,6 @@ from operator import itemgetter
 import numpy as np
 import re
 
-from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
-from ws4py.websocket import WebSocket
-from ws4py.messaging import TextMessage
-
 ZED_ENABLED = True
 
 try:
@@ -75,9 +71,6 @@ class RecordingHandler(object):
                 H, l0)
         else:
             self.calibrationResult = "Calibration failed. Please try retaking all of the images, making sure the person is standing at the correct position."
-
-    def sendWebsocketMessage(self, txt):
-        cherrypy.engine.publish('websocket-broadcast', TextMessage("CBR"+txt))
 
     def updateCSIFrame(self, frame):
         self.currentCSIFrame = frame
