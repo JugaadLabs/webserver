@@ -57,9 +57,10 @@ class DetectionHandler(object):
                 multiprocessing.set_start_method('spawn')
             except RuntimeError:
                 pass
-            self.sendQueue = multiprocessing.Queue(maxsize=1)
-            self.recvQueue = multiprocessing.Queue(maxsize=1)
-            p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath, self.recvQueue, self.sendQueue))
+            self.sendQueue = multiprocessing.Queue(maxsize=5)
+            self.recvQueue = multiprocessing.Queue(maxsize=5)
+            self.recvListQueue = multiprocessing.Queue(maxsize=1)
+            p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath, self.recvQueue, self.sendQueue, self.recvListQueue))
             p.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
             cherrypy.engine.subscribe("distanceCalibrationFiles", self.calibrateDistance)
@@ -68,13 +69,21 @@ class DetectionHandler(object):
         cherrypy.engine.unsubscribe("csiFrame", self.updateDetections)
         # FIXME: Maybe note needed to stop? But just to be safe lah!!
         self.recorder.stopRecording()
+        # flush all images
+        while not self.sendQueue.empty():
+            self.sendQueue.get()
+        while not self.recvQueue.empty():
+            self.recvQueue.get()
+        # print("QUEUE SIZES",self.recvQueue.qsize(), self.sendQueue.qsize())
         self.sendQueue.put(distanceCalibrationFiles)
         # wait till we have the message ready
-        while self.recvQueue.empty():
+        # FIXME: add a tiemout SIA
+        while self.recvListQueue.empty():
             time.sleep(0.1)
-        calibrationResult = self.recvQueue.get()
-        # TODO: Add method in Camera intrinics which publishes this
-        print(calibrationResult)
+        data = self.recvListQueue.get()
+        calibrationResult = data
+        # # TODO: Add method in Camera intrinics which publishes this
+        print("YOu want calibration boi? Here take calibration lah!!", calibrationResult)
         if type(calibrationResult) is list:
             cherrypy.engine.publish("calibrationResult", calibrationResult)
         cherrypy.engine.subscribe("csiFrame", self.updateDetections)
@@ -84,7 +93,7 @@ class DetectionHandler(object):
         cherrypy.engine.publish('websocket-broadcast', TextMessage("DET"+txt))
 
     def updateDetections(self, image):
-        if image is None or image is not np.ndarray:
+        if image is None or type(image) is not np.ndarray:
             return
         resized = cv2.resize(
             image, (self.inputResolution), cv2.INTER_AREA)

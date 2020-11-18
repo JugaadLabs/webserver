@@ -4,7 +4,7 @@ import numpy as np
 import multiprocessing
 import sys
 
-def detectionProcessFunction(enginePath, sendQueue, recvQueue):
+def detectionProcessFunction(enginePath, sendQueue, recvQueue, sendListQueue):
     inputResolution = (480, 640)
     birdsEyeResolution = 480
     vis_thresh = 0.35
@@ -22,8 +22,9 @@ def detectionProcessFunction(enginePath, sendQueue, recvQueue):
         while not recvQueue.empty():
             data = recvQueue.get()
             if type(data) is list:
+                print("Got a data", data)
                 error, H, l0 = monoDist.distance_calibration(data, distances, minimum_visible_distance, vis_thresh, nms_iou_thresh, box_area_thresh)
-                sendQueue.put([error, H, l0])
+                sendListQueue.put([error, H, l0])
             elif type(data) is np.ndarray:
                 img = data
                 processedImg, birds_view_img, selected_bboxs, bbox_distances = monoDist.detection_birdsview(

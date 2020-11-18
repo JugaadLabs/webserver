@@ -23,6 +23,10 @@ from operator import itemgetter
 import numpy as np
 import re
 
+from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
+from ws4py.websocket import WebSocket
+from ws4py.messaging import TextMessage
+
 ZED_ENABLED = True
 
 try:
@@ -55,9 +59,25 @@ class RecordingHandler(object):
         self.currentZEDFrame = np.zeros((512, 512, 3))
 
         cherrypy.engine.subscribe("csiFrame", self.updateCSIFrame)
+        cherrypy.engine.subscribe(
+            "calibrationResult", self.calibrationResultCallback)
+        self.calibrationResult = ""
         if ZED_ENABLED:
             self.zedStreamer = zedStreamer
             cherrypy.engine.subscribe("zedFrame", self.updateZEDFrame)
+
+    def calibrationResultCallback(self, calibrationResult):
+        error = calibrationResult[0]
+        H = calibrationResult[1]
+        l0 = calibrationResult[2]
+        if error == 0:
+            self.calibrationResult = "Calibration Successful! Parameters are: H=%f, L0=%f" % (
+                H, l0)
+        else:
+            self.calibrationResult = "Calibration failed. Please try retaking all of the images, making sure the person is standing at the correct position."
+
+    def sendWebsocketMessage(self, txt):
+        cherrypy.engine.publish('websocket-broadcast', TextMessage("CBR"+txt))
 
     def updateCSIFrame(self, frame):
         self.currentCSIFrame = frame
@@ -189,11 +209,11 @@ class RecordingHandler(object):
                 self.calibration_dir, x) for x in calibrationFiles]
         else:
             return "Images missing. Please record images for each distance before starting distance calibration."
-        if len(calibrationFiles) < 8:
+        if len(calibrationFiles) < 7:
             return "Insufficient images to start calibration. Please record images for each distance before starting distance calibration."
         calibrationFiles.sort()
         cherrypy.engine.publish("distanceCalibrationFiles", calibrationFiles)
-        return "Starting distance calibration!"
+        return self.calibrationResult
 
     @cherrypy.expose
     def captureImage(self, csiFilename="", zedFilename=""):
