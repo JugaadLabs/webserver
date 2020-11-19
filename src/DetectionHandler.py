@@ -65,7 +65,7 @@ class DetectionHandler(object):
             self.recvListQueue = multiprocessing.Queue(maxsize=1)
             self.sendListQueue = multiprocessing.Queue(maxsize=1)
             p = multiprocessing.Process(target=detectionProcessFunction, args=(
-                enginePath, self.recvQueue, self.sendQueue, self.recvListQueue, self.sendListQueue, H, L0))
+                enginePath, self.recvQueue, self.sendQueue, self.recvListQueue, self.sendListQueue, H, L0, dir))
             p.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
             cherrypy.engine.subscribe(

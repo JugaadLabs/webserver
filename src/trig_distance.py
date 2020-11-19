@@ -5,6 +5,7 @@ import numpy as np
 import cv2
 from time import perf_counter
 import time
+import os
 
 from src.uilts.tensorrt_uilts import get_engine, allocate_buffers, do_inference
 from src.uilts.image import transform_preds, iou
@@ -12,7 +13,7 @@ from src.uilts.uilts import coco_class_name, color_list, detection_class_name_8c
 from scipy.optimize import least_squares
 
 class monoDistance():
-    def __init__(self, image_size, bird_view_size, trt_engine_path, class_names, cls_index_list, H, L0, debug = 0):
+    def __init__(self, image_size, bird_view_size, trt_engine_path, class_names, cls_index_list, H, L0, calibrationDir, debug = 0):
         self.trt_engine_path = trt_engine_path
         self.class_names = class_names
         self.cls_index_list = cls_index_list
@@ -30,6 +31,7 @@ class monoDistance():
         self.f_x = 322.40 # focal length
         self.f_y = 323.30
         self.l_0 = 0.36680308 # distance of bottom image edge to camera when tilted
+        self.calibrationDir = calibrationDir
 
         engine = get_engine(trt_engine_path, fp16_mode=True)
         self.context = engine.create_execution_context()
@@ -301,7 +303,7 @@ class monoDistance():
             img_input = cv2.imread(img_paths[ind])
             img, selected_bboxs = self.detection(img_input, vis_thresh, nms_iou_thresh, box_area_thresh)
             # FIXME: Use the actual path
-            cv2.imwrite('calib_det_' + str(ind) + '.jpg', img)
+            cv2.imwrite(os.path.join(self.calibrationDir, 'calib_det_' + str(ind) + '.jpg'), img)
             calibration_error = -ind
 
             if selected_bboxs.shape[0] > 0:
