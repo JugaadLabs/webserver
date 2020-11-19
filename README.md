@@ -6,10 +6,10 @@ A video tutorial of using the dashboard can be found [here](https://youtu.be/_Sp
 
 ## Install
 
-Switch the Jetson Xavier NX to using 15W 2 Core mode for the best performance:
+Switch the Jetson Xavier NX to using 15W 6 Core mode for the best performance:
 
 ```
-sudo nvpmodel -m 0
+sudo nvpmodel -m 2
 ```
 
 Download the project using:
