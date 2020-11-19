@@ -80,7 +80,7 @@ class DetectionHandler(object):
 
     def calibrateDistance(self, distanceCalibrationFiles):
         cherrypy.engine.unsubscribe("csiFrame", self.updateDetections)
-        print("Sending calibration files: ", distanceCalibrationFiles)
+        cherrypy.log("Sending calibration files: ", distanceCalibrationFiles)
         self.sendListQueue.put(distanceCalibrationFiles)
         # timeout if not done in time
         i = 0
@@ -90,11 +90,11 @@ class DetectionHandler(object):
         if not self.recvListQueue.empty():
             data = self.recvListQueue.get()
             calibrationResult = data
-            print("Calibrated Values", calibrationResult)
+            cherrypy.log("Calibrated Values", calibrationResult)
             if type(calibrationResult) is list:
                 cherrypy.engine.publish("calibrationResult", calibrationResult)
         else:
-            print("Timed out waiting for response for detector.")
+            cherrypy.log("Timed out waiting for response for detector.")
         cherrypy.engine.subscribe("csiFrame", self.updateDetections)
 
     def sendWebsocketMessage(self, txt):
@@ -160,7 +160,7 @@ class DetectionHandler(object):
             (flag, encodeImage) = cv2.imencode(".jpg", image)
             if flag:
                 yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodeImage) + b'\r\n')
-        print("Shutting down!")
+        cherrypy.log("Shutting down!")
 
     def getDetectionFrame(self):
         while True:
@@ -171,7 +171,7 @@ class DetectionHandler(object):
             (flag, encodeImage) = cv2.imencode(".jpg", image)
             if flag:
                 yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodeImage) + b'\r\n')
-        print("Shutting down!")
+        cherrypy.log("Shutting down!")
 
     @cherrypy.expose
     def index(self):

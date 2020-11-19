@@ -118,7 +118,7 @@ class BarcodeHandler(object):
             (flag, encodeImage) = cv2.imencode(".jpg", resized)
             if flag:
                 yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodeImage) + b'\r\n')
-        print("Shutting down!")
+        cherrypy.log("Shutting down!")
 
     @cherrypy.expose
     def index(self):

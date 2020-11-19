@@ -4,7 +4,7 @@ import os
 import pickle
 import time
 import sys
-
+import cherrypy
 
 class CSIRecorder:
     def __init__(self, dir, recordingResolution, framerate, filenamePrefix, recordingInterval=-1):
@@ -26,7 +26,7 @@ class CSIRecorder:
             self.filename = self.filenamePrefix + "_" + \
                 startTime.strftime("%Y-%m-%d-%H-%M-%S")
             self.startUnixTime = time.time()
-            print("Recording to - " + self.filename)
+            cherrypy.log("Recording to - " + self.filename)
             filepath = os.path.join(self.dir, self.filename+".avi")
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
             self.out = cv2.VideoWriter(
@@ -52,11 +52,11 @@ class CSIRecorder:
     def stopRecording(self):
         if self.RECORDING is True:
             self.RECORDING = False
-            print("Stopped recording to - " + self.filename)
+            cherrypy.log("Stopped recording to - " + self.filename)
             filepath = os.path.join(self.dir, self.filename+".pkl")
             t = time.time()-self.startUnixTime
             fps = self.framesRecorded/t
-            print("FPS %f Frames %d Time %f" % (fps,self.framesRecorded,t))
+            cherrypy.log("FPS %f Frames %d Time %f" % (fps,self.framesRecorded,t))
             with open(filepath, 'wb') as f:
                 pickle.dump(self.data, f)
             # JIALAT!!! out.release() causes crash lah!

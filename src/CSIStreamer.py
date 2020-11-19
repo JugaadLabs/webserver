@@ -52,7 +52,7 @@ class CSIStreamer:
         threading.Thread(None, self.run).start()
 
     def run(self):
-        print("Starting streaming thread with /dev/video" + str(self.device))
+        cherrypy.log("Starting streaming thread with /dev/video" + str(self.device))
         while (self.cap.isOpened()):
             state = cherrypy.engine.state
             ret, frame = self.cap.read()
@@ -65,5 +65,5 @@ class CSIStreamer:
             if self.recorder.RECORDING == True:
                 self.recorder.recordData(self.lastFrame, self.lastTimestamp)
         self.stopRecording()
-        print("Disabled streaming thread")
+        cherrypy.log("Disabled streaming thread")
         self.cap.release()

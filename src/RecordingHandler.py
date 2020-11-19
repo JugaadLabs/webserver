@@ -146,7 +146,7 @@ class RecordingHandler(object):
             (flag, encodeImage) = cv2.imencode(".jpg", resized)
             if flag:
                 yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodeImage) + b'\r\n')
-        print("Shutting down!")
+        cherrypy.log("Shutting down!")
         self.commandHandler(True, True, CameraState.STOP)
         # FIXME: not a very good shutdown approach
         sys.exit(0)
@@ -173,7 +173,7 @@ class RecordingHandler(object):
             (flag, encodeImage) = cv2.imencode(".jpg", resized)
             if flag:
                 yield(b'--zedframe\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodeImage) + b'\r\n')
-        print("Shutting down ZED!")
+        cherrypy.log("Shutting down ZED!")
 
     @cherrypy.expose
     def camerastatus(self):
@@ -236,7 +236,7 @@ class RecordingHandler(object):
 
     @cherrypy.expose
     def captureImage(self, csiFilename="", zedFilename=""):
-        print(csiFilename, zedFilename)
+        cherrypy.log(csiFilename, zedFilename)
         now = datetime.datetime.now()
         fileTime = now.strftime("IMG_%Y-%m-%d-%H-%M-%S")+".jpeg"
         csiFilename = csiFilename + "_CSI.jpeg" if csiFilename is not "" else "CSI_" + fileTime

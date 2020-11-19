@@ -70,7 +70,6 @@ class Server(object):
     def run(self, host="127.0.0.1", port=8000, dir='.', csiDevice=-1):
         dir = os.path.abspath(dir)
         Path(dir).mkdir(parents=True, exist_ok=True)
-        print("Recording to: " + dir)
         CP_CONF = {
             '/vendor': {
                 'tools.staticdir.on': True,
@@ -89,12 +88,16 @@ class Server(object):
                 'tools.websocket.handler_cls': WebSocketHandler
             }
         }
-
+        accessLogFile = os.path.join(os.getcwd(), "access.log")
+        errorLogFile = os.path.join(os.getcwd(), "error.log")
         cherrypy.config.update({
             'server.socket_host': host,
             'server.socket_port': port,
-            'engine.autoreload.on': False
+            'engine.autoreload.on': False,
+            'log.error_file': errorLogFile,
+            'log.access_file': accessLogFile
         })
+        cherrypy.log("Recording to: " + dir)
 
         zedStatus = False
         if csiDevice == -1:
