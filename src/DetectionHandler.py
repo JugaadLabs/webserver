@@ -61,7 +61,7 @@ class DetectionHandler(object):
             self.sendQueue = multiprocessing.Queue(maxsize=5)
             self.recvQueue = multiprocessing.Queue(maxsize=5)
             self.recvListQueue = multiprocessing.Queue(maxsize=1)
-            p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath, self.recvQueue, self.sendQueue, self.recvListQueue))
+            p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath, self.recvQueue, self.sendQueue, self.recvListQueue, H, L0))
             p.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
             cherrypy.engine.subscribe("distanceCalibrationFiles", self.calibrateDistance)

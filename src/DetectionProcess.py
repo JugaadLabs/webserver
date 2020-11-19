@@ -1,17 +1,17 @@
 from src.trig_distance import monoDistance
-from src.uilts.uilts import detection_class_name_3cls
+from src.uilts.uilts import detection_class_name_3cls, detection_class_name_8cls
 import numpy as np
 import multiprocessing
 import sys
 
-def detectionProcessFunction(enginePath, sendQueue, recvQueue, sendListQueue):
+def detectionProcessFunction(enginePath, sendQueue, recvQueue, sendListQueue, H, L0):
     inputResolution = (480, 640)
     birdsEyeResolution = 480
     vis_thresh = 0.35
     nms_iou_thresh = 0.5
     box_area_thresh = 500
     monoDist = monoDistance(
-        inputResolution, birdsEyeResolution, enginePath, detection_class_name_3cls, np.array(range(3)))
+        inputResolution, birdsEyeResolution, enginePath, detection_class_name_8cls, np.array(range(8)), H, L0)
     print("Running Object Detector Process!")
     vis_thresh = [0.35, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
     nms_iou_thresh = 0.3

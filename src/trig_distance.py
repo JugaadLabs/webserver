@@ -12,7 +12,7 @@ from src.uilts.uilts import coco_class_name, color_list, detection_class_name_8c
 from scipy.optimize import least_squares
 
 class monoDistance():
-    def __init__(self, image_size, bird_view_size, trt_engine_path, class_names, cls_index_list, debug = 0):
+    def __init__(self, image_size, bird_view_size, trt_engine_path, class_names, cls_index_list, H, L0, debug = 0):
         self.trt_engine_path = trt_engine_path
         self.class_names = class_names
         self.cls_index_list = cls_index_list
