@@ -25,7 +25,7 @@ def detectionProcessFunction(enginePath, sendQueue, recvQueue, sendListQueue, re
                 print("Got a data", data)
                 error, H, l0 = monoDist.distance_calibration(data, distances, minimum_visible_distance, vis_thresh, nms_iou_thresh, box_area_thresh)
                 sendListQueue.put([error, H, l0])
-        while not recvQueue.empty():
+        if not recvQueue.empty():
             data = recvQueue.get()
             if type(data) is np.ndarray:
                 img = data
