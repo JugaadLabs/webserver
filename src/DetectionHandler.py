@@ -32,10 +32,10 @@ try:
     from src.trig_distance import monoDistance
     from src.DetectionProcess import detectionProcessFunction
 except ImportError as e:
-    print("TensorRT and/or PyCuda not available!")
+    cherrypy.log("TensorRT and/or PyCuda not available!")
     TENSORRT_ENABLED = False
 else:
-    print("Loading TensorRT and PyCuda modules")
+    cherrypy.log("Loading TensorRT and PyCuda modules")
     from src.trig_distance import monoDistance
     from src.uilts.uilts import detection_class_name_3cls, detection_class_name_8cls
 

@@ -33,10 +33,10 @@ ZED_ENABLED = True
 try:
     import pyzed.sl as sl
 except ImportError as e:
-    print("pyzed not available! Using V4L2 fallback.")
+    cherrypy.log("pyzed not available! Using V4L2 fallback.")
     ZED_ENABLED = False
 else:
-    print("Loading ZED Streaming thread")
+    cherrypy.log("Loading ZED Streaming thread")
     from src.ZEDStreamer import ZEDStreamer
 
 
