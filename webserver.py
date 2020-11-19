@@ -93,6 +93,7 @@ class Server(object):
         cherrypy.config.update({
             'server.socket_host': host,
             'server.socket_port': port,
+            'engine.autoreload.on': False
         })
 
         zedStatus = False
@@ -134,6 +135,7 @@ class Server(object):
         cherrypy.engine.start()
         cherrypy.engine.block()
 
+
 def changeSetting(key, value):
     # key = kv[0]
     # value = kv[1]
@@ -142,6 +144,7 @@ def changeSetting(key, value):
             print(key + " = " + str(value), end='\n')
         else:
             print(line, end='')
+
 
 def main():
     server = Server()

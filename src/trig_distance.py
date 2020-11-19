@@ -181,12 +181,12 @@ class monoDistance():
                 cat = bbox[5]
                 if cat == 0: # limiting to person for debug
                     color = color_list[cat+1].tolist()
-                    if self.debug == 0:
+                    if self.debug == 0 and not calib:
                         if distances[ind][1] < 0 or distances[ind][1] > 30:
                             txt = '{} {:.1f} ({:.1f}, far)m'.format(self.class_names[cat], conf, distances[ind][0])
                         else:
                             txt = '{} {:.1f} ({:.1f}, {:.1f})m'.format(self.class_names[cat], conf, distances[ind][0], distances[ind][1])
-                    else:
+                    elif not calib:
                         txt = 'ID:{} {:.1f} {:.1f}'.format(int(distances[ind][5]), distances[ind][10], distances[ind][11])
 
                     if calib: 
