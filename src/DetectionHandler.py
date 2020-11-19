@@ -91,7 +91,7 @@ class DetectionHandler(object):
         data = self.recvListQueue.get()
         calibrationResult = data
         # # TODO: Add method in Camera intrinics which publishes this
-        print("YOu want calibration boi? Here take calibration lah!!", calibrationResult)
+        print("Calibrated Values", calibrationResult)
         if type(calibrationResult) is list:
             cherrypy.engine.publish("calibrationResult", calibrationResult)
         cherrypy.engine.subscribe("csiFrame", self.updateDetections)
