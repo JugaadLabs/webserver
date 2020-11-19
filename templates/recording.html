@@ -17,8 +17,13 @@
                   </label> -->
                 <!-- </div> -->
                 <!-- <div class="form-check form-check-inline"> -->
+                {% if zedenabled %}
                 <input data-toggle="toggle" data-on="ZED2" data-off="ZED2" type="checkbox" data-offstyle="secondary"
                   data-onstyle="primary" name="zed" id="ZED" value=True checked>
+                {% else %}
+                <input data-toggle="toggle" data-on="ZED2" data-off="ZED2" type="checkbox" data-offstyle="secondary"
+                  data-onstyle="primary" name="zed" id="ZED" value=False disabled>
+                {% endif %}
                 <!-- <input data-toggle="toggle" data-on="ZED2" data-off="ZED2" type="checkbox" name="zed" id="ZED" value=True checked> -->
                 <!-- <label class="form-check-label" for="ZED">
                     ZED Depth Camera
@@ -89,6 +94,7 @@
         var json = JSON.parse(this.responseText);
         var csiText = json.csi;
         var zedText = json.zed;
+        var zedEnabled = json.zedStatus;
         csiStatus.textContent = csiText;
         zedStatus.textContent = zedText;
       } else {

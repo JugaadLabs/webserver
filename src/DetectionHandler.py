@@ -45,14 +45,16 @@ class DetectionHandler(object):
         self.templates = Templates()
         self.HD_STREAMING = False
         if TENSORRT_ENABLED:
-            cherrypy.engine.subscribe("hdResolution", self.getCurrentResolution)
+            cherrypy.engine.subscribe(
+                "hdResolution", self.getCurrentResolution)
             self.inputResolution = (480, 640)
             self.currentDetectionFrame = np.zeros(
                 (self.inputResolution[0], self.inputResolution[1], 3))
             self.currentBirdsEyeFrame = np.zeros((480, 480, 3))
             self.selectedBboxes = np.array([])
             self.bboxDistances = np.array([])
-            self.recorder = CSIRecorder(dir, recordingResolution, framerate, "DETECTION")
+            self.recorder = CSIRecorder(
+                dir, recordingResolution, framerate, "DETECTION")
             self.currentStatus = "Press the Record button to record a video of object detections"
             try:
                 multiprocessing.set_start_method('spawn')
@@ -61,10 +63,13 @@ class DetectionHandler(object):
             self.sendQueue = multiprocessing.Queue(maxsize=5)
             self.recvQueue = multiprocessing.Queue(maxsize=5)
             self.recvListQueue = multiprocessing.Queue(maxsize=1)
-            p = multiprocessing.Process(target=detectionProcessFunction, args=(enginePath, self.recvQueue, self.sendQueue, self.recvListQueue, H, L0))
+            self.sendListQueue = multiprocessing.Queue(maxsize=1)
+            p = multiprocessing.Process(target=detectionProcessFunction, args=(
+                enginePath, self.recvQueue, self.sendQueue, self.recvListQueue, self.sendListQueue, H, L0, dir))
             p.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
-            cherrypy.engine.subscribe("distanceCalibrationFiles", self.calibrateDistance)
+            cherrypy.engine.subscribe(
+                "distanceCalibrationFiles", self.calibrateDistance)
 
     def getCurrentResolution(self, HD):
         self.HD_STREAMING = HD
@@ -75,27 +80,22 @@ class DetectionHandler(object):
 
     def calibrateDistance(self, distanceCalibrationFiles):
         cherrypy.engine.unsubscribe("csiFrame", self.updateDetections)
-        # FIXME: Maybe note needed to stop? But just to be safe lah!!
-        self.recorder.stopRecording()
-        # flush all images
-        while not self.sendQueue.empty():
-            self.sendQueue.get()
-        while not self.recvQueue.empty():
-            self.recvQueue.get()
-        # print("QUEUE SIZES",self.recvQueue.qsize(), self.sendQueue.qsize())
-        self.sendQueue.put(distanceCalibrationFiles)
-        # wait till we have the message ready
-        # FIXME: add a tiemout SIA
-        while self.recvListQueue.empty():
+        print("Sending calibration files: ", distanceCalibrationFiles)
+        self.sendListQueue.put(distanceCalibrationFiles)
+        # timeout if not done in time
+        i = 0
+        while self.recvListQueue.empty() and i < 10:
             time.sleep(0.1)
-        data = self.recvListQueue.get()
-        calibrationResult = data
-        # # TODO: Add method in Camera intrinics which publishes this
-        print("Calibrated Values", calibrationResult)
-        if type(calibrationResult) is list:
-            cherrypy.engine.publish("calibrationResult", calibrationResult)
+            i += 1
+        if not self.recvListQueue.empty():
+            data = self.recvListQueue.get()
+            calibrationResult = data
+            print("Calibrated Values", calibrationResult)
+            if type(calibrationResult) is list:
+                cherrypy.engine.publish("calibrationResult", calibrationResult)
+        else:
+            print("Timed out waiting for response for detector.")
         cherrypy.engine.subscribe("csiFrame", self.updateDetections)
-
 
     def sendWebsocketMessage(self, txt):
         cherrypy.engine.publish('websocket-broadcast', TextMessage("DET"+txt))
