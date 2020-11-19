@@ -14,6 +14,7 @@ import jinja2
 import multiprocessing
 
 from settings import params
+import fileinput
 
 from ws4py.server.cherrypyserver import WebSocketPlugin, WebSocketTool
 from ws4py.websocket import WebSocket
@@ -126,16 +127,25 @@ class Server(object):
         cherrypy.tree.mount(BarcodeHandler(dir, params["barcodeHandler"]["crop"], params["barcodeHandler"]["timeout"], params["barcodeHandler"]["previewResolution"], params["barcodeHandler"]["recordingResolution"]),
                             '/barcode', config=CP_CONF)
         cherrypy.tree.mount(DetectionHandler(
-            dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"], params["detectionHandler"]["enginepath"]), '/detection', config=CP_CONF)
+            dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"], params["detectionHandler"]["enginepath"], params["detectionHandler"]["H"], params["detectionHandler"]["L0"]), '/detection', config=CP_CONF)
         cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
         cherrypy.tree.mount(DocuHandler(), '/documentation', config=CP_CONF)
         cherrypy.engine.start()
         cherrypy.engine.block()
 
+def changeSetting(key, value):
+    # key = kv[0]
+    # value = kv[1]
+    for line in fileinput.input(os.path.join(os.getcwd(), "settings.py"), inplace=True):
+        if key in line:
+            print(key + " = " + str(value), end='\n')
+        else:
+            print(line, end='')
 
 def main():
     server = Server()
+    cherrypy.engine.subscribe("changeSetting", changeSetting)
     if len(sys.argv) == 5:
         ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
         server.run(ip, int(sys.argv[2]), sys.argv[3], int(sys.argv[4]))

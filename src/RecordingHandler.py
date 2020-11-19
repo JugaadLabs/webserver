@@ -78,6 +78,8 @@ class RecordingHandler(object):
         if error == 0:
             self.calibrationResult = "Calibration Successful! Parameters are: H=%f, L0=%f" % (
                 H, l0)
+            cherrypy.engine.publish("changeSetting", 'params["detectionHandler"]["H"]', H)
+            cherrypy.engine.publish("changeSetting", 'params["detectionHandler"]["L0"]', l0)
         else:
             self.calibrationResult = "Calibration failed. Please try retaking all of the images, making sure the person is standing at the correct position."
 

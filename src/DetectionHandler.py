@@ -41,7 +41,7 @@ else:
 
 
 class DetectionHandler(object):
-    def __init__(self, dir, framerate, recordingResolution, enginePath):
+    def __init__(self, dir, framerate, recordingResolution, enginePath, H, L0):
         self.templates = Templates()
         self.HD_STREAMING = False
         if TENSORRT_ENABLED:
