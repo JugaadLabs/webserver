@@ -228,7 +228,7 @@ class RecordingHandler(object):
                 self.calibration_dir, x) for x in calibrationFiles]
         else:
             return "Images missing. Please record images for each distance before starting distance calibration."
-        if len(calibrationFiles) < 7:
+        if len(calibrationFiles) < 8:
             return "Insufficient images to start calibration. Please record images for each distance before starting distance calibration."
         calibrationFiles.sort()
         cherrypy.engine.publish("distanceCalibrationFiles", calibrationFiles)

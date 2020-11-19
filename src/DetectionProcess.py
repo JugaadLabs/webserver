@@ -19,7 +19,7 @@ def detectionProcessFunction(enginePath, sendQueue, recvQueue, sendListQueue, re
     nms_iou_thresh = 0.3
     box_area_thresh = 300
     minimum_visible_distance = 0.1
-    distances = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
+    distances = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0]
     while True:
         if not recvListQueue.empty():
             data = recvListQueue.get()
