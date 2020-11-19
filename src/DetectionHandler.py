@@ -37,7 +37,7 @@ except ImportError as e:
 else:
     print("Loading TensorRT and PyCuda modules")
     from src.trig_distance import monoDistance
-    from src.uilts.uilts import detection_class_name_3cls
+    from src.uilts.uilts import detection_class_name_3cls, detection_class_name_8cls
 
 
 class DetectionHandler(object):
@@ -131,7 +131,7 @@ class DetectionHandler(object):
                 for i in range(detectedCount):
                     distance = self.bboxDistances[i]
                     bbox = self.selectedBboxes[i]
-                    className = detection_class_name_3cls[int(bbox[5])]
+                    className = detection_class_name_8cls[int(bbox[5])]
                     X = distance[0]
                     Y = distance[1]
                     html += "<tr><td>%s</td><td>%.2f m</td><td>%.2f m</td></tr>" % (

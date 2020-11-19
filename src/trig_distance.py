@@ -12,7 +12,7 @@ from src.uilts.uilts import coco_class_name, color_list, detection_class_name_8c
 from scipy.optimize import least_squares
 
 class monoDistance():
-    def __init__(self, image_size, bird_view_size, trt_engine_path, class_names, cls_index_list):
+    def __init__(self, image_size, bird_view_size, trt_engine_path, class_names, cls_index_list, debug = 0):
         self.trt_engine_path = trt_engine_path
         self.class_names = class_names
         self.cls_index_list = cls_index_list
@@ -23,6 +23,7 @@ class monoDistance():
         self.matching_row = np.zeros((0, 12))
         self.matched_bboxs = np.zeros((0, 6))
         self.object_ids = list(range(1, 100))
+        self.debug = debug
 
         # Mechanical Parameters:
         self.H = 1.96133177 # height of mounting
@@ -110,8 +111,11 @@ class monoDistance():
             cv2.ellipse(image, center, axes, angle, startAngle, endAngle, boundary_color, boundary_thickness)
 
         img_size = int(img_size)
-        lines = [5, 10, 15, 20, 25]
-        # lines = [5, 10, 15, 20]
+        if self.debug == 0:
+            lines = [5, 10, 15, 20]
+        else:
+            lines = [5, 10, 15, 20, 25]
+        
         birds_view_img = np.ones((img_size, img_size, 3), np.uint8)
         birds_view_img = birds_view_img * 255
         self.horizontal_fov = 75
@@ -163,8 +167,10 @@ class monoDistance():
                 cat = bbox[5]
                 if cat == 0:
                     color = color_list[cat+1].tolist()
-                    # txt = 'ID:{} {} {:.1f} ({:.1f}, {:.1f})m'.format(int(distance[5]), self.class_names[cat], conf, distance[0], distance[1])
-                    txt = 'ID:{} {:.1f} {:.1f} {:.1f} {:.1f}'.format(int(distance[5]), distance[0], distance[1], distance[2], distance[3])
+                    if self.debug == 0:
+                        txt = '({:.1f} {:.1f})m ({:.1f} {:.1f})m/s'.format(distance[0], distance[1], distance[2], distance[3])
+                    else:
+                        txt = 'ID:{} {} {:.1f} ({:.1f}, {:.1f})m'.format(int(distance[5]), self.class_names[cat], conf, distance[0], distance[1])
                     add_object(birds_view_img, size, center, color, txt, distance)
 
     def add_det_label(self, img, bboxs, distances, calib = False):
@@ -175,15 +181,16 @@ class monoDistance():
                 cat = bbox[5]
                 if cat == 0: # limiting to person for debug
                     color = color_list[cat+1].tolist()
-                    # if distances[ind][1] < 0 or distances[ind][1] > 30:
-                    #     txt = '{} {:.1f} ({:.1f}, far)m'.format(self.class_names[cat], conf, distances[ind][0])
-                    # else:
-                    #     txt = '{} {:.1f} ({:.1f}, {:.1f})m'.format(self.class_names[cat], conf, distances[ind][0], distances[ind][1])
-                    
-                    if calib: 
-                        txt = '{} {:.1f}'.format(self.class_names[cat], conf)
+                    if self.debug == 0:
+                        if distances[ind][1] < 0 or distances[ind][1] > 30:
+                            txt = '{} {:.1f} ({:.1f}, far)m'.format(self.class_names[cat], conf, distances[ind][0])
+                        else:
+                            txt = '{} {:.1f} ({:.1f}, {:.1f})m'.format(self.class_names[cat], conf, distances[ind][0], distances[ind][1])
                     else:
                         txt = 'ID:{} {:.1f} {:.1f}'.format(int(distances[ind][5]), distances[ind][10], distances[ind][11])
+
+                    if calib: 
+                        txt = '{} {:.1f}'.format(self.class_names[cat], conf)
                     cat_size = cv2.getTextSize(txt, self.font, 0.5, 2)[0]
                     cv2.rectangle(img, (bbox[0], bbox[1]),
                                 (bbox[2], bbox[3]), color, 2)
@@ -191,7 +198,6 @@ class monoDistance():
                                 (bbox[0] + cat_size[0], bbox[3]-2), color, -1)
                     cv2.putText(img, txt, (bbox[0], bbox[3]-2), self.font,
                                 0.5, (0, 0, 0), thickness=1, lineType=cv2.LINE_AA)
-
 
     def tracking(self, selected_bboxs, match_thresh = 0.5, time_thresh = 0.5, occlusion_thresh = 8):
         ## Structure of self.matching_row
