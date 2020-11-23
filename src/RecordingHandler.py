@@ -54,6 +54,7 @@ class RecordingHandler(object):
         self.csiStreamer = csiStreamer
         self.currentCSIFrame = np.zeros((512, 512, 3))
         self.currentZEDFrame = np.zeros((512, 512, 3))
+        self.currentCalibrationText = "Using default values for H and L0"
 
         cherrypy.engine.subscribe("hdResolution", self.getCurrentResolution)
         cherrypy.engine.subscribe("csiFrame", self.updateCSIFrame)
@@ -78,10 +79,14 @@ class RecordingHandler(object):
         if error == 0:
             self.calibrationResult = "Calibration Successful! Parameters are: H=%f, L0=%f" % (
                 H, l0)
-            cherrypy.engine.publish("changeSetting", 'params["detectionHandler"]["H"]', H)
-            cherrypy.engine.publish("changeSetting", 'params["detectionHandler"]["L0"]', l0)
+            self.calibrationResult = "Using Parameters H=%f, L0=%f" % (H, l0)
+            cherrypy.engine.publish(
+                "changeSetting", 'params["detectionHandler"]["H"]', H)
+            cherrypy.engine.publish(
+                "changeSetting", 'params["detectionHandler"]["L0"]', l0)
         else:
-            self.calibrationResult = "Calibration failed. Please try retaking image=%d, making sure the person is standing at the correct position." % (error)
+            self.calibrationResult = "Calibration failed. Please try retaking CSI_%d.jpeg, making sure the person is standing at the correct position." % (
+                -error)
 
     def updateCSIFrame(self, frame):
         self.currentCSIFrame = frame
@@ -180,6 +185,11 @@ class RecordingHandler(object):
         csiText, zedText = self.getCameraStatus()
         cherrypy.response.headers['Content-Type'] = 'text/markdown'
         return simplejson.dumps(dict(csi=csiText, zed=zedText))
+
+    @cherrypy.expose
+    def calibrationstatus(self):
+        cherrypy.response.headers['Content-Type'] = 'text/markdown'
+        return self.currentCalibrationText
 
     @cherrypy.expose
     def download(self, filepath):
