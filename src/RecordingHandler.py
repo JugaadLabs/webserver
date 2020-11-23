@@ -36,7 +36,7 @@ else:
 
 
 class RecordingHandler(object):
-    def __init__(self, recording_dir, csiStreamer, zedStreamer, csiStatus, zedStatus, previewResolution, zedPreviewResolution):
+    def __init__(self, recording_dir, csiStreamer, zedStreamer, csiStatus, zedStatus, mode, previewResolution, zedPreviewResolution):
         self.previewResolution = previewResolution
         self.zedPreviewResolution = zedPreviewResolution
         self.recording_dir = os.path.abspath(recording_dir)
@@ -45,6 +45,7 @@ class RecordingHandler(object):
 
         self.template = Templates()
         self.HD_STREAMING = False
+        self.DETECTORS_ENABLED = True if mode == 0 else False
 
         self.csiStatus = csiStatus
         self.zedStatus = zedStatus
@@ -271,7 +272,7 @@ class RecordingHandler(object):
     @cherrypy.expose
     def calibration(self):
         self.setResolution()
-        return self.template.calibration(ZED_ENABLED)
+        return self.template.calibration(ZED_ENABLED, self.DETECTORS_ENABLED)
 
     @cherrypy.expose
     def index(self):

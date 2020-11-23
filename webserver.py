@@ -127,7 +127,7 @@ class Server(object):
         WebSocketPlugin(cherrypy.engine).subscribe()
         cherrypy.tools.websocket = WebSocketTool()
         cherrypy.tree.mount(RecordingHandler(
-            dir, csiStreamer, zedStreamer, csiStatus, zedStatus, params["recordingHandler"]["previewResolution"], params["recordingHandler"]["zedPreviewResolution"]), '/', config=CP_CONF)
+            dir, csiStreamer, zedStreamer, csiStatus, zedStatus, mode, params["recordingHandler"]["previewResolution"], params["recordingHandler"]["zedPreviewResolution"]), '/', config=CP_CONF)
         if mode == 0:
             cherrypy.log("All modules enabled")
             cherrypy.tree.mount(BarcodeHandler(dir, params["barcodeHandler"]["crop"], params["barcodeHandler"]["timeout"], params["barcodeHandler"]["previewResolution"], params["barcodeHandler"]["recordingResolution"]),

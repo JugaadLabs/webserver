@@ -9,9 +9,9 @@ class Templates:
     def templatePath(self):
         return os.path.join(os.getcwd(), 'templates')
 
-    def calibration(self, ZED_ENABLED):
+    def calibration(self, ZED_ENABLED, DETECTORS_ENABLED):
         calibrationTemplate = self.environment.get_template('calibration.html')
-        html = calibrationTemplate.render(zedenabled=ZED_ENABLED)
+        html = calibrationTemplate.render(zedenabled=ZED_ENABLED, detectors=DETECTORS_ENABLED)
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)
 
@@ -58,6 +58,5 @@ class Templates:
 
     def disabled(self):
         html = self.environment.get_template('disabled.html').render()
-        print(html)
         template = self.environment.get_template('base.html')
         return template.render(body_html=html)

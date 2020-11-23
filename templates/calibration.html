@@ -44,13 +44,18 @@
           </div>
           <div class="row mt-4">
             <div class="col text-center">
+              {% if detectors %}
               <button class="btn btn-success mr-2" onclick="executeAction('/calibrateDistance')">Calibrate
                 Distance!</button>
+              {% endif %}
               <button class="btn btn-danger mr-2" onclick="executeAction('/clearAll')">Clear All</button>
             </div>
           </div>
         </div>
         <div class="row mt-4 mb-2" id="calibrationresults">
+        {% if detectors == false %}
+        Live distance calibration is disabled in this mode. However, images for calibration can still be recorded.
+        {% endif %}
         </div>
         <!-- <div class="row mt-2"> -->
         <li>Have a person stand at different distances from the forklift.</li>
