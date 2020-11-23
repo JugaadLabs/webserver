@@ -45,10 +45,10 @@ def testCamera(camId):
     cap = cv2.VideoCapture(camId)
     w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    cap.release()
     if w == 0 or h == 0 or w/h > 3:
         return -1
     return camId
-    cap.release()
 
 
 def selfTest():
