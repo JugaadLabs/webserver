@@ -90,7 +90,7 @@ class DetectionHandler(object):
         if not self.recvListQueue.empty():
             data = self.recvListQueue.get()
             calibrationResult = data
-            cherrypy.log("Calibrated Values", calibrationResult)
+            cherrypy.log("Calibrated Values", str(calibrationResult))
             if type(calibrationResult) is list:
                 cherrypy.engine.publish("calibrationResult", calibrationResult)
         else:
