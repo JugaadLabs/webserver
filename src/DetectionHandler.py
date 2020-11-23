@@ -80,7 +80,7 @@ class DetectionHandler(object):
 
     def calibrateDistance(self, distanceCalibrationFiles):
         cherrypy.engine.unsubscribe("csiFrame", self.updateDetections)
-        cherrypy.log("Sending calibration files: ", distanceCalibrationFiles)
+        cherrypy.log("Sending calibration files: ", str(distanceCalibrationFiles))
         self.sendListQueue.put(distanceCalibrationFiles)
         # timeout if not done in time
         i = 0

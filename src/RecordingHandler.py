@@ -81,7 +81,7 @@ class RecordingHandler(object):
             cherrypy.engine.publish("changeSetting", 'params["detectionHandler"]["H"]', H)
             cherrypy.engine.publish("changeSetting", 'params["detectionHandler"]["L0"]', l0)
         else:
-            self.calibrationResult = "Calibration failed. Please try retaking all of the images, making sure the person is standing at the correct position."
+            self.calibrationResult = "Calibration failed. Please try retaking image=%d, making sure the person is standing at the correct position." % (error)
 
     def updateCSIFrame(self, frame):
         self.currentCSIFrame = frame
