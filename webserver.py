@@ -67,7 +67,7 @@ def selfTest():
 
 
 class Server(object):
-    def run(self, host="127.0.0.1", port=8000, dir='.', csiDevice=-1):
+    def run(self, host="127.0.0.1", port=8000, dir='.', mode=0, csiDevice=-1):
         dir = os.path.abspath(dir)
         Path(dir).mkdir(parents=True, exist_ok=True)
         CP_CONF = {
@@ -125,13 +125,16 @@ class Server(object):
 
         WebSocketPlugin(cherrypy.engine).subscribe()
         cherrypy.tools.websocket = WebSocketTool()
-
         cherrypy.tree.mount(RecordingHandler(
             dir, csiStreamer, zedStreamer, csiStatus, zedStatus, params["recordingHandler"]["previewResolution"], params["recordingHandler"]["zedPreviewResolution"]), '/', config=CP_CONF)
-        cherrypy.tree.mount(BarcodeHandler(dir, params["barcodeHandler"]["crop"], params["barcodeHandler"]["timeout"], params["barcodeHandler"]["previewResolution"], params["barcodeHandler"]["recordingResolution"]),
-                            '/barcode', config=CP_CONF)
-        cherrypy.tree.mount(DetectionHandler(
-            dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"], params["detectionHandler"]["enginepath"], params["detectionHandler"]["H"], params["detectionHandler"]["L0"]), '/detection', config=CP_CONF)
+        if mode == 0:
+            cherrypy.log("All modules enabled")
+            cherrypy.tree.mount(BarcodeHandler(dir, params["barcodeHandler"]["crop"], params["barcodeHandler"]["timeout"], params["barcodeHandler"]["previewResolution"], params["barcodeHandler"]["recordingResolution"]),
+                                '/barcode', config=CP_CONF)
+            cherrypy.tree.mount(DetectionHandler(
+                dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"], params["detectionHandler"]["enginepath"], params["detectionHandler"]["H"], params["detectionHandler"]["L0"]), '/detection', config=CP_CONF)
+        else:
+            cherrypy.log("Barcode detection and object detection disabled.")
         cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
         cherrypy.tree.mount(DocuHandler(), '/documentation', config=CP_CONF)
@@ -152,6 +155,10 @@ def changeSetting(key, value):
 def main():
     server = Server()
     cherrypy.engine.subscribe("changeSetting", changeSetting)
+    if len(sys.argv) == 5:
+        ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
+        server.run(ip, int(sys.argv[2]), sys.argv[3],
+                   int(sys.argv[4]), int(sys.argv[5]))
     if len(sys.argv) == 5:
         ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
         server.run(ip, int(sys.argv[2]), sys.argv[3], int(sys.argv[4]))
