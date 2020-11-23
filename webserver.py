@@ -155,7 +155,7 @@ def changeSetting(key, value):
 def main():
     server = Server()
     cherrypy.engine.subscribe("changeSetting", changeSetting)
-    if len(sys.argv) == 5:
+    if len(sys.argv) == 6:
         ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
         server.run(ip, int(sys.argv[2]), sys.argv[3],
                    int(sys.argv[4]), int(sys.argv[5]))
