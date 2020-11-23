@@ -28,6 +28,7 @@ from src.CSIStreamer import CSIStreamer
 from src.DocuHandler import DocuHandler
 from src.WebSocketHandler import WebSocketHandler
 from src.DetectionHandler import DetectionHandler
+from src.DisabledHandler import DisabledHandler
 
 ZED_ENABLED = True
 try:
@@ -135,6 +136,11 @@ class Server(object):
                 dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"], params["detectionHandler"]["enginepath"], params["detectionHandler"]["H"], params["detectionHandler"]["L0"]), '/detection', config=CP_CONF)
         else:
             cherrypy.log("Barcode detection and object detection disabled.")
+            cherrypy.tree.mount(DisabledHandler(),
+                                '/barcode', config=CP_CONF)
+            cherrypy.tree.mount(DisabledHandler(),
+                                '/detection', config=CP_CONF)
+
         cherrypy.tree.mount(FilesHandler(dir), '/files', config=CP_CONF)
         cherrypy.tree.mount(TestHandler(), '/test')
         cherrypy.tree.mount(DocuHandler(), '/documentation', config=CP_CONF)

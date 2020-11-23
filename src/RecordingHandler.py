@@ -1,6 +1,3 @@
-from src.CameraState import CameraState
-from src.CSIStreamer import CSIStreamer
-from src.templates import Templates
 from cherrypy.lib.static import serve_file
 import os
 import sys
@@ -22,6 +19,10 @@ from pathlib import Path
 from operator import itemgetter
 import numpy as np
 import re
+
+from src.CameraState import CameraState
+from src.CSIStreamer import CSIStreamer
+from src.templates import Templates
 
 ZED_ENABLED = True
 
