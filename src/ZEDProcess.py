@@ -75,7 +75,7 @@ class ZEDProcess:
         print("Running ZED Process!")
         threading.Thread(target=self.commandLoop).start()
         sys.stdout.flush()
-        while terminateEvent.is_set() == False:
+        while not terminateEvent.is_set():
             runtime = sl.RuntimeParameters()
             self.cam.grab(runtime)
             image = sl.Mat()

@@ -23,9 +23,14 @@ class CSIStreamer:
         self.frameLock = frameLock
         self.recorder = CSIRecorder(dir, recordingResolution, framerate, "CSI", recordingInterval)
         # self.cap = cv2.VideoCapture(self.device)
+        self.shutdownSignal = False
         self.setResolution(False)
         self.HD_STREAMING = False
         cherrypy.engine.subscribe("hdResolution", self.setResolution)
+        cherrypy.engine.subscribe("shutdown", self.shutdown)
+
+    def shutdown(self):
+        self.shutdownSignal = True
 
     def startRecording(self, startTime):
         if self.HD_STREAMING:
@@ -53,7 +58,7 @@ class CSIStreamer:
 
     def run(self):
         cherrypy.log("Starting streaming thread with /dev/video" + str(self.device))
-        while (self.cap.isOpened()):
+        while (self.cap.isOpened() and not self.shutdownSignal):
             state = cherrypy.engine.state
             ret, frame = self.cap.read()
 

@@ -5,7 +5,7 @@ import multiprocessing
 import sys
 import os
 
-def detectionProcessFunction(enginePath, sendQueue, recvQueue, sendListQueue, recvListQueue, H, L0, dir):
+def detectionProcessFunction(enginePath, terminateEvent, sendQueue, recvQueue, sendListQueue, recvListQueue, H, L0, dir):
     calibrationDir = os.path.join(dir, "calibration")
     inputResolution = (480, 640)
     birdsEyeResolution = 480
@@ -20,7 +20,7 @@ def detectionProcessFunction(enginePath, sendQueue, recvQueue, sendListQueue, re
     box_area_thresh = 300
     minimum_visible_distance = 0.1
     distances = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0]
-    while True:
+    while not terminateEvent.is_set():
         if not recvListQueue.empty():
             data = recvListQueue.get()
             if type(data) is list:

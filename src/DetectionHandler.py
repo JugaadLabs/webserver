@@ -44,6 +44,9 @@ class DetectionHandler(object):
     def __init__(self, dir, framerate, recordingResolution, enginePath, H, L0):
         self.templates = Templates()
         self.HD_STREAMING = False
+        self.shutdownSignal = False
+        cherrypy.engine.subscribe('shutdown', self.shutdown)
+
         if TENSORRT_ENABLED:
             cherrypy.engine.subscribe(
                 "hdResolution", self.getCurrentResolution)
@@ -64,12 +67,31 @@ class DetectionHandler(object):
             self.recvQueue = multiprocessing.Queue(maxsize=5)
             self.recvListQueue = multiprocessing.Queue(maxsize=1)
             self.sendListQueue = multiprocessing.Queue(maxsize=1)
+            self.terminateEvent = multiprocessing.Event()
+            self.terminateEvent.clear()
             p = multiprocessing.Process(target=detectionProcessFunction, args=(
-                enginePath, self.recvQueue, self.sendQueue, self.recvListQueue, self.sendListQueue, H, L0, dir))
+                enginePath, self.terminateEvent, self.recvQueue, self.sendQueue, self.recvListQueue, self.sendListQueue, H, L0, dir))
             p.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
             cherrypy.engine.subscribe(
                 "distanceCalibrationFiles", self.calibrateDistance)
+
+    def emptyQueue(self, q):
+        while not q.empty():
+            q.get()
+
+    def shutdown(self):
+        self.shutdownSignal = True
+        self.terminateEvent.set()
+        # time.sleep(1)
+        self.emptyQueue(self.sendQueue)
+        self.emptyQueue(self.recvQueue)
+        self.emptyQueue(self.sendListQueue)
+        self.emptyQueue(self.recvListQueue)
+        self.sendQueue.close()
+        self.recvQueue.close()
+        self.sendListQueue.close()
+        self.recvListQueue.close()
 
     def getCurrentResolution(self, HD):
         self.HD_STREAMING = HD
@@ -80,7 +102,8 @@ class DetectionHandler(object):
 
     def calibrateDistance(self, distanceCalibrationFiles):
         cherrypy.engine.unsubscribe("csiFrame", self.updateDetections)
-        cherrypy.log("Sending calibration files: ", str(distanceCalibrationFiles))
+        cherrypy.log("Sending calibration files: ",
+                     str(distanceCalibrationFiles))
         self.sendListQueue.put(distanceCalibrationFiles)
         # timeout if not done in time
         i = 0

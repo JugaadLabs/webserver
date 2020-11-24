@@ -27,11 +27,18 @@ class ZEDStreamer:
         self.terminateEvent.clear()
         self.commandQueue = multiprocessing.Queue(maxsize=1)
         self.imageQueue = multiprocessing.Queue(maxsize=5)
+        self.shutdownSignal = False
+
+        cherrypy.engine.subscribe('shutdown', self.shutdown)
         zedProcessObject = ZEDProcess()
         proc = multiprocessing.Process(target=zedProcessObject.run, args=(
             resolution, depth, framerate, dir, recordingInterval, self.commandQueue, self.imageQueue, self.recordEvent, self.terminateEvent,))
         proc.daemon = True
         proc.start()
+
+    def shutdown(self):
+        self.shutdownSignal = True
+        self.terminateEvent.set()
 
     def startRecording(self, startTime):
         self.commandQueue.put('REC')
@@ -48,7 +55,7 @@ class ZEDStreamer:
         cherrypy.log("ZED Recording stopped")
 
     def run(self):
-        while True:
-            while not self.imageQueue.empty():
+        while not self.shutdownSignal:
+            while not self.imageQueue.empty() and not self.shutdownSignal:
                 self.lastFrame = self.imageQueue.get()
                 cherrypy.engine.publish("zedFrame", self.lastFrame)

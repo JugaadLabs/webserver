@@ -141,6 +141,12 @@ class RecordingHandler(object):
         return self.getFrame()
     stream._cp_config = {'response.stream': True}
 
+    @cherrypy.expose
+    def shutdown(self):
+        cherrypy.engine.publish('shutdown')
+        cherrypy.engine.exit()
+        return "Shutting down webserver!"
+
     def getFrame(self):
         while True:
             state = cherrypy.engine.state
