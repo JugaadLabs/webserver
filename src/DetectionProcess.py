@@ -21,13 +21,14 @@ def detectionProcessFunction(enginePath, terminateEvent, sendQueue, recvQueue, s
     minimum_visible_distance = 0.1
     distances = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0]
     while not terminateEvent.is_set():
-        if not recvListQueue.empty():
+        if not terminateEvent.is_set() and not recvListQueue.empty():
             data = recvListQueue.get()
             if type(data) is list:
                 print("Got a data", data)
                 error, H, l0 = monoDist.distance_calibration(data, distances, minimum_visible_distance, vis_thresh, nms_iou_thresh, box_area_thresh)
-                sendListQueue.put([error, H, l0])
-        if not recvQueue.empty():
+                if not terminateEvent.is_set():
+                    sendListQueue.put([error, H, l0])
+        if not terminateEvent.is_set() and not recvQueue.empty():
             data = recvQueue.get()
             if type(data) is np.ndarray:
                 img = data
@@ -39,4 +40,5 @@ def detectionProcessFunction(enginePath, terminateEvent, sendQueue, recvQueue, s
                     "selectedBboxes": selected_bboxs,
                     "bboxDistances": bbox_distances
                 }
-                sendQueue.put(dataDict)
+                if not terminateEvent.is_set():
+                    sendQueue.put(dataDict)

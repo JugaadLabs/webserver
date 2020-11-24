@@ -31,14 +31,15 @@ class ZEDStreamer:
 
         cherrypy.engine.subscribe('shutdown', self.shutdown)
         zedProcessObject = ZEDProcess()
-        proc = multiprocessing.Process(target=zedProcessObject.run, args=(
+        self.proc = multiprocessing.Process(target=zedProcessObject.run, args=(
             resolution, depth, framerate, dir, recordingInterval, self.commandQueue, self.imageQueue, self.recordEvent, self.terminateEvent,))
-        proc.daemon = True
-        proc.start()
+        self.proc.start()
 
     def shutdown(self):
         self.shutdownSignal = True
         self.terminateEvent.set()
+        self.proc.terminate()
+        self.proc.join(timeout=2)
 
     def startRecording(self, startTime):
         self.commandQueue.put('REC')

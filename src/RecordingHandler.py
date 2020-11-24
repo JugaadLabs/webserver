@@ -1,5 +1,6 @@
 from cherrypy.lib.static import serve_file
 import os
+import signal
 import sys
 import string
 import subprocess
@@ -144,8 +145,10 @@ class RecordingHandler(object):
     @cherrypy.expose
     def shutdown(self):
         cherrypy.engine.publish('shutdown')
+        time.sleep(3)
         cherrypy.engine.exit()
-        return "Shutting down webserver!"
+        os.kill(os.getpid(), signal.SIGQUIT)
+        # return "Shutting down webserver!"
 
     def getFrame(self):
         while True:
