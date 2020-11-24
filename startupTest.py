@@ -65,7 +65,7 @@ def zedTest(dir):
         zedStreamThread = threading.Thread(
             None, zedStreamer.run, daemon=True)
         zedStreamThread.start()
-    time.sleep(5)
+    time.sleep(20)
     print("ZED Test")
     zedStreamer.startRecording(datetime.datetime.now())
     for i in tqdm(range(10)):
@@ -109,7 +109,7 @@ def results(dir):
     if zedTest and svoTest and camTest and detectionTest:
         print("All tests passed! The webserver should be able to run with full functionality enabled.")
 def startupTest(dir='test'):
-    zedTest(dir)
+    # zedTest(dir)
 
     csiDevice, _ = selfTest()
 
@@ -126,18 +126,29 @@ def startupTest(dir='test'):
     DetectionHandler(
         dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"], params["detectionHandler"]["enginepath"], params["detectionHandler"]["H"], params["detectionHandler"]["L0"])
     print("Waiting for object detector to come online...")
-    time.sleep(20)
+    global detectionsReceived
+    ticks = 0
+    dt = 1
+    maxtick = 60/dt
+    # time.sleep(10)
     cherrypy.engine.subscribe('debugDetections', detectionReceiver)
-    for i in tqdm(range(10)):
-        time.sleep(1)
-    print("Total detections: "+str(detectionsReceived))
-
+    while detectionsReceived == 0 and ticks<maxtick:
+        time.sleep(dt)
+        ticks += 1
+        print("\r"+str(ticks)+'/'+str(maxtick)+' '+str(detectionsReceived),end='')
+    if detectionsReceived > 0:
+        for i in tqdm(range(10)):
+            time.sleep(1)
+        print("Total detections: "+str(detectionsReceived))
+    else:
+        print("Object detector timed out. Try running the test again.")
 def main():
     dir = './test'
     dir = os.path.abspath(dir)
     Path(dir).mkdir(parents=True, exist_ok=True)
     startupTest(dir)
     results(dir)
+    shutil.rmtree(dir)
     os.kill(os.getpid(), signal.SIGQUIT)
 
 if __name__ == "__main__":
