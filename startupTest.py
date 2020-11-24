@@ -12,6 +12,7 @@ import multiprocessing
 
 from settings import params
 import fileinput
+from tqdm import tqdm
 
 from src.FilesHandler import FilesHandler
 from src.RecordingHandler import RecordingHandler
@@ -90,6 +91,11 @@ def startupTest(dir='.'):
     FilesHandler(dir)
     TestHandler()
     DocuHandler()
+
+    csiStreamer.startRecording(0)
+    for i in tqdm(range(10)):
+        time.sleep(1)
+    csiStreamer.stopRecording()
 
 
 def main():
