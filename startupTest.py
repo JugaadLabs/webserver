@@ -2,6 +2,7 @@ import cv2
 import netifaces as ni
 from pathlib import Path
 import os
+import signal
 import sys
 import string
 import subprocess
@@ -9,20 +10,15 @@ import time
 import traceback
 import threading
 import multiprocessing
-
+import datetime
+import cherrypy
 from settings import params
 import fileinput
 from tqdm import tqdm
-
-from src.FilesHandler import FilesHandler
-from src.RecordingHandler import RecordingHandler
-from src.BarcodeHandler import BarcodeHandler
-from src.TestHandler import TestHandler
+import re
+import shutil
 from src.CSIStreamer import CSIStreamer
-from src.DocuHandler import DocuHandler
-from src.WebSocketHandler import WebSocketHandler
 from src.DetectionHandler import DetectionHandler
-from src.DisabledHandler import DisabledHandler
 
 ZED_ENABLED = True
 try:
@@ -59,19 +55,7 @@ def selfTest():
     return csi, zed
 
 
-def startupTest(dir='.'):
-    dir = os.path.abspath(dir)
-    Path(dir).mkdir(parents=True, exist_ok=True)
-
-    zedStatus = False
-    csiDevice, zedStatus = selfTest()
-
-    csiStatus = True if csiDevice != -1 else False
-
-    csiFrameLock = threading.Lock()
-    csiStreamer = CSIStreamer(csiFrameLock, dir, params["csiStreamer"]["recordingInterval"], csiDevice, params["csiStreamer"]
-                              ["stdResolution"], params["csiStreamer"]["hdResolution"], params["csiStreamer"]["recordingResolution"], params["csiStreamer"]["framerate"])
-
+def zedTest(dir):
     zedFrameLock = None
     zedStreamer = None
     if ZED_ENABLED:
@@ -81,25 +65,80 @@ def startupTest(dir='.'):
         zedStreamThread = threading.Thread(
             None, zedStreamer.run, daemon=True)
         zedStreamThread.start()
+    time.sleep(5)
+    print("ZED Test")
+    zedStreamer.startRecording(datetime.datetime.now())
+    for i in tqdm(range(10)):
+        time.sleep(1)
+    zedStreamer.stopRecording()
+    zedStreamer.terminateEvent.set()
 
-    RecordingHandler(
-        dir, csiStreamer, zedStreamer, csiStatus, zedStatus, 0, params["recordingHandler"]["previewResolution"], params["recordingHandler"]["zedPreviewResolution"])
-    BarcodeHandler(dir, params["barcodeHandler"]["crop"], params["barcodeHandler"]["timeout"],
-                   params["barcodeHandler"]["previewResolution"], params["barcodeHandler"]["recordingResolution"])
-    DetectionHandler(
-        dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"], params["detectionHandler"]["enginepath"], params["detectionHandler"]["H"], params["detectionHandler"]["L0"])
-    FilesHandler(dir)
-    TestHandler()
-    DocuHandler()
 
+detectionsReceived = 0
+
+
+def detectionReceiver(detectionDict):
+    global detectionsReceived
+    detectionsReceived += 1
+    assert('img' in detectionDict)
+    assert('birdsView' in detectionDict)
+    assert('selectedBboxes' in detectionDict)
+    assert('bboxDistances' in detectionDict)
+
+
+def results(dir):
+    global detectionsReceived
+    print("Results\n=========")
+    files = os.listdir(dir)
+    r = re.compile('.*avi')
+    aviFiles = list(filter(r.match, files))
+    r = re.compile('.*svo')
+    svoFiles = list(filter(r.match, files))
+    r = re.compile('.*pkl')
+    pklFiles = list(filter(r.match, files))
+    svoTest = False
+    zedTest = False
+    if ZED_ENABLED:
+        zedTest = True
+        if (len(svoFiles)>0):
+            svoTest = True
+    camTest = True if (len(aviFiles) > 0 and len(pklFiles) > 0) else False
+    detectionTest = True if detectionsReceived > 0 else False
+
+    print("ZED Detected: %s\nSVO File Created: %s\nCamera Test: %s\nObject Detector Test: %s" % (zedTest, svoTest, camTest, detectionTest))
+    if zedTest and svoTest and camTest and detectionTest:
+        print("All tests passed! The webserver should be able to run with full functionality enabled.")
+def startupTest(dir='test'):
+    zedTest(dir)
+
+    csiDevice, _ = selfTest()
+
+    csiFrameLock = threading.Lock()
+    csiStreamer = CSIStreamer(csiFrameLock, dir, params["csiStreamer"]["recordingInterval"], csiDevice, params["csiStreamer"]
+                              ["stdResolution"], params["csiStreamer"]["hdResolution"], params["csiStreamer"]["recordingResolution"], params["csiStreamer"]["framerate"])
+    time.sleep(5)
+    print("CSI Test")
     csiStreamer.startRecording(0)
     for i in tqdm(range(10)):
         time.sleep(1)
     csiStreamer.stopRecording()
 
+    DetectionHandler(
+        dir, params["detectionHandler"]["framerate"], params["detectionHandler"]["recordingResolution"], params["detectionHandler"]["enginepath"], params["detectionHandler"]["H"], params["detectionHandler"]["L0"])
+    print("Waiting for object detector to come online...")
+    time.sleep(20)
+    cherrypy.engine.subscribe('debugDetections', detectionReceiver)
+    for i in tqdm(range(10)):
+        time.sleep(1)
+    print("Total detections: "+str(detectionsReceived))
 
 def main():
-    startupTest()
+    dir = './test'
+    dir = os.path.abspath(dir)
+    Path(dir).mkdir(parents=True, exist_ok=True)
+    startupTest(dir)
+    results(dir)
+    os.kill(os.getpid(), signal.SIGQUIT)
 
 if __name__ == "__main__":
     main()

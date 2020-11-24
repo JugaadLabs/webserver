@@ -113,7 +113,7 @@ class DetectionHandler(object):
             self.currentBirdsEyeFrame = detectionsDict['birdsView']
             self.selectedBboxes = detectionsDict['selectedBboxes']
             self.bboxDistances = detectionsDict['bboxDistances']
-
+            cherrypy.engine.publish('debugDetections', detectionsDict)
             if self.recorder.RECORDING:
                 timestamp = time.time()
                 dataDict = {

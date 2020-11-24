@@ -89,6 +89,7 @@ class ZEDProcess:
             # PAUSE is currently ignored, since disabling cam.grab would disable the stream
             if recordEvent.is_set():
                 self.recordFrame()
+        print("Terminating ZED Process")
         if recordEvent.is_set() == True:
             self.cam.disable_recording()
         self.cam.close()

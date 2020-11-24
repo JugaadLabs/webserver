@@ -37,6 +37,7 @@ class ZEDStreamer:
         self.commandQueue.put('REC')
         startTimeString = startTime.strftime("ZED_%Y-%m-%d-%H-%M-%S")
         self.filename = startTimeString
+        cherrypy.log("Recording to: " + self.filename)
 
     def isRecording(self):
         time.sleep(0.15)
@@ -44,6 +45,7 @@ class ZEDStreamer:
 
     def stopRecording(self):
         self.commandQueue.put('STOP')
+        cherrypy.log("ZED Recording stopped")
 
     def run(self):
         while True:
