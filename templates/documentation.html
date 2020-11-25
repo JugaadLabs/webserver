@@ -2,8 +2,8 @@
 <p>This project allows one to remotely record timestamped video data from a V4L2 camera and the ZED stereo camera simultaneously. It targets the NVIDIA Jetson Xavier, but should work fine with any computer with an NVIDIA graphics card which supports the ZED camera. If you don’t have the ZED camera attached or <code>pysdk</code> installed, the server falls back to serving a video stream from a V4L2 device. It has been tested to work on the Raspberry Pi for streaming video using the Raspberry Pi camera.</p>
 <p>A video tutorial of using the dashboard can be found <a href="https://youtu.be/_Sp9WvgxLE0">here</a>.</p>
 <h2 id="install">Install</h2>
-<p>Switch the Jetson Xavier NX to using 15W 2 Core mode for the best performance:</p>
-<pre><code>sudo nvpmodel -m 0</code></pre>
+<p>Switch the Jetson Xavier NX to using 15W 6 Core mode for the best performance:</p>
+<pre><code>sudo nvpmodel -m 2</code></pre>
 <p>Download the project using:</p>
 <pre><code>git clone https://github.com/JugaadLabs/webserver.git</code></pre>
 <p>Install the Python dependencies by running:</p>
@@ -14,8 +14,10 @@
 <h2 id="usage">Usage</h2>
 <p>This project uses a CherryPy webserver for remotely receiving commands using HTTP GET calls. Make sure your Xavier NX is running Jetpack 4.4 Developer Preview for use with the e-Con camera. The e-Con camera is a V4L2 device and you can find which device it is by checking the output of <code>v4l2-ctl --list-devices</code>.</p>
 <h3 id="server">Server</h3>
-<p>On the NVIDIA Jetson, the server can be started directly by using:</p>
-<pre><code>./jetsonStart.sh</code></pre>
+<p>On the NVIDIA Jetson, the server can be started directly by using either:</p>
+<pre><code>./webserverFull.sh # loads all features, lower FPS recording performance</code></pre>
+<p>or</p>
+<pre><code>./webserverRecording.sh # disables object and barcode detection, higher recording performance</code></pre>
 <p>Otherwise start the webserver by running:</p>
 <pre><code>python3 webserver.py &lt;INTERFACE=&#39;lo&#39;&gt; &lt;PORT=8000&gt; &lt;RECORDING_DIR=&#39;.&#39;&gt; &lt;V4L2_DEVICE=-1&gt;</code></pre>
 <p>The <code>interface</code> argument is the network interface on which you want to run the webserver. Examples include <code>wlan0</code>, <code>lo</code>, and <code>l4tbr0</code> on the NVIDIA Jetson. The web server serves the page based on the IP address of the interface. The <code>RECORDING_DIR</code> argument is for choosing the folder to save the videos and images recorded by the cameras. The folder will be created if it doesn’t already exist. The AR0591 camera module or any V4L2 webcam is auto-detected by default, but can also be specified in an argument. An example launch command where the camera is connected on <code>/dev/video1</code> is:</p>
@@ -31,12 +33,17 @@
 <p><img src="vendor/screenshots/data.png" /></p>
 <p>This utility allows the user to record data from the Mono camera and the ZED depth camera simultaneously. Slide the toggle switch to apply the “Record” or “Stop” button on either one, or both of the cameras. By default, both cameras will record simultaneously. In case the ZED depth camera is not connected, only the view from the Mono camera will be shown. To reduce the chances of data corruption, a new file is created every five minutes when recording video.</p>
 <p>The recorder records the video in the AVI file format. Each frame of the video is timestamped. The timestamps can be found in the Pickle file with the same filename as the video. Refer to <code>analysis/dataprocess.ipynb</code> for processing these files.</p>
-<h3 id="intrinsic-calibration">Intrinsic Calibration</h3>
+<h3 id="calibration">Calibration</h3>
 <p><img src="vendor/screenshots/calibration.png" /></p>
-<p>This utility allows the user to capture pictures from the Mono camera and the ZED depth camera simultaneously for the purposes of intrinsic calibration. Press the “Capture Image” button to take a picture with both cameras. In case the ZED depth camera is not connected, only the view from the Mono camera will be shown.</p>
+<p>This utility allows the user to capture pictures from the Mono camera and the ZED depth camera simultaneously for the purposes of intrinsic calibration and distance.</p>
+<h4 id="intrinsic">Intrinsic</h4>
+<p>Press the “Capture Image” button to take a picture with both cameras. In case the ZED depth camera is not connected, only the view from the Mono camera will be shown.</p>
+<h4 id="distance">Distance</h4>
+<p>Follow the instructions given on the webpage for distance calibration. The person must be standing at the correct distance before pressing the corresponding button for distance calibration. Once done, press the “Calibrate Distance” button which will provide the results of the distance calibration procedure.</p>
 <h3 id="barcode-detector">Barcode Detector</h3>
 <p><img src="vendor/screenshots/barcode.png" /></p>
 <p>This utility allows the user to read barcodes and record the video feed and the barcode data to a file. The barcodes are scanned in realtime and the detected values can be seen in the Barcode Detections panel. The user can use the Recording and Stop button to record an AVI file and an accompanying Pickle file with the same filename as the video. This Pickle file will have data about the barcodes detected at each frame with the timestamp.</p>
+<p>Pressing the 5MP button will switch the camera to 5MP mode to increase the accuracy of detected barcodes. The camera will revert to 0.3MP when any other page is loaded.</p>
 <h3 id="object-detector">Object Detector</h3>
 <p><img src="vendor/screenshots/detector.png" /></p>
 <p>This utility allows the user to detect objects in realtime and record the video feed and the detected objects data to a file. The objects are processed in realtime and the detected values can be seen in the Object Detections panel. Currently three classes the classifier can detect - person, forklift, and pallet. The Birds Eye View panel gives a visual indication of the position of the objects with respect to the camera.</p>
