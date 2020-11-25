@@ -45,9 +45,9 @@ class DetectionHandler(object):
         self.templates = Templates()
         self.HD_STREAMING = False
         self.shutdownSignal = False
-        cherrypy.engine.subscribe('shutdown', self.shutdown)
 
         if TENSORRT_ENABLED:
+            cherrypy.engine.subscribe('shutdown', self.shutdown)
             cherrypy.engine.subscribe(
                 "hdResolution", self.getCurrentResolution)
             self.inputResolution = (480, 640)
@@ -69,9 +69,9 @@ class DetectionHandler(object):
             self.sendListQueue = multiprocessing.Queue(maxsize=1)
             self.terminateEvent = multiprocessing.Event()
             self.terminateEvent.clear()
-            p = multiprocessing.Process(target=detectionProcessFunction, args=(
+            self.proc = multiprocessing.Process(target=detectionProcessFunction, args=(
                 enginePath, self.terminateEvent, self.recvQueue, self.sendQueue, self.recvListQueue, self.sendListQueue, H, L0, dir))
-            p.start()
+            self.proc.start()
             cherrypy.engine.subscribe("csiFrame", self.updateDetections)
             cherrypy.engine.subscribe(
                 "distanceCalibrationFiles", self.calibrateDistance)
@@ -92,6 +92,8 @@ class DetectionHandler(object):
         self.recvQueue.close()
         self.sendListQueue.close()
         self.recvListQueue.close()
+        self.proc.terminate()
+        self.proc.join(timeout=2)
 
     def getCurrentResolution(self, HD):
         self.HD_STREAMING = HD
@@ -128,9 +130,9 @@ class DetectionHandler(object):
             return
         resized = cv2.resize(
             image, (self.inputResolution), cv2.INTER_AREA)
-
-        self.sendQueue.put(resized)
-        while not self.recvQueue.empty():
+        if not self.shutdownSignal:
+            self.sendQueue.put(resized)
+        while not self.recvQueue.empty() and not self.shutdownSignal:
             detectionsDict = self.recvQueue.get()
             self.currentDetectionFrame = detectionsDict['img']
             self.currentBirdsEyeFrame = detectionsDict['birdsView']

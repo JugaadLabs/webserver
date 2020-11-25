@@ -72,7 +72,7 @@ class ZEDProcess:
         if self.cam == None:
             print("ZED Error, terminating process.")
             return
-        print("Running ZED Process!")
+        print("Running ZED Process!", os.getpid())
         threading.Thread(target=self.commandLoop).start()
         sys.stdout.flush()
         while not terminateEvent.is_set():
@@ -90,6 +90,7 @@ class ZEDProcess:
             if recordEvent.is_set():
                 self.recordFrame()
         print("Terminating ZED Process")
+        imageQueue.close()
         if recordEvent.is_set() == True:
             self.cam.disable_recording()
         self.cam.close()
