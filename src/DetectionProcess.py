@@ -14,7 +14,7 @@ def detectionProcessFunction(enginePath, terminateEvent, sendQueue, recvQueue, s
     box_area_thresh = 500
     monoDist = monoDistance(
         inputResolution, birdsEyeResolution, enginePath, detection_class_name_8cls, np.array(range(8)), H, L0, calibrationDir)
-    print("Running Object Detector Process!")
+    print("Running Object Detector Process! ", os.getpid())
     vis_thresh = [0.35, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
     nms_iou_thresh = 0.3
     box_area_thresh = 300
