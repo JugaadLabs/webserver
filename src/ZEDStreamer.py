@@ -13,7 +13,7 @@ from src.ZEDProcess import ZEDProcess
 
 
 class ZEDStreamer:
-    def __init__(self, frameLock, dir, recordingInterval, resolution, depth, framerate):
+    def __init__(self, dir, recordingInterval, resolution, depth, framerate):
         self.filename = ""
         self.lastFrame = None
         try:

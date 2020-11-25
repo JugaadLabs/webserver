@@ -13,14 +13,13 @@ from src.CSIRecorder import CSIRecorder
 
 
 class CSIStreamer:
-    def __init__(self, frameLock, dir, recordingInterval, device, stdResolution, hdResolution, recordingResolution, framerate):
+    def __init__(self, dir, recordingInterval, device, stdResolution, hdResolution, recordingResolution, framerate):
         self.device = device
         self.stdResolution = stdResolution
         self.hdResolution = hdResolution
         self.cap = None
         self.lastFrame = None
         self.lastTimestamp = time.time()
-        self.frameLock = frameLock
         self.recorder = CSIRecorder(dir, recordingResolution, framerate, "CSI", recordingInterval)
         # self.cap = cv2.VideoCapture(self.device)
         self.shutdownSignal = False
@@ -62,11 +61,9 @@ class CSIStreamer:
             state = cherrypy.engine.state
             ret, frame = self.cap.read()
 
-            self.frameLock.acquire()
             self.lastFrame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
             cherrypy.engine.publish("csiFrame", self.lastFrame)
             self.lastTimestamp = time.time()
-            self.frameLock.release()
             if self.recorder.RECORDING == True:
                 self.recorder.recordData(self.lastFrame, self.lastTimestamp)
         self.stopRecording()

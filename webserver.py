@@ -108,17 +108,15 @@ class Server(object):
 
         csiStatus = True if csiDevice != -1 else False
 
-        csiFrameLock = threading.Lock()
-        csiStreamer = CSIStreamer(csiFrameLock, dir, params["csiStreamer"]["recordingInterval"], csiDevice, params["csiStreamer"]
+        csiStreamer = CSIStreamer(dir, params["csiStreamer"]["recordingInterval"], csiDevice, params["csiStreamer"]
                                   ["stdResolution"], params["csiStreamer"]["hdResolution"], params["csiStreamer"]["recordingResolution"], params["csiStreamer"]["framerate"])
         # threading.Thread(None, csiStreamer.run).start()
 
-        zedFrameLock = None
         zedStreamer = None
 
         if ZED_ENABLED:
             zedFrameLock = threading.Lock()
-            zedStreamer = ZEDStreamer(zedFrameLock, dir, params["zedStreamer"]["recordingInterval"], params["zedStreamer"]
+            zedStreamer = ZEDStreamer(dir, params["zedStreamer"]["recordingInterval"], params["zedStreamer"]
                                       ["resolution"], params["zedStreamer"]["depth"], params["zedStreamer"]["framerate"])
             zedStreamThread = threading.Thread(
                 None, zedStreamer.run, daemon=True)
