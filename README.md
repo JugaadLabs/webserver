@@ -38,10 +38,16 @@ This project uses a CherryPy webserver for remotely receiving commands using HTT
 
 ### Server
 
-On the NVIDIA Jetson, the server can be started directly by using:
+On the NVIDIA Jetson, the server can be started directly by using either:
 
 ```
-./jetsonStart.sh
+./webserverFull.sh # loads all features, lower FPS recording performance
+```
+
+or
+
+```
+./webserverRecording.sh # disables object and barcode detection, higher recording performance
 ```
 
 Otherwise start the webserver by running:
@@ -78,17 +84,27 @@ This utility allows the user to record data from the Mono camera and the ZED dep
 
 The recorder records the video in the AVI file format. Each frame of the video is timestamped. The timestamps can be found in the Pickle file with the same filename as the video. Refer to `analysis/dataprocess.ipynb` for processing these files.
 
-### Intrinsic Calibration
+### Calibration
 
 ![](vendor/screenshots/calibration.png)
 
-This utility allows the user to capture pictures from the Mono camera and the ZED depth camera simultaneously for the purposes of intrinsic calibration. Press the "Capture Image" button to take a picture with both cameras. In case the ZED depth camera is not connected, only the view from the Mono camera will be shown.
+This utility allows the user to capture pictures from the Mono camera and the ZED depth camera simultaneously for the purposes of intrinsic calibration and distance.
+
+#### Intrinsic
+
+Press the "Capture Image" button to take a picture with both cameras. In case the ZED depth camera is not connected, only the view from the Mono camera will be shown.
+
+#### Distance
+
+Follow the instructions given on the webpage for distance calibration. The person must be standing at the correct distance before pressing the corresponding button for distance calibration. Once done, press the "Calibrate Distance" button which will provide the results of the distance calibration procedure.
 
 ### Barcode Detector
 
 ![](vendor/screenshots/barcode.png)
 
 This utility allows the user to read barcodes and record the video feed and the barcode data to a file. The barcodes are scanned in realtime and the detected values can be seen in the Barcode Detections panel. The user can use the Recording and Stop button to record an AVI file and an accompanying Pickle file with the same filename as the video. This Pickle file will have data about the barcodes detected at each frame with the timestamp.
+
+Pressing the 5MP button will switch the camera to 5MP mode to increase the accuracy of detected barcodes. The camera will revert to 0.3MP when any other page is loaded.
 
 ### Object Detector
 
