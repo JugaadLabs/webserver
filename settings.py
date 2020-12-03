@@ -35,5 +35,5 @@ params["detectionHandler"] = {}
 params["detectionHandler"]["framerate"] = 9
 params["detectionHandler"]["recordingResolution"] = (480, 640)
 params["detectionHandler"]["enginepath"] = "/home/nvidia/webserver/src/uilts/forklift_68fds_8cls_1.trt"
-params["detectionHandler"]["H"] = 2.016593866488974
-params["detectionHandler"]["L0"] = 0.32991333434450315
+params["detectionHandler"]["H"] = 1.96133177
+params["detectionHandler"]["L0"] = 0.36680308

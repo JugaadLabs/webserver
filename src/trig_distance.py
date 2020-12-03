@@ -309,11 +309,12 @@ class monoDistance():
             if selected_bboxs.shape[0] > 0:
                 for obj_ind in range(selected_bboxs.shape[0]):
                     center_x = (selected_bboxs[0, 0] + selected_bboxs[0, 2]) / 2
-                    # print(center_x)
+                    print(center_x)
                     if center_x < 280 and center_x > 200:
                         pixel_pos.append(selected_bboxs[0, 3])
                         calibration_error = 0
                         break
+                calibration_error = 0 if calibration_error == 0 else -ind
             else:
                 print('Person at {} m is not detected.'.format(distances[ind]))
 
@@ -322,6 +323,7 @@ class monoDistance():
             l_0 = x[1]
             input_h = 640
             f_y = 323.30
+            print(x,t,y)
             return H / np.tan( np.arctan(H / l_0) - np.arctan(input_h/2/f_y) + np.arctan((t - input_h / 2)/f_y)) - y - l_0
 
         t_train = np.array(pixel_pos)
@@ -329,7 +331,7 @@ class monoDistance():
         print('t_train', t_train)
         print('y_train', y_train)
 
-        if calibration_error == 0:
+        if calibration_error == 0 and t_train.shape == y_train.shape:
             res_robust = least_squares(distance_model, x0, loss='soft_l1', f_scale=0.1, args=(t_train, y_train))
             print(res_robust.x)
             if np.abs(res_robust.x[0] - x0[0]) > 0.3 or np.abs(res_robust.x[1] - x0[1]) > 0.2:
