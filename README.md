@@ -53,7 +53,7 @@ or
 Otherwise start the webserver by running:
 
 ```
-python3 webserver.py <INTERFACE='lo'> <PORT=8000> <RECORDING_DIR='.'> <V4L2_DEVICE=-1>
+python3 webserver.py <INTERFACE='lo'> <PORT=8000> <RECORDING_DIR='.'> <OBJECT_DETECTION=0> <V4L2_DEVICE=-1>
 ```
 
 The `interface` argument is the network interface on which you want to run the webserver. Examples include `wlan0`, `lo`, and `l4tbr0` on the NVIDIA Jetson. The web server serves the page based on the IP address of the interface. The `RECORDING_DIR` argument is for choosing the folder to save the videos and images recorded by the cameras. The folder will be created if it doesn't already exist. The AR0591 camera module or any V4L2 webcam is auto-detected by default, but can also be specified in an argument. An example launch command where the camera is connected on `/dev/video1` is:
