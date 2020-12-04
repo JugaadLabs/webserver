@@ -12,7 +12,6 @@ import threading
 import cherrypy
 import jinja2
 import multiprocessing
-from tqdm import tqdm
 
 from settings import params
 import fileinput
@@ -159,7 +158,9 @@ def changeSetting(key, value):
 
 def get_ip_address(interface):
     print('Waiting for interface to come online')
-    for i in tqdm(range(120)):
+    timeout = 120
+    for i in range(timeout):
+        print("Waiting %d/%d seconds\r"%(i,timeout),end='')
         if ni.AF_INET in ni.ifaddresses(interface):
             return ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
         time.sleep(1)
