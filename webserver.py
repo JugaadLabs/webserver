@@ -12,6 +12,7 @@ import threading
 import cherrypy
 import jinja2
 import multiprocessing
+from tqdm import tqdm
 
 from settings import params
 import fileinput
@@ -156,28 +157,39 @@ def changeSetting(key, value):
             print(line, end='')
 
 
+def get_ip_address(interface):
+    print('Waiting for interface to come online')
+    for i in tqdm(range(120)):
+        if ni.AF_INET in ni.ifaddresses(interface):
+            return ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
+        time.sleep(1)
+    return None
+
+
 def main():
     server = Server()
     cherrypy.engine.subscribe("changeSetting", changeSetting)
+    ipaddr = None
+    if len(sys.argv) > 1:
+        ipaddr = get_ip_address(sys.argv[1])
+        if ipaddr is None:
+            print('Interface not online, shutting down')
+            return
+        print('Interface %s online. Your IP is %s.' % (sys.argv[1], ipaddr))
     if len(sys.argv) == 6:
-        ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
-        server.run(ip, int(sys.argv[2]), sys.argv[3],
+        server.run(ipaddr, int(sys.argv[2]), sys.argv[3],
                    int(sys.argv[4]), int(sys.argv[5]))
     if len(sys.argv) == 5:
-        ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
-        server.run(ip, int(sys.argv[2]), sys.argv[3], int(sys.argv[4]))
+        server.run(ipaddr, int(sys.argv[2]), sys.argv[3], int(sys.argv[4]))
     if len(sys.argv) == 4:
-        ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
-        server.run(ip, int(sys.argv[2]), sys.argv[3])
+        server.run(ipaddr, int(sys.argv[2]), sys.argv[3])
     if len(sys.argv) == 3:
-        ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
-        server.run(ip, int(sys.argv[2]))
+        server.run(ipaddr, int(sys.argv[2]))
     if len(sys.argv) == 2:
-        ip = ni.ifaddresses(sys.argv[1])[ni.AF_INET][0]['addr']
-        server.run(ip)
+        server.run(ipaddr)
     else:
-        ip = ni.ifaddresses('lo')[ni.AF_INET][0]['addr']
-        server.run(ip)
+        ipaddr = get_ip_address('lo')
+        server.run(ipaddr)
 
 
 if __name__ == "__main__":

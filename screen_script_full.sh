@@ -1,3 +1,2 @@
 cd /home/nvidia/webserver
-sleep 20
-screen -dmS webserver sh webserverFull.sh
+screen -L -Logfile /home/nvidia/web_server_screen_log -dmS webserver sh webserverFull.sh
