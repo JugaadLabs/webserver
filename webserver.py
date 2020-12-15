@@ -115,7 +115,6 @@ class Server(object):
         zedStreamer = None
 
         if ZED_ENABLED:
-            zedFrameLock = threading.Lock()
             zedStreamer = ZEDStreamer(dir, params["zedStreamer"]["recordingInterval"], params["zedStreamer"]
                                       ["resolution"], params["zedStreamer"]["depth"], params["zedStreamer"]["framerate"])
             zedStreamThread = threading.Thread(
